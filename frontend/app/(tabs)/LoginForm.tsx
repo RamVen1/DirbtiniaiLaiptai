@@ -1,19 +1,31 @@
 import React from 'react';
+import { View, Text, TextInput } from 'react-native';
+import { Button } from '@/components/ui/button';
 
-const LoginForm: React.FC = () => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Logging in...");
-  };
-
+export default function LoginForm() {
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      <h2>Welcome!</h2>
-      <input type="email" placeholder="Email" required />
-      <input type="password" placeholder="Password" required />
-      <button type="submit">Log in</button>
-    </form>
-  );
-};
+    <View className="gap-y-4">
+      <View>
+        <Text className="text-lg mb-2">Email</Text>
+        <TextInput 
+          className="border-2 border-black rounded-xl p-4 text-lg"
+          placeholder="example@mail.com"
+          keyboardType="email-address"
+        />
+      </View>
+      
+      <View>
+        <Text className="text-lg mb-2">Password</Text>
+        <TextInput 
+          className="border-2 border-black rounded-xl p-4 text-lg"
+          placeholder="********"
+          secureTextEntry
+        />
+      </View>
 
-export default LoginForm;
+      <Button className="mt-6 bg-black h-14 rounded-2xl active:bg-purple-900">
+        <Text className="text-white text-xl font-semibold">Log in</Text>
+      </Button>
+    </View>
+  );
+}

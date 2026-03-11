@@ -7,6 +7,7 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Entypo from '@expo/vector-icons/Entypo';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -33,12 +34,21 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome6 size={28} name="fire" color={color} />,
         }}
       />
+      
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
           // <Ionicons name="person" size={24} color="black" />
           tabBarIcon: ({ color }) => <Ionicons size={28} name="person" color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="MiniReport"
+        options={{
+          title: 'Report',
+          // <Ionicons name="person" size={24} color="black" />
+          tabBarIcon: ({ color }) => <Entypo size={28} name="open-book" color={color} />,
         }}
       />
     </Tabs>

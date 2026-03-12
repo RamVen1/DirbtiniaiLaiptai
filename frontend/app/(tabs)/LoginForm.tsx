@@ -4,28 +4,35 @@ import { Button } from '@/components/ui/button';
 
 export default function LoginForm() {
   return (
-    <View className="gap-y-4">
+    /* Išcentruojame konteinerį ir apribojame plotį iki 350px, kad nebūtų ištempta */
+    <View className="gap-y-6 w-full max-w-[350px] self-center">
+      
       <View>
-        <Text className="text-lg mb-2">Email</Text>
+        <Text className="text-lg mb-2 text-white font-medium">Email</Text>
         <TextInput 
-          className="border-2 border-black rounded-xl p-4 text-lg"
+          className="border-2 border-white rounded-2xl p-4 text-lg text-white"
           placeholder="example@mail.com"
+          placeholderTextColor="#9ca3af" // Pilkšva spalva, kad matytųsi ant tamsaus fono
           keyboardType="email-address"
+          autoCapitalize="none"
         />
       </View>
       
       <View>
-        <Text className="text-lg mb-2">Password</Text>
+        <Text className="text-lg mb-2 text-white font-medium">Password</Text>
         <TextInput 
-          className="border-2 border-black rounded-xl p-4 text-lg"
+          className="border-2 border-white rounded-2xl p-4 text-lg text-white"
           placeholder="********"
+          placeholderTextColor="#9ca3af"
           secureTextEntry
         />
       </View>
 
-      <Button className="mt-6 bg-black h-14 rounded-2xl active:bg-purple-900">
-        <Text className="text-white text-xl font-semibold">Log in</Text>
+      {/* Mygtukas dabar bus baltas su juodu tekstu, kad kontrastuotų su juodu fonu */}
+      <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400">
+        <Text className="text-black text-xl font-bold">Log in</Text>
       </Button>
+      
     </View>
   );
 }

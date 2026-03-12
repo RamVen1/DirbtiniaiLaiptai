@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { Button } from '@/components/ui/button';
-
+import { router } from 'expo-router';
 export default function LoginForm() {
   return (
     /* Išcentruojame konteinerį ir apribojame plotį iki 350px, kad nebūtų ištempta */
@@ -29,10 +29,12 @@ export default function LoginForm() {
       </View>
 
       {/* Mygtukas dabar bus baltas su juodu tekstu, kad kontrastuotų su juodu fonu */}
-      <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400">
+      <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400" onPress={() => router.replace('/(tabs)')}>
         <Text className="text-black text-xl font-bold">Log in</Text>
       </Button>
-      
+       <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400" onPress={() => router.push('/RegisterForm')}>
+        <Text className="text-black text-xl font-bold">Register</Text>
+      </Button>
     </View>
   );
 }

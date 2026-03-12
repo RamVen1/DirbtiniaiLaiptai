@@ -27,15 +27,15 @@ export default function MiniReport() {
                 <Text className="text-5xl font-semibold mb-6">Weekly Report</Text>
 
                 {/* STREAK CARD */}
-                <View className="items-center bg-orange-100 rounded-3xl p-6 mb-6">
-                    <Ionicons name="flame-sharp" size={70} color="orange" />
-                    <Text className="text-4xl font-bold mt-2">5 Days</Text>
+                <View className="items-center border-black bg-white mb-6 rounded-2xl border p-5">
+                    <Ionicons name="flame-sharp" size={70} color="black" />
+                    <Text className="text-3xl font-bold mt-2">5 Days</Text>
                     <Text className="text-gray-600">Current streak</Text>
                 </View>
 
                 {/* PIE CHART CARD */}
-                <View className="items-center bg-orange-100 rounded-3xl p-6 mb-6">
-                    <Text className="text-lg font-semibold mb-2">Completed tasks</Text>
+                <View className="items-center border-black bg-white mb-6 rounded-2xl border p-5">
+                    <Text className="text-3xl font-bold mt-2">Completed tasks</Text>
                     <PieChart
                         data={data}
                         width={screenWidth - 40}
@@ -54,9 +54,9 @@ export default function MiniReport() {
                 </View>
 
                 {/* Another PIE CHART CARD */}
-                <View className="items-center bg-orange-100 rounded-3xl p-6 mb-6">
+                <View className="items-center border-black bg-white mb-6 rounded-2xl border p-5">
                     <View className="items-center mb-6">
-                        <Text className="text-lg font-semibold mb-2">Progress</Text>
+                        <Text className="text-3xl font-bold mt-2">Progress</Text>
                         <LineChart
                             data={{
                                 labels: labels,

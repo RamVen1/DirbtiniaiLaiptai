@@ -43,14 +43,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons size={28} name="person" color={color} />,
         }}
       />
-       <Tabs.Screen
-        name="MiniReport"
-        options={{
-          title: 'Report',
-          // <Ionicons name="person" size={24} color="black" />
-          tabBarIcon: ({ color }) => <Entypo size={28} name="open-book" color={color} />,
-        }}
-      />
+       
     </Tabs>
   );
 }

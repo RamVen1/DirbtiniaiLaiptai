@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, ScrollView } from 'react-native';
 import { Button } from '@/components/ui/button';
-
+import { router } from 'expo-router';
 export default function RegisterForm() {
   return (
     <ScrollView 
@@ -43,7 +43,7 @@ export default function RegisterForm() {
         </View>
 
         {/* Kontrastingas mygtukas: Baltas fonas, juodas tekstas */}
-        <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400 border-none">
+        <Button className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400 border-none" onPress={() => router.push('/join-group')}>
           <Text className="text-black text-xl font-bold">Create account</Text>
         </Button>
 

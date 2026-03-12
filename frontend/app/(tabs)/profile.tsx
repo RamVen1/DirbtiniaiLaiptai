@@ -1,6 +1,7 @@
 import { View, Text, FlatList } from 'react-native';
 import { Button } from '@/components/ui/button';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   return (
@@ -27,6 +28,9 @@ export default function ProfileScreen() {
           renderItem={({ item }) => <Text className="text-base font-thin mb-1">{'•' + item.key}</Text>}
         />
       </View>
+      <Button className="mt-4 bg-black h-14 rounded-2xl active:bg-purple-400" onPress={() => router.push('/LoginForm')}>
+        <Text className="text-white text-xl font-bold">Log out</Text>
+      </Button>
     </View>
   );
 }

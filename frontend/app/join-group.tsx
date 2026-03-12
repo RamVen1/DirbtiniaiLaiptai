@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Text, View, TextInput } from 'react-native';
 import { Button } from '@/components/ui/button';
+import { router } from 'expo-router';
 
 export default function JoinGroupScreen() {
   const [input, setInput] = useState('');
@@ -15,7 +16,8 @@ export default function JoinGroupScreen() {
           placeholder="Group code e.g. 3XHG8"
           maxLength={5}
         />
-        <Button className="mt-3 bg-white border-black border-2 hover:bg-purple-400  active:bg-purple-900">
+        <Button className="mt-3 bg-white border-black border-2 hover:bg-purple-400  active:bg-purple-900"
+        onPress={() => router.push('/LoginForm')}>
           <Text>Join</Text>
         </Button>
       </View>

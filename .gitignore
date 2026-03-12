@@ -1,1 +1,13 @@
 .DS_Store
+
+# Secrets
+.env
+.env.local
+
+# Databases
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+venv/

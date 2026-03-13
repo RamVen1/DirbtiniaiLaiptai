@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import {Button} from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { router } from 'expo-router';
 export default function HomeScreen() {
@@ -11,8 +11,11 @@ export default function HomeScreen() {
         <Progress value={0} className="mb-2 h-3" />
         <Text className="text-black">33% completed</Text>
       </View>
-    
-       <Button className="mt-4 bg-black h-14 rounded-2xl active:bg-purple-400" onPress={() => router.push('/MiniReport')}>
+
+      <Button
+        className="mt-4 bg-black h-14 rounded-2xl active:bg-purple-400"
+        onPress={() => router.push('/MiniReport')}
+      >
         <Text className="text-white text-xl font-bold">View weekly report</Text>
       </Button>
     </View>

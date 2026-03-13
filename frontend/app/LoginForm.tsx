@@ -12,7 +12,7 @@ export default function LoginForm() {
   const handleLogin = async () => {
     setError(null);
     if (!email || !password) {
-      setError("Please fill in all fields.");
+      setError('Please fill in all fields.');
       return;
     }
 
@@ -27,12 +27,12 @@ export default function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.detail || "Login failed");
+        setError(data.detail || 'Login failed');
       } else {
-        router.replace('/(tabs)'); 
+        router.replace('/(tabs)');
       }
     } catch (err) {
-      setError("Could not connect to server.");
+      setError('Could not connect to server.');
     } finally {
       setLoading(false);
     }
@@ -41,10 +41,9 @@ export default function LoginForm() {
   return (
     /* Išcentruojame konteinerį ir apribojame plotį iki 350px, kad nebūtų ištempta */
     <View className="gap-y-6 w-full max-w-[350px] self-center">
-      
       <View>
         <Text className="text-lg mb-2 text-white font-medium">Email</Text>
-        <TextInput 
+        <TextInput
           className="border-2 border-white rounded-2xl p-4 text-lg text-white"
           placeholder="example@mail.com"
           placeholderTextColor="#9ca3af"
@@ -54,10 +53,10 @@ export default function LoginForm() {
           onChangeText={setEmail}
         />
       </View>
-      
+
       <View>
         <Text className="text-lg mb-2 text-white font-medium">Password</Text>
-        <TextInput 
+        <TextInput
           className="border-2 border-white rounded-2xl p-4 text-lg text-white"
           placeholder="********"
           placeholderTextColor="#9ca3af"
@@ -69,8 +68,8 @@ export default function LoginForm() {
 
       {error && <Text className="text-red-400 text-center font-bold">{error}</Text>}
 
-      <Button 
-        className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400" 
+      <Button
+        className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400"
         onPress={handleLogin}
         disabled={loading}
       >
@@ -81,8 +80,8 @@ export default function LoginForm() {
         )}
       </Button>
 
-      <Button 
-        className="mt-2 bg-transparent h-14 rounded-2xl border-2 border-white" 
+      <Button
+        className="mt-2 bg-transparent h-14 rounded-2xl border-2 border-white"
         onPress={() => router.push('/RegisterForm')}
       >
         <Text className="text-white text-xl font-bold">Register</Text>

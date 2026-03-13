@@ -16,8 +16,10 @@ export default function JoinGroupScreen() {
           placeholder="Group code e.g. 3XHG8"
           maxLength={5}
         />
-        <Button className="mt-3 bg-white border-black border-2 hover:bg-purple-400  active:bg-purple-900"
-        onPress={() => router.push('/LoginForm')}>
+        <Button
+          className="mt-3 bg-white border-black border-2 hover:bg-purple-400  active:bg-purple-900"
+          onPress={() => router.push('/LoginForm')}
+        >
           <Text>Join</Text>
         </Button>
       </View>

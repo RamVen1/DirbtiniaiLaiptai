@@ -5,7 +5,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 
 export default function TaskPage() {
@@ -35,7 +35,7 @@ export default function TaskPage() {
       setLoading(true);
       const response = await fetch(`${API_URL}/refresh-task`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
       const data = await response.json();
       setTask(data.task);
@@ -47,7 +47,7 @@ export default function TaskPage() {
   };
 
   useEffect(() => {
-    console.log("Global Env URL:", process.env.EXPO_PUBLIC_API_URL);
+    console.log('Global Env URL:', process.env.EXPO_PUBLIC_API_URL);
     fetchDailyTask();
   }, [fetchDailyTask]);
 
@@ -61,19 +61,13 @@ export default function TaskPage() {
         ) : (
           <View style={styles.taskCard}>
             <Text style={styles.taskBody}>
-              {task || "No task found. Click below to generate one!"}
+              {task || 'No task found. Click below to generate one!'}
             </Text>
           </View>
         )}
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleRefresh}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Generating..." : "Generate New Task"}
-          </Text>
+        <TouchableOpacity style={styles.button} onPress={handleRefresh} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate New Task'}</Text>
         </TouchableOpacity>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
@@ -92,15 +86,15 @@ const styles = StyleSheet.create({
     padding: 25,
     borderRadius: 20,
     elevation: 4,
-    marginBottom: 20
+    marginBottom: 20,
   },
   taskBody: { fontSize: 18, textAlign: 'center', color: '#333' },
   button: {
     backgroundColor: '#007AFF',
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 12
+    borderRadius: 12,
   },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  errorText: { color: 'red', marginTop: 20 }
+  errorText: { color: 'red', marginTop: 20 },
 });

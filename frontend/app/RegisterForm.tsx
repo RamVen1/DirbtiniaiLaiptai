@@ -7,7 +7,7 @@ export default function RegisterForm() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,16 +47,15 @@ export default function RegisterForm() {
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ alignItems: 'center' }}
       className="w-full"
     >
       <View className="gap-y-5 w-full max-w-[350px]">
-        
         <View>
           <Text className="text-lg mb-2 text-white font-medium">Name</Text>
-          <TextInput 
+          <TextInput
             className="border-2 border-white rounded-2xl p-4 text-lg text-white"
             placeholder="Your Name"
             placeholderTextColor="#9ca3af"
@@ -68,7 +67,7 @@ export default function RegisterForm() {
 
         <View>
           <Text className="text-lg mb-2 text-white font-medium">Email</Text>
-          <TextInput 
+          <TextInput
             className="border-2 border-white rounded-2xl p-4 text-lg text-white"
             placeholder="example@mail.com"
             placeholderTextColor="#9ca3af"
@@ -78,10 +77,10 @@ export default function RegisterForm() {
             onChangeText={setEmail}
           />
         </View>
-        
+
         <View>
           <Text className="text-lg mb-2 text-white font-medium">Password</Text>
-          <TextInput 
+          <TextInput
             className="border-2 border-white rounded-2xl p-4 text-lg text-white"
             placeholder="Create password"
             placeholderTextColor="#9ca3af"
@@ -92,14 +91,10 @@ export default function RegisterForm() {
         </View>
 
         {/* Display Error Message */}
-        {error && (
-          <Text className="text-red-400 text-center font-medium mt-2">
-            {error}
-          </Text>
-        )}
+        {error && <Text className="text-red-400 text-center font-medium mt-2">{error}</Text>}
 
-        <Button 
-          className={`mt-4 bg-white h-14 rounded-2xl border-none ${loading ? 'opacity-70' : 'active:bg-purple-400'}`} 
+        <Button
+          className={`mt-4 bg-white h-14 rounded-2xl border-none ${loading ? 'opacity-70' : 'active:bg-purple-400'}`}
           onPress={handleRegister}
           disabled={loading}
         >

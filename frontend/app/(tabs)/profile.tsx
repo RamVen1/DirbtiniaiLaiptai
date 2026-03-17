@@ -25,10 +25,15 @@ export default function ProfileScreen() {
             { key: 'Improvement plan Q3' },
             { key: 'Improvement plan Q4' },
           ]}
-          renderItem={({ item }) => <Text className="text-base font-thin mb-1">{'•' + item.key}</Text>}
+          renderItem={({ item }) => (
+            <Text className="text-base font-thin mb-1">{'•' + item.key}</Text>
+          )}
         />
       </View>
-      <Button className="mt-4 bg-black h-14 rounded-2xl active:bg-purple-400" onPress={() => router.push('/LoginForm')}>
+      <Button
+        className="mt-4 bg-black h-14 rounded-2xl active:bg-purple-400"
+        onPress={() => router.push('/LoginForm')}
+      >
         <Text className="text-white text-xl font-bold">Log out</Text>
       </Button>
     </View>

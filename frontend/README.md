@@ -4,7 +4,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-0. Install node.js 
+0. Install node.js
 
    ```bash
    https://nodejs.org/en/download

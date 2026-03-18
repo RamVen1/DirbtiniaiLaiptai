@@ -21,7 +21,11 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="join-group" options={{ headerShown: false }} />
+        <Stack.Screen name="LoginForm" options={{ headerShown: false }} />
+        <Stack.Screen name="RegisterForm" options={{ headerShown: false }} />
+        <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+
       </Stack>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
       <PortalHost />

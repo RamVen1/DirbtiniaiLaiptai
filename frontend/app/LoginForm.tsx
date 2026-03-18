@@ -80,7 +80,7 @@ export default function LoginForm() {
         <Button
           className="mt-2 h-14 rounded-2xl border-2"
           variant="outline"
-          onPress={() => router.push('/RegisterForm')}
+          onPress={() => router.replace('/RegisterForm')}
         >
           <Text className="text-xl font-bold text-foreground">Register</Text>
         </Button>

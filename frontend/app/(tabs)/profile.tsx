@@ -30,9 +30,13 @@ export default function ProfileScreen() {
           )}
         />
       </View>
-      <Button className="mt-4 h-14 rounded-2xl" onPress={() => router.push('/LoginForm')}>
+      <Button className="mt-4 h-14 rounded-2xl" onPress={() => router.replace('/join-group')}>
+        <Text className="text-xl font-bold">Join group</Text>
+      </Button>
+      <Button className="mt-4 h-14 rounded-2xl" onPress={() => router.replace('/LoginForm')}>
         <Text className="text-xl font-bold">Log out</Text>
       </Button>
+
     </View>
   );
 }

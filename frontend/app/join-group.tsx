@@ -17,7 +17,7 @@ export default function JoinGroupScreen() {
           placeholderTextColor="#7A1CAC"
           maxLength={5}
         />
-        <Button className="mt-3" onPress={() => router.push('/LoginForm')}>
+        <Button className="mt-3" onPress={() => router.replace('/profile')}>
           <Text className="font-semibold">Join</Text>
         </Button>
       </View>

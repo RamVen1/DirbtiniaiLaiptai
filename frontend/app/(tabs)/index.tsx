@@ -14,7 +14,7 @@ export default function HomeScreen() {
 
       <Button
         className="mt-4 h-14 rounded-2xl  text-foreground"
-        onPress={() => router.push('/MiniReport')}
+        onPress={() => router.navigate('/MiniReport')}
       >
         <Text className="text-xl font-bold">View weekly report</Text>
       </Button>

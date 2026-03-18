@@ -1,3 +1,4 @@
+import type React from 'react';
 import { cn } from '@/lib/utils';
 import * as ProgressPrimitive from '@rn-primitives/progress';
 import { Platform, View } from 'react-native';
@@ -6,6 +7,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 
@@ -30,11 +32,7 @@ function Progress({
 
 export { Progress };
 
-const Indicator = Platform.select({
-  web: WebIndicator,
-  native: NativeIndicator,
-  default: NullIndicator,
-});
+const Indicator = Platform.OS === 'web' ? WebIndicator : NativeIndicator;
 
 type IndicatorProps = {
   value: number | undefined | null;
@@ -57,27 +55,33 @@ function WebIndicator({ value, className }: IndicatorProps) {
 }
 
 function NativeIndicator({ value, className }: IndicatorProps) {
-  const progress = useDerivedValue(() => value ?? 0);
+  const progress = useDerivedValue(() => value ?? 0, [value]);
+  const containerWidth = useSharedValue(0);
 
   const indicator = useAnimatedStyle(() => {
+    const pct = interpolate(progress.value, [0, 100], [0, 100], Extrapolation.CLAMP);
+    const springWidth = withSpring((pct / 100) * containerWidth.value, { overshootClamping: true });
     return {
-      width: withSpring(
-        `${interpolate(progress.value, [0, 100], [1, 100], Extrapolation.CLAMP)}%`,
-        {
-          overshootClamping: true,
-        },
-      ),
+      width: springWidth,
     };
-  }, [value]);
+  });
 
   if (Platform.OS === 'web') {
     return null;
   }
 
   return (
-    <ProgressPrimitive.Indicator asChild>
-      <Animated.View style={indicator} className={cn('bg-purple-950 h-full', className)} />
-    </ProgressPrimitive.Indicator>
+    <View
+      className="h-full w-full"
+      onLayout={(e) => {
+        containerWidth.value = e.nativeEvent.layout.width;
+      }}
+    >
+      <Animated.View
+        style={[{ position: 'absolute', left: 0, top: 0, bottom: 0 }, indicator]}
+        className={cn('bg-primary', className)}
+      />
+    </View>
   );
 }
 

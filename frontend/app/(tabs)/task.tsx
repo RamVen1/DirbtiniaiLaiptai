@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  SafeAreaView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/button';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TaskPage() {
   const [task, setTask] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const colorScheme = useColorScheme();
+  const spinnerColor = colorScheme === 'dark' ? '#AD49E1' : '#7A1CAC';
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -52,49 +50,33 @@ export default function TaskPage() {
   }, [fetchDailyTask]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Daily Mission</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1 px-6 justify-center items-center">
+        <Text className="text-3xl text-foreground font-extrabold mb-8">Daily Mission</Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={spinnerColor} />
         ) : (
-          <View style={styles.taskCard}>
-            <Text style={styles.taskBody}>
+          <View className="w-full bg-card border border-border rounded-2xl p-6 mb-5">
+            <Text className="text-lg text-foreground text-center">
               {task || 'No task found. Click below to generate one!'}
             </Text>
           </View>
         )}
 
-        <TouchableOpacity style={styles.button} onPress={handleRefresh} disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate New Task'}</Text>
-        </TouchableOpacity>
+        <Button
+          className="mt-2 w-full h-12 rounded-xl"
+          onPress={handleRefresh}
+          disabled={loading}
+          accessibilityLabel="Generate a new task"
+        >
+          <Text className="text-base font-semibold">
+            {loading ? 'Generating...' : 'Generate New Task'}
+          </Text>
+        </Button>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <Text className="text-foreground/80 mt-5 text-center">{error}</Text>}
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
-  content: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 28, fontWeight: '800', marginBottom: 30 },
-  taskCard: {
-    width: '100%',
-    backgroundColor: '#fff',
-    padding: 25,
-    borderRadius: 20,
-    elevation: 4,
-    marginBottom: 20,
-  },
-  taskBody: { fontSize: 18, textAlign: 'center', color: '#333' },
-  button: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 12,
-  },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  errorText: { color: 'red', marginTop: 20 },
-});

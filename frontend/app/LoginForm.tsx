@@ -39,53 +39,52 @@ export default function LoginForm() {
   };
 
   return (
-    /* Išcentruojame konteinerį ir apribojame plotį iki 350px, kad nebūtų ištempta */
-    <View className="gap-y-6 w-full max-w-[350px] self-center">
-      <View>
-        <Text className="text-lg mb-2 text-white font-medium">Email</Text>
-        <TextInput
-          className="border-2 border-white rounded-2xl p-4 text-lg text-white"
-          placeholder="example@mail.com"
-          placeholderTextColor="#9ca3af"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
+    <View className="flex-1 bg-background px-6 pt-16">
+      <View className="gap-y-6 w-full max-w-[350px] self-center">
+        <Text className="text-4xl text-foreground font-bold mb-2">Log in</Text>
+        <View>
+          <Text className="text-lg mb-2 text-foreground font-medium">Email</Text>
+          <TextInput
+            className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
+            placeholder="example@mail.com"
+            placeholderTextColor="#7A1CAC"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+
+        <View>
+          <Text className="text-lg mb-2 text-foreground font-medium">Password</Text>
+          <TextInput
+            className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
+            placeholder="********"
+            placeholderTextColor="#7A1CAC"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+
+        {error && <Text className="text-foreground text-center font-semibold">{error}</Text>}
+
+        <Button className="mt-4 h-14 rounded-2xl" onPress={handleLogin} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#EBD3F8" />
+          ) : (
+            <Text className="text-xl font-bold">Log in</Text>
+          )}
+        </Button>
+
+        <Button
+          className="mt-2 h-14 rounded-2xl border-2"
+          variant="outline"
+          onPress={() => router.push('/RegisterForm')}
+        >
+          <Text className="text-xl font-bold text-foreground">Register</Text>
+        </Button>
       </View>
-
-      <View>
-        <Text className="text-lg mb-2 text-white font-medium">Password</Text>
-        <TextInput
-          className="border-2 border-white rounded-2xl p-4 text-lg text-white"
-          placeholder="********"
-          placeholderTextColor="#9ca3af"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-      </View>
-
-      {error && <Text className="text-red-400 text-center font-bold">{error}</Text>}
-
-      <Button
-        className="mt-4 bg-white h-14 rounded-2xl active:bg-purple-400"
-        onPress={handleLogin}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="black" />
-        ) : (
-          <Text className="text-black text-xl font-bold">Log in</Text>
-        )}
-      </Button>
-
-      <Button
-        className="mt-2 bg-transparent h-14 rounded-2xl border-2 border-white"
-        onPress={() => router.push('/RegisterForm')}
-      >
-        <Text className="text-white text-xl font-bold">Register</Text>
-      </Button>
     </View>
   );
 }

@@ -50,15 +50,16 @@ export default function RegisterForm() {
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ alignItems: 'center' }}
-      className="w-full"
+      className="w-full bg-background px-6 pt-16"
     >
       <View className="gap-y-5 w-full max-w-[350px]">
+        <Text className="text-4xl text-foreground font-bold mb-2">Create account</Text>
         <View>
-          <Text className="text-lg mb-2 text-white font-medium">Name</Text>
+          <Text className="text-lg mb-2 text-foreground font-medium">Name</Text>
           <TextInput
-            className="border-2 border-white rounded-2xl p-4 text-lg text-white"
+            className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
             placeholder="Your Name"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#7A1CAC"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
@@ -66,11 +67,11 @@ export default function RegisterForm() {
         </View>
 
         <View>
-          <Text className="text-lg mb-2 text-white font-medium">Email</Text>
+          <Text className="text-lg mb-2 text-foreground font-medium">Email</Text>
           <TextInput
-            className="border-2 border-white rounded-2xl p-4 text-lg text-white"
+            className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
             placeholder="example@mail.com"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#7A1CAC"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -79,11 +80,11 @@ export default function RegisterForm() {
         </View>
 
         <View>
-          <Text className="text-lg mb-2 text-white font-medium">Password</Text>
+          <Text className="text-lg mb-2 text-foreground font-medium">Password</Text>
           <TextInput
-            className="border-2 border-white rounded-2xl p-4 text-lg text-white"
+            className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
             placeholder="Create password"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#7A1CAC"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -91,17 +92,17 @@ export default function RegisterForm() {
         </View>
 
         {/* Display Error Message */}
-        {error && <Text className="text-red-400 text-center font-medium mt-2">{error}</Text>}
+        {error && <Text className="text-foreground text-center font-medium mt-2">{error}</Text>}
 
         <Button
-          className={`mt-4 bg-white h-14 rounded-2xl border-none ${loading ? 'opacity-70' : 'active:bg-purple-400'}`}
+          className={`mt-4 h-14 rounded-2xl ${loading ? 'opacity-70' : ''}`}
           onPress={handleRegister}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="black" />
+            <ActivityIndicator color="#EBD3F8" />
           ) : (
-            <Text className="text-black text-xl font-bold">Create account</Text>
+            <Text className="text-xl font-bold">Create account</Text>
           )}
         </Button>
       </View>

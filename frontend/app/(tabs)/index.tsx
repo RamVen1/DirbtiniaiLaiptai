@@ -8,7 +8,7 @@ export default function HomeScreen() {
       <Text className="text-5xl text-foreground font-bold mb-8">Home</Text>
       <View className="border-border bg-card mb-6 rounded-2xl border p-5">
         <Text className="mb-2 text-foreground">Weekly progress</Text>
-        <Progress value={0}className="mb-2 h-3" />
+        <Progress value={0} className="mb-2 h-3" />
         <Text className="text-foreground">33% completed</Text>
       </View>
 
@@ -17,6 +17,13 @@ export default function HomeScreen() {
         onPress={() => router.navigate('/MiniReport')}
       >
         <Text className="text-xl font-bold">View weekly report</Text>
+      </Button>
+
+      <Button
+        className="mt-4 h-14 rounded-2xl  text-foreground"
+        onPress={() => router.navigate('/test-notification')}
+      >
+        <Text className="text-xl font-bold">TEST: View Notification</Text>
       </Button>
     </View>
   );

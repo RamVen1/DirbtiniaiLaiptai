@@ -6,6 +6,7 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from enum import Enum
 
 load_dotenv()
 app = FastAPI()
@@ -22,19 +23,91 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+class RequestStatus(str, Enum):
+    Pending = "Pending"
+    Accepted = "Accepted"
+    Denied = "Denied"
+
+class UserRole(str, Enum):
+    Member = "Member"
+    Moderator = "Moderator"
+    Admin = "Admin"
+
+class CompanionType(str, Enum):
+    Dog = "Dog"
+    Cat = "Cat" #PLACEHOLDER COMPANIONS
+
 def init_db():
     with get_db_connection() as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS task (id INTEGER PRIMARY KEY, task_content TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        
-        conn.execute("""
+        conn.execute(f"""
             CREATE TABLE IF NOT EXISTS User (
-                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Username TEXT UNIQUE NOT NULL,
                 Email TEXT UNIQUE NOT NULL,
                 Password TEXT NOT NULL,
-                Role TEXT DEFAULT 'Member',
-                streak INTEGER NULL,
+                Role TEXT NOT NULL DEFAULT '{UserRole.Member.value}',
+                streak INTEGER DEFAULT 0,
                 skill TEXT NULL
+            )
+        """)
+
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS Task (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Task_content TEXT,
+                Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                User_ID INTEGER,
+                FOREIGN KEY (User_ID) REFERENCES User (Id)
+            )
+        """)
+        
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS RoleRequest (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                Status TEXT NOT NULL DEFAULT '{RequestStatus.Pending.value}',
+                User_ID INTEGER,
+                FOREIGN KEY (User_ID) REFERENCES User (Id)
+            )
+        """)
+        
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS Report (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Start DATETIME,
+                End DATETIME,
+                CompletionRate REAL,
+                User_ID INTEGER,
+                FOREIGN KEY (User_ID) REFERENCES User (Id)   
+            )
+        """)
+        
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS Companion (
+                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 Happiness INTEGER DEFAULT 100,
+                 Type TEXT NOT NULL DEFAULT '{CompanionType.Dog.value}',
+                 User_ID INTEGER,
+                FOREIGN KEY (User_ID) REFERENCES User (Id)
+            )
+        """)
+        
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS Team (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Code TEXT UNIQUE,
+                ModeratorID INTEGER,
+                FOREIGN KEY (ModeratorID) REFERENCES User (Id)
+            )
+        """)
+
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS TeamMembers (
+                Team_ID INTEGER,
+                User_ID INTEGER,
+                PRIMARY KEY (Team_ID, User_ID),
+                FOREIGN KEY (Team_ID) REFERENCES Team (Id),
+                FOREIGN KEY (User_ID) REFERENCES User (Id)
             )
         """)
         conn.commit()

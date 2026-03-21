@@ -94,67 +94,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Achievements & Certificates */}
-        <View className="flex-col gap-8 mb-12">
-          <NeonCard className="p-8">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-lg font-bold text-foreground">Achievement Badges</Text>
-              <Pressable onPress={() => {}} accessibilityRole="button">
-                <Text className="text-primary font-bold text-sm">View All</Text>
-              </Pressable>
-            </View>
-
-            <View className="flex-row flex-wrap justify-between gap-y-4 gap-x-0">
-              <NeonCard className="w-16 h-16 rounded-full items-center justify-center border border-white/20 bg-card">
-                <Ionicons name={'ribbon' as any} size={28} color={tint} />
-              </NeonCard>
-              <NeonCard className="w-16 h-16 rounded-full items-center justify-center border border-white/20 bg-card">
-                <Ionicons name={'heart' as any} size={28} color={tint} />
-              </NeonCard>
-              <NeonCard className="w-16 h-16 rounded-full items-center justify-center border border-white/20 bg-card">
-                <Ionicons name={'people' as any} size={28} color={'#9720ab'} />
-              </NeonCard>
-              <NeonCard className="w-16 h-16 rounded-full items-center justify-center border border-white/20 bg-card">
-                <Ionicons name={'rocket' as any} size={28} color={'#6e5275'} />
-              </NeonCard>
-            </View>
-          </NeonCard>
-
-          <NeonCard className="p-8">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-lg font-bold text-foreground">Certificates</Text>
-              <Ionicons name={'card' as any} size={18} color={Colors.light.icon} />
-            </View>
-
-            <View className="gap-4">
-              <Pressable onPress={() => {}} className="flex-row items-center gap-4">
-                <View className="w-12 h-12 bg-card rounded-xl items-center justify-center">
-                  <Ionicons name={'cloud-done' as any} size={20} color={tint} />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-bold text-sm">Professional Cloud Architect</Text>
-                  <Text className="text-[12px] text-muted-foreground">
-                    Issued by Google Cloud • 2023
-                  </Text>
-                </View>
-                <Ionicons name={'chevron-forward' as any} size={18} color={tint} />
-              </Pressable>
-
-              <Pressable onPress={() => {}} className="flex-row items-center gap-4">
-                <View className="w-12 h-12 bg-card rounded-xl items-center justify-center">
-                  <Ionicons name={'document-text' as any} size={20} color={tint} />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-bold text-sm">Negotiation &amp; Persuasion</Text>
-                  <Text className="text-[12px] text-muted-foreground">
-                    Atelier Soft Skills • 2024
-                  </Text>
-                </View>
-                <Ionicons name={'chevron-forward' as any} size={18} color={tint} />
-              </Pressable>
-            </View>
-          </NeonCard>
-        </View>
 
         {/* Navigation Links */}
         <View className="mb-12">

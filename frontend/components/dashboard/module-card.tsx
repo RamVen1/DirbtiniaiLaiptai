@@ -14,7 +14,7 @@ export function ModuleCard({
   icon,
   iconColor,
 }: {
-  index: string;
+  index?: string;
   title: string;
   completionLabel: string;
   completionValue: number;

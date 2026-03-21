@@ -126,42 +126,17 @@ export default function HomeScreen() {
           {/* Active Modules */}
           <View className="mt-6">
             <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-2xl font-bold text-foreground">Active Soft-Skill Modules</Text>
-              <Pressable
-                onPress={() => router.navigate('/MiniReport')}
-                className="flex-row items-center gap-1"
-              >
-                <Text className="text-primary font-bold text-sm ml-2">View All</Text>
-                <Ionicons name="open-outline" size={14} color={tint} />
-              </Pressable>
+              <Text className="text-2xl font-bold text-foreground">Current Improvement Course</Text>
             </View>
 
             <View className="flex-col gap-6">
               <ModuleCard
-                index="01"
+                index=""
                 title="Active Listening"
                 completionLabel="COMPLETION"
                 completionValue={75}
                 barColor="primary"
                 icon="ear"
-                iconColor={tint}
-              />
-              <ModuleCard
-                index="02"
-                title="Empathy for Devs"
-                completionLabel="COMPLETION"
-                completionValue={40}
-                barColor="secondary"
-                icon="heart"
-                iconColor={tint}
-              />
-              <ModuleCard
-                index="03"
-                title="Conflict Resolution"
-                completionLabel="COMPLETION"
-                completionValue={10}
-                barColor="accent"
-                icon="scale"
                 iconColor={tint}
               />
             </View>

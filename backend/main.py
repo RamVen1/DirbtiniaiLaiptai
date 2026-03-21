@@ -8,6 +8,7 @@ from tasks.router import router as tasks_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
+# Setup
 init_db()
 
 app.add_middleware(
@@ -22,6 +23,8 @@ app.include_router(auth_router)
 app.include_router(tasks_router)
 
 @app.get("/")
+def read_root():
+    return {"status": "online"}
 def read_root():
     return {"status": "online"}
 

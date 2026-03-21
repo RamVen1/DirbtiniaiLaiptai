@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Dirbtiniai laiptai",
-    "slug": "Dirbtiniai-laiptai",
+    "name": "The Next Step",
+    "slug": "The-Next-Step",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Logo.jpeg",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "ios": {

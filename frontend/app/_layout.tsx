@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import '../global.css';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { NAV_THEME } from '@/lib/theme';
@@ -17,18 +18,18 @@ export default function RootLayout() {
   const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
   return (
-    <ThemeProvider value={NAV_THEME[theme]}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="join-group" options={{ headerShown: false }} />
-        <Stack.Screen name="LoginForm" options={{ headerShown: false }} />
-        <Stack.Screen name="RegisterForm" options={{ headerShown: false }} />
-        <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-
-      </Stack>
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-      <PortalHost />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={NAV_THEME[theme]}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="join-group" options={{ headerShown: false }} />
+          <Stack.Screen name="LoginForm" options={{ headerShown: false }} />
+          <Stack.Screen name="RegisterForm" options={{ headerShown: false }} />
+          <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
+        </Stack>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+        <PortalHost />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

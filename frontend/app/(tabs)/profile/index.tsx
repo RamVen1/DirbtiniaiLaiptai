@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, View, useWindowDimensions, Image } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,7 +16,7 @@ export default function ProfileScreen() {
   const isTablet = width >= 900;
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-
+  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top App Bar */}
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
             <View className="flex-1 items-center justify-center">
-              <Ionicons name="person" size={18} color={tint} />
+              <Image source={avatarSource} className="w-full h-full" />
             </View>
           </View>
           <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
@@ -36,7 +36,9 @@ export default function ProfileScreen() {
           accessibilityRole="button"
           accessibilityLabel="Settings"
         >
-          <Ionicons name={'settings' as any} size={20} color={tint} />
+          <View className="flex-1 items-center justify-center">
+            <Image source={avatarSource} className="w-full h-full" />
+          </View>
         </Pressable>
       </View>
 
@@ -45,8 +47,8 @@ export default function ProfileScreen() {
         <View className="items-center mt-8 mb-10">
           <View className="relative mb-6">
             <View className="w-36 h-36 rounded-full p-1 bg-primary/20 items-center justify-center">
-              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center">
-                <Ionicons name="person" size={72} color={tint} />
+              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center overflow-hidden">
+                  <Image source={avatarSource} className="w-full h-full" />
               </View>
             </View>
             <View className="absolute bottom-1 right-1 bg-primary px-2 py-0.5 rounded-full items-center justify-center">
@@ -60,10 +62,10 @@ export default function ProfileScreen() {
           </Text>
 
           <View className="flex-row gap-3 mt-4">
-            <Button className="flex-1 rounded-xl" onPress={() => {router.navigate('/join-group')}}>
+            <Button className="flex-1 rounded-xl" onPress={() => { router.navigate('/join-group') }}>
               <Text className="text-white font-bold text-base">Join Team</Text>
             </Button>
-            <Button variant="outline" className="flex-1 rounded-xl" onPress={() => {router.navigate('/profile/modal')}}>
+            <Button variant="outline" className="flex-1 rounded-xl" onPress={() => { router.navigate('/profile/modal') }}>
               <Text className="text-primary font-bold text-base">Profile Settings</Text>
             </Button>
           </View>
@@ -98,7 +100,7 @@ export default function ProfileScreen() {
         {/* Navigation Links */}
         <View className="mb-12">
           <Pressable
-            onPress={() => {}}
+            onPress={() => { }}
             className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2"
           >
             <View className="flex-row items-center gap-4">

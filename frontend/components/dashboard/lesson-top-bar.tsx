@@ -1,9 +1,10 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import { ImageSourcePropType } from 'react-native';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -17,6 +18,7 @@ export function LessonTopBar({
   flameButtonClassName,
   avatarIconName = 'person' as IoniconName,
   flameIconName = 'flame' as IoniconName,
+  avatarSource = require('@/assets/images/avatars/avatar1.jpg'),
 }: {
   title: string;
   tintColor: string;
@@ -27,6 +29,7 @@ export function LessonTopBar({
   flameButtonClassName?: string;
   avatarIconName?: IoniconName;
   flameIconName?: IoniconName;
+  avatarSource?: ImageSourcePropType;
 }) {
   return (
     <View
@@ -44,7 +47,7 @@ export function LessonTopBar({
               accessibilityRole="button"
               accessibilityLabel="Open profile"
             >
-              <Ionicons name={avatarIconName} size={18} color={tintColor} />
+              <Image source={avatarSource} className="w-full h-full" />
             </Pressable>
           ) : (
             <View
@@ -53,7 +56,9 @@ export function LessonTopBar({
                 avatarClassName,
               )}
             >
-              <Ionicons name={avatarIconName} size={18} color={tintColor} />
+
+              <Image source={avatarSource} className="w-full h-full" />
+
             </View>
           )}
           <Text className="text-lg font-black text-primary tracking-tighter">{title}</Text>

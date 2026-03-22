@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Pressable, useWindowDimensions } from 'react-native';
+import { ScrollView, View, Pressable, useWindowDimensions, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -15,7 +15,7 @@ export default function HomeScreen() {
   const isTablet = width >= 900;
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-
+  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1">
@@ -29,7 +29,8 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Open profile"
               >
-                <Ionicons name="person" size={18} color={tint} />
+                  <Image source={avatarSource} className="w-full h-full" />
+                
               </Pressable>
               <Text className="text-lg font-black text-primary tracking-tighter">
                 The Next Step

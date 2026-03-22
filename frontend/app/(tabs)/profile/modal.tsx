@@ -37,12 +37,12 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.navigate('/profile')}
+            onPress={() => router.push('/profile/edit')}
             className="w-full rounded-xl bg-primary px-10 py-5"
             accessibilityRole="button"
           >
             <Text className="text-foreground font-extrabold text-lg text-center">
-              Change user info / Settings
+              Edit profile
             </Text>
           </Pressable>
 

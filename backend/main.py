@@ -199,6 +199,7 @@ def login_user(user: LoginRequest):
         if not is_valid:
             raise HTTPException(status_code=401, detail="Invalid email or password.")
         
+        token = create_access_token(data={"sub": str(db_user["ID"])})
         return {
             "message": "Login successful",
             "token": token,

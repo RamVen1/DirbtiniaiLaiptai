@@ -3,14 +3,13 @@ import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import * as SecureStore from 'expo-secure-store';
 import { View, ActivityIndicator } from 'react-native';
 import '../global.css';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { NAV_THEME } from '@/lib/theme';
+import { getItem } from '@/utils/storage';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -19,26 +18,33 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? 'dark' : 'light';
-  
+
   const [isReady, setIsReady] = useState(false);
   const [hasToken, setHasToken] = useState(false);
-  
+
   const segments = useSegments();
   const router = useRouter();
 
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const token = await SecureStore.getItemAsync('userToken');
-        setHasToken(!!token);
-      } catch (e) {
-        setHasToken(false);
-      } finally {
-        setIsReady(true);
-      }
+  const checkAuth = async () => {
+    try {
+      const token = await getItem('userToken');
+      setHasToken(!!token);
+    } catch (e) {
+      setHasToken(false);
+    } finally {
+      setIsReady(true);
     }
+  };
+
+  useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (isReady) {
+      checkAuth();
+    }
+  }, [segments]);
 
   useEffect(() => {
     if (!isReady) return;

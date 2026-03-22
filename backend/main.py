@@ -43,8 +43,9 @@ class CompanionType(str, Enum):
     Cat = "Cat" #PLACEHOLDER COMPANIONS
 
 def init_db():
-    with get_db_connection() as conn:
-        conn.execute(f"""
+    conn = get_db_connection()
+    try:
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS User (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Username TEXT UNIQUE NOT NULL,
@@ -56,7 +57,7 @@ def init_db():
             )
         """)
 
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS Task (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Task_content TEXT,
@@ -66,7 +67,7 @@ def init_db():
             )
         """)
         
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS RoleRequest (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -76,7 +77,7 @@ def init_db():
             )
         """)
         
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS Report (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Start DATETIME,
@@ -87,7 +88,7 @@ def init_db():
             )
         """)
         
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS Companion (
                  Id INTEGER PRIMARY KEY AUTOINCREMENT,
                  Happiness INTEGER DEFAULT 100,
@@ -97,7 +98,7 @@ def init_db():
             )
         """)
         
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS Team (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Code TEXT UNIQUE,
@@ -106,7 +107,7 @@ def init_db():
             )
         """)
 
-        conn.execute(f"""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS TeamMembers (
                 Team_ID INTEGER,
                 User_ID INTEGER,
@@ -116,6 +117,8 @@ def init_db():
             )
         """)
         conn.commit()
+    finally:
+        conn.close()
 
 init_db()
 
@@ -150,13 +153,13 @@ class RegisterRequest(BaseModel):
 
 @app.post("/register")
 def register_user(user: RegisterRequest):
-
     if len(user.password) < 7:
         raise HTTPException(status_code=400, detail="Password must be at least 7 characters long.")
     
-    with get_db_connection() as conn:
+    conn = get_db_connection()
+    try:
         existing_user = conn.execute(
-            "SELECT * FROM User WHERE Username = ? OR Email = ?", 
+            "SELECT * FROM User WHERE Username = ? OR Email = ?",
             (user.username, user.email)
         ).fetchone()
         
@@ -173,6 +176,8 @@ def register_user(user: RegisterRequest):
             (user.username, user.email, hashed_password)
         )
         conn.commit()
+    finally:
+        conn.close()
         
     return {"message": "Account created successfully"}
 
@@ -182,42 +187,51 @@ class LoginRequest(BaseModel):
 
 @app.post("/login")
 def login_user(user: LoginRequest):
-    with get_db_connection() as conn:
+    conn = get_db_connection()
+    try:
         db_user = conn.execute(
-            "SELECT * FROM User WHERE Email = ?", 
+            "SELECT * FROM User WHERE Email = ?",
             (user.email,)
         ).fetchone()
-        
-        if not db_user:
-            raise HTTPException(status_code=401, detail="Invalid email or password.")
-        
-        is_valid = bcrypt.checkpw(
-            user.password.encode('utf-8'), 
-            db_user["Password"].encode('utf-8')
-        )
-        
-        if not is_valid:
-            raise HTTPException(status_code=401, detail="Invalid email or password.")
-        
-        token = create_access_token(data={"sub": str(db_user["ID"])})
-        return {
-            "message": "Login successful",
-            "token": token,
-            "user": {
-                "id": db_user["ID"],
-                "username": db_user["Username"],
-                "role": db_user["Role"]
-            }
+        db_user_dict = dict(db_user) if db_user else None
+    finally:
+        conn.close()
+
+    if not db_user_dict:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    stored_hash = db_user_dict["Password"].replace("$2b$", "$2a$")
+
+    is_valid = bcrypt.checkpw(
+        user.password.encode('utf-8'),
+        stored_hash.encode('utf-8')
+    )
+
+    if not is_valid:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    token = create_access_token(data={"sub": str(db_user_dict["ID"])})
+    return {
+        "message": "Login successful",
+        "token": token,
+        "user": {
+            "id": db_user_dict["ID"],
+            "username": db_user_dict["Username"],
+            "role": db_user_dict["Role"]
         }
+    }
 
 def generate_daily_task(user_id: int):
-    prompt = "Generate a single, short, productive daily task for someone trying to learn time management Keep it under 20 words."
+    prompt = "Generate a single, short, productive daily task for someone trying to learn time management. Keep it under 20 words."
     response = model.generate_content(prompt)
     task_text = response.text.strip()
     
-    with get_db_connection() as conn:
+    conn = get_db_connection()
+    try:
         conn.execute("INSERT INTO task (task_content, User_ID) VALUES (?, ?)", (task_text, user_id))
         conn.commit()
+    finally:
+        conn.close()
     return task_text
 
 @app.get("/")

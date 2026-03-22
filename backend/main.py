@@ -1,12 +1,17 @@
 import os
 import sqlite3
 import bcrypt
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+
+#Kolkas login verification su JWT info cia
+SECRET_KEY = "72j0rJhL2IUeedeP4B5UX0Z04N7FuhC1WygKwwLfIEJ"
 
 load_dotenv()
 app = FastAPI()
@@ -41,7 +46,7 @@ def init_db():
     with get_db_connection() as conn:
         conn.execute(f"""
             CREATE TABLE IF NOT EXISTS User (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Username TEXT UNIQUE NOT NULL,
                 Email TEXT UNIQUE NOT NULL,
                 Password TEXT NOT NULL,
@@ -57,7 +62,7 @@ def init_db():
                 Task_content TEXT,
                 Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
@@ -67,7 +72,7 @@ def init_db():
                 RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
                 Status TEXT NOT NULL DEFAULT '{RequestStatus.Pending.value}',
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
@@ -78,7 +83,7 @@ def init_db():
                 End DATETIME,
                 CompletionRate REAL,
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)   
+                FOREIGN KEY (User_ID) REFERENCES User (ID)   
             )
         """)
         
@@ -88,7 +93,7 @@ def init_db():
                  Happiness INTEGER DEFAULT 100,
                  Type TEXT NOT NULL DEFAULT '{CompanionType.Dog.value}',
                  User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
@@ -97,7 +102,7 @@ def init_db():
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Code TEXT UNIQUE,
                 ModeratorID INTEGER,
-                FOREIGN KEY (ModeratorID) REFERENCES User (Id)
+                FOREIGN KEY (ModeratorID) REFERENCES User (ID)
             )
         """)
 
@@ -106,13 +111,33 @@ def init_db():
                 Team_ID INTEGER,
                 User_ID INTEGER,
                 PRIMARY KEY (Team_ID, User_ID),
-                FOREIGN KEY (Team_ID) REFERENCES Team (Id),
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (Team_ID) REFERENCES Team (ID),
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         conn.commit()
 
 init_db()
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=7) # Tokenas kolkas 7 dienom galioja
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+
+def get_current_user(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
+    
+    token = authorization.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user_id
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token expired or invalid")
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 PORT = int(os.getenv("PORT", 8000))
@@ -176,6 +201,7 @@ def login_user(user: LoginRequest):
         
         return {
             "message": "Login successful",
+            "token": token,
             "user": {
                 "id": db_user["ID"],
                 "username": db_user["Username"],
@@ -183,13 +209,14 @@ def login_user(user: LoginRequest):
             }
         }
 
-def generate_daily_task():
+def generate_daily_task(user_id: int):
     prompt = "Generate a single, short, productive daily task for someone trying to learn time management Keep it under 20 words."
     response = model.generate_content(prompt)
     task_text = response.text.strip()
     
     with get_db_connection() as conn:
-        conn.execute("INSERT INTO task (task_content) VALUES (?)", (task_text,))
+        conn.execute("INSERT INTO task (task_content, User_ID) VALUES (?, ?)", (task_text, user_id))
+        conn.commit()
     return task_text
 
 @app.get("/")
@@ -197,19 +224,20 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/task")
-def get_task():
+def get_task(current_user_id: str = Depends(get_current_user)):
     with get_db_connection() as conn:
-        task = conn.execute("SELECT * FROM task ORDER BY id DESC LIMIT 1").fetchone()
+        task = conn.execute("SELECT * FROM task WHERE User_ID = ? ORDER BY id DESC LIMIT 1", (current_user_id,)).fetchone()
     
     if not task:
-        new_task = generate_daily_task()
+        new_task = generate_daily_task(int(current_user_id))
         return {"task": new_task}
         
     return {"task": task["task_content"]}
 
 @app.post("/refresh-task")
-def refresh_task():
-    return {"task": generate_daily_task()}
+def refresh_task(current_user_id: str = Depends(get_current_user)):
+    refreshed_task = generate_daily_task(int(current_user_id))
+    return {"task": refreshed_task}
 
 if __name__ == "__main__":
     import uvicorn

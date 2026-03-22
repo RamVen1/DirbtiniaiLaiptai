@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -29,9 +30,15 @@ export default function LoginForm() {
       if (!response.ok) {
         setError(data.detail || 'Login failed');
       } else {
+        await SecureStore.setItemAsync('userToken', data.token);
+        
+        if (data.user) {
+          await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
+        }
         router.replace('/(tabs)');
       }
     } catch (err) {
+      console.log(err)
       setError('Could not connect to server.');
     } finally {
       setLoading(false);

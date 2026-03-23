@@ -12,7 +12,6 @@ SECRET_KEY = "72j0rJhL2IUeedeP4B5UX0Z04N7FuhC1WygKwwLfIEJ"
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
-# Setup
 init_db()
 
 app.add_middleware(
@@ -50,4 +49,4 @@ def read_root():
     return {"status": "online"}
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=settings.PORT, reload=True)

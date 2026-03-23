@@ -35,7 +35,6 @@ export default function RootLayout() {
   const theme = colorScheme === 'dark' ? 'dark' : 'light';
   const [isReady, setIsReady] = useState(false);
   const [hasToken, setHasToken] = useState(false);
-  const segments = useSegments();
 
   useEffect(() => {
     async function initialize() {
@@ -44,7 +43,7 @@ export default function RootLayout() {
       setIsReady(true);
     }
     initialize();
-  }, [segments]);
+  }, []);
 
   if (!isReady) {
     return (

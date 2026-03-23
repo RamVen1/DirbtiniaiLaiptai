@@ -8,7 +8,6 @@ from tasks.router import router as tasks_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
-# Setup
 init_db()
 
 app.add_middleware(

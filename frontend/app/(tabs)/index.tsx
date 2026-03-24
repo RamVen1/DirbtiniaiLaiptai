@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View, Pressable, useWindowDimensions, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { Colors } from '@/constants/theme';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ModuleCard } from '@/components/dashboard/module-card';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
   const colorScheme = useColorScheme();
@@ -29,8 +30,8 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Open profile"
               >
-                  <Image source={avatarSource} className="w-full h-full" />
-                
+                <Image source={avatarSource} className="w-full h-full" />
+
               </Pressable>
               <Text className="text-lg font-black text-primary tracking-tighter">
                 The Next Step

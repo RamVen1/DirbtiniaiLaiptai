@@ -1,62 +1,50 @@
 import { useEffect, useState } from 'react';
 import { ThemeProvider } from '@react-navigation/native';
-import { PortalHost } from '@rn-primitives/portal';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
-import '../global.css';
-import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { PortalHost } from '@rn-primitives/portal';
+import { StatusBar } from 'expo-status-bar';
+
+import '../global.css';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { NAV_THEME } from '@/lib/theme';
 import { getItem } from '@/utils/storage';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const theme = colorScheme === 'dark' ? 'dark' : 'light';
-
-  const [isReady, setIsReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
+function AuthGuard({ children, isReady, hasToken }: { children: React.ReactNode, isReady: boolean, hasToken: boolean }) {
   const segments = useSegments();
   const router = useRouter();
-
-  const checkAuth = async () => {
-    try {
-      const token = await getItem('userToken');
-      setHasToken(!!token);
-    } catch (e) {
-      setHasToken(false);
-    } finally {
-      setIsReady(true);
-    }
-  };
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (isReady) {
-      checkAuth();
-    }
-  }, [segments]);
 
   useEffect(() => {
     if (!isReady) return;
 
     const inAuthGroup = segments[0] === 'LoginForm' || segments[0] === 'RegisterForm';
 
+    // Redirect logic
     if (!hasToken && !inAuthGroup) {
       router.replace('/LoginForm');
     } else if (hasToken && inAuthGroup) {
       router.replace('/(tabs)');
     }
   }, [hasToken, segments, isReady]);
+
+  return <>{children}</>;
+}
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? 'dark' : 'light';
+  const [isReady, setIsReady] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    async function initialize() {
+      const token = await getItem('userToken');
+      setHasToken(!!token);
+      setIsReady(true);
+    }
+    initialize();
+  }, []);
 
   if (!isReady) {
     return (
@@ -69,13 +57,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider value={NAV_THEME[theme]}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="join-group" options={{ headerShown: false }} />
-          <Stack.Screen name="LoginForm" options={{ headerShown: false }} />
-          <Stack.Screen name="RegisterForm" options={{ headerShown: false }} />
-          <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
-        </Stack>
+        <AuthGuard isReady={isReady} hasToken={hasToken}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="LoginForm" />
+            <Stack.Screen name="RegisterForm" />
+            <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
+          </Stack>
+        </AuthGuard>
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
         <PortalHost />
       </ThemeProvider>

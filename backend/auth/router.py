@@ -52,22 +52,27 @@ def login_user(user: schemas.LoginRequest):
     if not db_user_dict:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
-    stored_hash = db_user_dict["Password"].replace("$2b$", "$2a$")
+    db_val = db_user_dict["Password"]
+    if isinstance(db_val, str):
+        stored_hash_bytes = db_val.encode('utf-8')
+    else:
+        stored_hash_bytes = db_val
+    stored_hash_bytes = db_val.replace(b"$2b$", b"$2a$")
 
     is_valid = bcrypt.checkpw(
-        user.password.encode('utf-8'),
-        stored_hash.encode('utf-8')
+        user.password.encode('utf-8'), 
+        stored_hash_bytes
     )
 
     if not is_valid:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
-    token = create_access_token(data={"sub": str(db_user_dict["Id"])})
+    token = create_access_token(data={"sub": str(db_user_dict["ID"])})
     return {
         "message": "Login successful",
         "token": token,
         "user": {
-            "id": db_user_dict["Id"],
+            "id": db_user_dict["ID"],
             "username": db_user_dict["Username"],
             "role": db_user_dict["Role"]
         }

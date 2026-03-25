@@ -3,54 +3,56 @@ import { View, Text, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
 import { saveItem } from '@/utils/storage';
+import { useAuth } from './_layout';
 
 export default function LoginForm() {
+  const { setHasToken } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-  setError(null);
-  if (!email || !password) {
-    setError('Please fill in all fields.');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const response = await fetch('http://localhost:8000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.detail || 'Login failed');
+    setError(null);
+    if (!email || !password) {
+      setError('Please fill in all fields.');
       return;
     }
 
-    if (!data.token) {
-      setError('No token received from server.');
-      return;
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.detail || 'Login failed');
+        return;
+      }
+
+      if (!data.token) {
+        setError('No token received from server.');
+        return;
+      }
+
+      await saveItem('userToken', data.token);
+      if (data.user) {
+        await saveItem('userData', JSON.stringify(data.user));
+      }
+
+      setHasToken(true);
+
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(`Could not connect to server. ${err instanceof Error ? err.message : ''}`);
+    } finally {
+      setLoading(false);
     }
-
-    await saveItem('userToken', data.token);
-    if (data.user) {
-      await saveItem('userData', JSON.stringify(data.user));
-    }
-
-    router.replace('/(tabs)');
-
-  } catch (err) {
-    console.error('Login error:', err);
-    setError(`Could not connect to server. ${err instanceof Error ? err.message : ''}`);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <View className="flex-1 bg-background px-6 pt-16">
@@ -81,7 +83,7 @@ export default function LoginForm() {
           />
         </View>
 
-        {error && <Text className="text-foreground text-center font-semibold">{error}</Text>}
+        {error && <Text className="text-destructive text-center font-semibold">{error}</Text>}
 
         <Button className="mt-4 h-14 rounded-2xl" onPress={handleLogin} disabled={loading}>
           {loading ? (

@@ -1,17 +1,18 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
-
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
 import { deleteItem } from '@/utils/storage';
+import { useAuth } from '@/app/_layout';
 
 export default function ProfileModalScreen() {
+  const { setHasToken } = useAuth();
 
   const handleLogout = async () => {
     await deleteItem('userToken');
     await deleteItem('userData');
-    router.replace('/LoginForm');
+    setHasToken(false);
   };
 
   return (

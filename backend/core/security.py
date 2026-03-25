@@ -9,7 +9,7 @@ def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(days=7) # Tokenas kolkas 7 dienom galioja
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm="HS256")
+    return jwt.encode(to_encode, str(settings.JWT_SECRET_KEY), algorithm="HS256")
 
 def get_current_user(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):

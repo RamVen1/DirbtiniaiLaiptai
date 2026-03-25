@@ -3,6 +3,8 @@ import { View, Text, TextInput, ScrollView, ActivityIndicator } from 'react-nati
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
 export default function RegisterForm() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +28,7 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),

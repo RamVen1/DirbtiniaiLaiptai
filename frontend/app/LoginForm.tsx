@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
+import { saveItem } from '@/utils/storage';
+import { useAuth } from './_layout';
 
 export default function LoginForm() {
+  const { setHasToken } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,11 +38,24 @@ export default function LoginForm() {
 
       if (!response.ok) {
         setError(data.detail || 'Login failed');
-      } else {
-        router.replace('/(tabs)');
+        return;
       }
+
+      if (!data.token) {
+        setError('No token received from server.');
+        return;
+      }
+
+      await saveItem('userToken', data.token);
+      if (data.user) {
+        await saveItem('userData', JSON.stringify(data.user));
+      }
+
+      setHasToken(true);
+
     } catch (err) {
-      setError('Could not connect to server.');
+      console.error('Login error:', err);
+      setError(`Could not connect to server. ${err instanceof Error ? err.message : ''}`);
     } finally {
       setLoading(false);
     }
@@ -74,7 +90,7 @@ export default function LoginForm() {
           />
         </View>
 
-        {error && <Text className="text-foreground text-center font-semibold">{error}</Text>}
+        {error && <Text className="text-destructive text-center font-semibold">{error}</Text>}
 
         <Button className="mt-4 h-14 rounded-2xl" onPress={handleLogin} disabled={loading}>
           {loading ? (

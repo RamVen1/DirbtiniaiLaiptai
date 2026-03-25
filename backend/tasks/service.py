@@ -10,11 +10,15 @@ def get_latest_task(db: Connection):
     return db.execute("SELECT * FROM task ORDER BY id DESC LIMIT 1").fetchone()
 
 def generate_daily_task(user_id: int):
-    prompt = "Generate a single, short, productive daily task for someone trying to learn time management. Keep it under 20 words."
+
+    conn = get_db()
+    skill = conn.execute("SELECT Skill FROM User WHERE id = ?", (user_id,)).fetchone()
+    difficulty = conn.execute("SELECT difficulty FROM User WHERaE id = ?", (user_id,)).fetchone()
+    prompt = "Generate a short productive daily task for someone who is trying to learn {skill} at a {difficulty} difficulty level. Imagine difficulty is a a slider from 0 to 5. 0 being a beginner and 5 expert".format(skill=skill["Skill"], difficulty=difficulty["difficulty"])
+    #prompt = "Generate a single, short, productive daily task for someone trying to learn time management. Keep it under 20 words."
     response = model.generate_content(prompt)
     task_text = response.text.strip()
     
-    conn = get_db()
     try:
         conn.execute("INSERT INTO task (task_content, User_ID) VALUES (?, ?)", (task_text, user_id))
         conn.commit()

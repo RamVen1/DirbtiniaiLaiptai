@@ -4,7 +4,7 @@ from core.database import get_db
 from core.security import get_current_user
 from . import service
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="", tags=["tasks"])
 
 @router.get("/task")
 def get_task(current_user_id: str = Depends(get_current_user)):

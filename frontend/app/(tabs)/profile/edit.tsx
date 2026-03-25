@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+
 export default function EditProfileScreen() {
   const [showAvatarPanel, setShowAvatarPanel] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
@@ -19,10 +20,13 @@ export default function EditProfileScreen() {
   ];
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const text = Colors[colorScheme === 'dark' ? 'dark' : 'light'].text;
 
   const [name, setName] = useState('Name Surname');
   const [role, setRole] = useState('Senior Cloud Architect');
   const [email, setEmail] = useState('engineer@logic.io');
+
+
 
   const defaultAvatar = require('@/assets/images/avatars/avatar1.jpg');
   return (
@@ -54,19 +58,20 @@ export default function EditProfileScreen() {
           <View className="items-center mt-6 mb-10">
             <View className="w-32 h-32 rounded-full bg-primary/20 items-center justify-center overflow-hidden">
 
-              {selectedAvatar !== null ? (
-                <Image
-                  source={avatars[selectedAvatar]}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-              ) : (
-                 <Image
-                  source={defaultAvatar}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-              )}
+              <Image
+                source={
+                  selectedAvatar !== null
+                    ? avatars[selectedAvatar]
+                    : defaultAvatar
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999, // 🔑 important for web
+                }}
+                resizeMode="cover"
+              />
+
 
             </View>
 
@@ -74,7 +79,7 @@ export default function EditProfileScreen() {
               className="mt-4 px-4 py-2 bg-surfaceContainer rounded-xl"
               onPress={() => setShowAvatarPanel(true)}
             >
-              <Text className="text-primary text-base font-semibold ">
+              <Text className="text-primary text-base font-semibold" >
                 Change Avatar
               </Text>
             </Pressable>
@@ -93,8 +98,8 @@ export default function EditProfileScreen() {
                   value={name}
                   onChangeText={setName}
                   placeholder="Your name"
-                  placeholderTextColor="#888"
-                  className="text-white text-base"
+                  placeholderTextColor={tint}
+                  style={{ color: tint }}
                 />
               </View>
             </View>
@@ -110,8 +115,8 @@ export default function EditProfileScreen() {
                   value={role}
                   onChangeText={setRole}
                   placeholder="Your role"
-                  placeholderTextColor="#888"
-                  className="text-white text-base"
+                  placeholderTextColor={tint}
+                  style={{ color: tint }}
                 />
               </View>
             </View>
@@ -122,20 +127,13 @@ export default function EditProfileScreen() {
                 EMAIL
               </Text>
 
-              <View className="bg-surfaceContainerLow rounded-xl px-4 py-3 flex-row items-center">
-                <Ionicons
-                  name="mail-outline"
-                  size={18}
-                  color={tint}
-                  style={{ marginRight: 10 }}
-                />
-
+              <View className="bg-surfaceContainerLow rounded-xl px-4 py-3">
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
                   placeholder="engineer@logic.io"
-                  placeholderTextColor="#888"
-                  className="flex-1 text-white text-base"
+                  placeholderTextColor={tint}
+                  style={{ color: tint }}
                 />
               </View>
             </View>
@@ -145,18 +143,16 @@ export default function EditProfileScreen() {
           <View className="mt-10 gap-4">
             <Button
               className="rounded-xl"
-              onPress={() => router.back()}
+              onPress={() => router.replace('/profile')}
             >
               <Text className="text-white font-bold text-base">
                 Save Changes
               </Text>
             </Button>
 
-            <Pressable className="items-center py-3">
-              <Text className="text-tertiary">
-                Cancel
-              </Text>
-            </Pressable>
+            <Button variant="secondary" className="flex-1 rounded-xl" onPress={() => { router.navigate('/profile/modal') }}>
+              <Text className="text-primary font-bold text-base">Cancel</Text>
+            </Button>
           </View>
         </ScrollView>
         {showAvatarPanel && (
@@ -197,7 +193,11 @@ export default function EditProfileScreen() {
                         <View className="w-full h-full rounded-full overflow-hidden">
                           <Image
                             source={avatar}
-                            className="w-full h-full"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: 999, // 🔑 important for web
+                            }}
                             resizeMode="cover"
                           />
                         </View>

@@ -4,16 +4,8 @@ import { router } from 'expo-router';
 
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
-import { deleteItem } from '@/utils/storage';
 
 export default function ProfileModalScreen() {
-
-  const handleLogout = async () => {
-    await deleteItem('userToken');
-    await deleteItem('userData');
-    router.replace('/LoginForm');
-  };
-
   return (
     <View className="flex-1 bg-background items-center justify-center p-6">
       <NeonCard className="w-full p-6 shadow-sm" overflowHidden={false}>
@@ -37,7 +29,7 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={handleLogout}
+            onPress={() => router.replace('/LoginForm')}
             className="w-full rounded-xl bg-primary px-10 py-5"
             accessibilityRole="button"
           >
@@ -45,7 +37,7 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.push('/profile/edit')}
+            onPress={() => router.navigate('/profile/edit')}
             className="w-full rounded-xl bg-primary px-10 py-5"
             accessibilityRole="button"
           >
@@ -55,7 +47,7 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.replace('/profile')}
             className="w-full rounded-xl border border-border bg-background px-10 py-4"
             accessibilityRole="button"
           >

@@ -24,7 +24,17 @@ export default function ProfileScreen() {
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
             <View className="flex-1 items-center justify-center">
-              <Image source={avatarSource} className="w-full h-full" />
+           <Image
+                source={
+                  avatarSource
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+                resizeMode="cover"
+              />
             </View>
           </View>
           <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
@@ -37,7 +47,17 @@ export default function ProfileScreen() {
           accessibilityLabel="Settings"
         >
           <View className="flex-1 items-center justify-center">
-            <Image source={avatarSource} className="w-full h-full" />
+            <Image
+                source={
+                  avatarSource
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+                resizeMode="cover"
+              />
           </View>
         </Pressable>
       </View>
@@ -47,8 +67,18 @@ export default function ProfileScreen() {
         <View className="items-center mt-8 mb-10">
           <View className="relative mb-6">
             <View className="w-36 h-36 rounded-full p-1 bg-primary/20 items-center justify-center">
-              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center overflow-hidden">
-                  <Image source={avatarSource} className="w-full h-full" />
+              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center over">
+                  <Image
+                source={
+                  avatarSource
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+                resizeMode="cover"
+              />
               </View>
             </View>
             <View className="absolute bottom-1 right-1 bg-primary px-2 py-0.5 rounded-full items-center justify-center">

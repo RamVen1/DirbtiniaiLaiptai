@@ -38,7 +38,7 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.replace('/LoginForm')}
+            onPress={() => handleLogout()}
             className="w-full rounded-xl bg-primary px-10 py-5"
             accessibilityRole="button"
           >

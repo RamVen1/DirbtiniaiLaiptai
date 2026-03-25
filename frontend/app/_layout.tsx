@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
@@ -9,7 +8,6 @@ import { StatusBar } from 'expo-status-bar';
 import '../global.css';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { NAV_THEME } from '@/lib/theme';
-import { getItem } from '@/utils/storage';
 
 function AuthGuard({ children, isReady, hasToken }: { children: React.ReactNode, isReady: boolean, hasToken: boolean }) {
   const segments = useSegments();

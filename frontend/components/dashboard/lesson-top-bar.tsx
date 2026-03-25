@@ -47,7 +47,17 @@ export function LessonTopBar({
               accessibilityRole="button"
               accessibilityLabel="Open profile"
             >
-              <Image source={avatarSource} className="w-full h-full" />
+              <Image
+                source={
+                  avatarSource
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+                resizeMode="cover"
+              />
             </Pressable>
           ) : (
             <View
@@ -57,7 +67,17 @@ export function LessonTopBar({
               )}
             >
 
-              <Image source={avatarSource} className="w-full h-full" />
+              <Image
+                source={
+                  avatarSource
+                }
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+                resizeMode="cover"
+              />
 
             </View>
           )}

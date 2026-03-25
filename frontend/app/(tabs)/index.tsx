@@ -30,7 +30,15 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Open profile"
               >
-                <Image source={avatarSource} className="w-full h-full" />
+                <Image
+                  source={avatarSource}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 999, // 🔑 important for web
+                  }}
+                  resizeMode="cover"
+                />
 
               </Pressable>
               <Text className="text-lg font-black text-primary tracking-tighter">
@@ -128,19 +136,35 @@ export default function HomeScreen() {
           {/* Active Modules */}
           <View className="mt-6">
             <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-2xl font-bold text-foreground">Current Improvement Course</Text>
+              <Text className="text-2xl font-bold text-foreground">
+                Current Improvement Course
+              </Text>
             </View>
 
             <View className="flex-col gap-6">
-              <ModuleCard
-                index=""
-                title="Active Listening"
-                completionLabel="COMPLETION"
-                completionValue={75}
-                barColor="primary"
-                icon="ear"
-                iconColor={tint}
-              />
+              <Pressable
+                onPress={() => router.push(`/MiniReport`)} // change to your route
+                className="rounded-2xl"
+                android_ripple={{ color: tint + '20' }}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.9 : 1,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                })}
+              >
+                
+                <View className="relative">
+                  <ModuleCard
+                    index=""
+                    title=" View Active Listening report "
+                    completionLabel="COMPLETION"
+                    completionValue={75}
+                    barColor="primary"
+                    icon="ear"
+                    iconColor={tint}
+                  />
+
+                </View>
+              </Pressable>
             </View>
           </View>
 

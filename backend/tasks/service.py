@@ -1,7 +1,7 @@
 import google.generativeai as genai
 from sqlite3 import Connection
 from core.config import settings
-from database import get_db
+from core.database import get_db
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('models/gemini-2.5-flash')

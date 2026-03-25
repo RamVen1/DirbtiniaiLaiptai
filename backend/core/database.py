@@ -25,7 +25,7 @@ def init_db():
     conn = get_db()
     conn.execute(f"""
         CREATE TABLE IF NOT EXISTS User (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Username TEXT UNIQUE NOT NULL,
             Email TEXT UNIQUE NOT NULL,
                 Password TEXT NOT NULL,
@@ -37,51 +37,51 @@ def init_db():
 
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Task (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Task_content TEXT,
                 Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS RoleRequest (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
                 Status TEXT NOT NULL DEFAULT '{RequestStatus.Pending.value}',
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Report (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Start DATETIME,
                 End DATETIME,
                 CompletionRate REAL,
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)   
+                FOREIGN KEY (User_ID) REFERENCES User (ID)   
             )
         """)
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Companion (
-                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                  Happiness INTEGER DEFAULT 100,
                  Type TEXT NOT NULL DEFAULT '{CompanionType.Dog.value}',
                  User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Team (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Code TEXT UNIQUE,
                 ModeratorID INTEGER,
-                FOREIGN KEY (ModeratorID) REFERENCES User (Id)
+                FOREIGN KEY (ModeratorID) REFERENCES User (ID)
             )
         """)
 
@@ -90,8 +90,8 @@ def init_db():
                 Team_ID INTEGER,
                 User_ID INTEGER,
                 PRIMARY KEY (Team_ID, User_ID),
-                FOREIGN KEY (Team_ID) REFERENCES Team (Id),
-                FOREIGN KEY (User_ID) REFERENCES User (Id)
+                FOREIGN KEY (Team_ID) REFERENCES Team (ID),
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
     conn.commit()

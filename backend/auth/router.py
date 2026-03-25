@@ -39,7 +39,7 @@ def register_user(user: schemas.RegisterRequest):
 
 @router.post("/login")
 def login_user(user: schemas.LoginRequest):
-    conn = get_db
+    conn = get_db()
     try:
         db_user = conn.execute(
             "SELECT * FROM User WHERE Email = ?",

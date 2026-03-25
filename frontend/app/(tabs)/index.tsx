@@ -35,7 +35,7 @@ export default function HomeScreen() {
                   style={{
                     width: '100%',
                     height: '100%',
-                    borderRadius: 999, // 🔑 important for web
+                    borderRadius: 999,
                   }}
                   resizeMode="cover"
                 />
@@ -151,7 +151,7 @@ export default function HomeScreen() {
                   transform: [{ scale: pressed ? 0.98 : 1 }],
                 })}
               >
-                
+
                 <View className="relative">
                   <ModuleCard
                     index=""

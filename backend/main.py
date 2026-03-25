@@ -24,6 +24,8 @@ app.include_router(tasks_router)
 @app.get("/")
 def read_root():
     return {"status": "online"}
+def read_root():
+    return {"status": "online"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=settings.PORT, reload=True)

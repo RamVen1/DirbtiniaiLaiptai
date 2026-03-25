@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { getItem } from '@/utils/storage';
+
 
 type DailyTaskResponse = {
   task?: string | null;
@@ -41,7 +43,15 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
         setLoadingDailyTask(true);
         setDailyTaskError(null);
 
-        const response = await fetch(`${API_URL}/task`);
+        const token = await getItem('userToken');
+        console.log('Fetching daily task with token:', token);
+        const response = await fetch(`${API_URL}/task`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
         const data = (await response.json()) as DailyTaskResponse;
 
         const taskFromApi = data?.task ?? data?.dailyTask ?? null;

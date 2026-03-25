@@ -31,7 +31,10 @@ def init_db():
                 Password TEXT NOT NULL,
                 Role TEXT NOT NULL DEFAULT '{UserRole.Member.value}',
                 streak INTEGER DEFAULT 0,
-                skill TEXT NULL
+                skill TEXT NULL,
+                difficulty INTEGER NULL DEFAULT 0,
+                team_id INTEGER NULL,
+                FOREIGN KEY (team_id) REFERENCES Team (Id)
             )
         """)
 
@@ -82,16 +85,6 @@ def init_db():
                 Code TEXT UNIQUE,
                 ModeratorID INTEGER,
                 FOREIGN KEY (ModeratorID) REFERENCES User (ID)
-            )
-        """)
-
-    conn.execute(f"""
-            CREATE TABLE IF NOT EXISTS TeamMembers (
-                Team_ID INTEGER,
-                User_ID INTEGER,
-                PRIMARY KEY (Team_ID, User_ID),
-                FOREIGN KEY (Team_ID) REFERENCES Team (ID),
-                FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
     conn.commit()

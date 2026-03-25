@@ -5,7 +5,7 @@ from core.database import get_db
 from core.security import create_access_token
 from . import service, schemas
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="", tags=["auth"])
 
 @router.post("/register")
 def register_user(user: schemas.RegisterRequest):
@@ -25,7 +25,7 @@ def register_user(user: schemas.RegisterRequest):
             if existing_user["Email"] == user.email:
                 raise HTTPException(status_code=400, detail="Email already exists.")
         
-        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
 
         conn.execute(
             "INSERT INTO User (Username, Email, Password, Role) VALUES (?, ?, ?, 'Member')",
@@ -62,12 +62,12 @@ def login_user(user: schemas.LoginRequest):
     if not is_valid:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
-    token = create_access_token(data={"sub": str(db_user_dict["ID"])})
+    token = create_access_token(data={"sub": str(db_user_dict["Id"])})
     return {
         "message": "Login successful",
         "token": token,
         "user": {
-            "id": db_user_dict["ID"],
+            "id": db_user_dict["Id"],
             "username": db_user_dict["Username"],
             "role": db_user_dict["Role"]
         }

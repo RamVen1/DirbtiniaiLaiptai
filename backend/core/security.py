@@ -14,8 +14,8 @@ def create_access_token(data: dict):
 def get_current_user(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
-    
     token = authorization.split(" ")[1]
+    print(f"Received token: {token}")  # Debug print to check the token value
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
         user_id: str = payload.get("sub")

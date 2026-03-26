@@ -8,10 +8,43 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
 import { NeonCard } from '@/components/dashboard/neon-card';
+import { getItem } from '@/utils/storage';
 
 export default function TaskActiveScreen() {
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+
+  const handleDifficultyUpdate = async (adjustment: number) => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/update-difficulty?adjustment=${adjustment}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const count = data.total_tasks;
+
+        if (count > 0 && count % 7 === 0) {
+          router.push('/MiniReport');
+        } else {
+          router.replace('/(tabs)');
+        }
+      } else {
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      console.error(error);
+      router.replace('/(tabs)');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -33,8 +66,8 @@ export default function TaskActiveScreen() {
 
           <View className="w-full gap-3">
             <Pressable
-              className="w-full rounded-xl bg-primary px-10 py-5"
-              onPress={() => router.navigate('/MiniReport')}
+              className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              onPress={() => handleDifficultyUpdate(-1)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
                 Too difficult
@@ -42,20 +75,20 @@ export default function TaskActiveScreen() {
             </Pressable>
 
             <Pressable
-              className="w-full rounded-xl bg-primary px-10 py-5"
-              onPress={() => router.navigate('/MiniReport')}
+              className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              onPress={() => handleDifficultyUpdate(0)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
-                Too easy
+                Correct hardness
               </RNText>
             </Pressable>
 
             <Pressable
-              className="w-full rounded-xl bg-primary px-10 py-5"
-              onPress={() => router.navigate('/MiniReport')}
+              className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              onPress={() => handleDifficultyUpdate(1)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
-                Correct hardness
+                Too easy
               </RNText>
             </Pressable>
           </View>

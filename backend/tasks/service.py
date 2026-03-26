@@ -12,10 +12,9 @@ def get_latest_task(db: Connection):
 def generate_daily_task(user_id: int):
 
     conn = get_db()
-    skill = conn.execute("SELECT Skill FROM User WHERE id = ?", (user_id,)).fetchone()
-    difficulty = conn.execute("SELECT difficulty FROM User WHERaE id = ?", (user_id,)).fetchone()
-    prompt = "Generate a short productive daily task for someone who is trying to learn {skill} at a {difficulty} difficulty level. Imagine difficulty is a a slider from 0 to 5. 0 being a beginner and 5 expert".format(skill=skill["Skill"], difficulty=difficulty["difficulty"])
-    #prompt = "Generate a single, short, productive daily task for someone trying to learn time management. Keep it under 20 words."
+    skill = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+    difficulty = conn.execute("SELECT difficulty FROM User WHERE ID = ?", (user_id,)).fetchone()
+    prompt = "Generate a short productive daily task for someone who is trying to learn {skill} at a {difficulty} difficulty level. Imagine difficulty is a a slider from 0 to 5. 0 being a beginner and 5 expert. Keep the answer to just the task and under 20 words.".format(skill=skill["Skill"], difficulty=difficulty["difficulty"])
     response = model.generate_content(prompt)
     task_text = response.text.strip()
     

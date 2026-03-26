@@ -1,9 +1,9 @@
-import React, { useState } from 'react'; // Pridėtas useState
+import React, { useState } from 'react';
 import { Pressable, View, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
-import { deleteItem, getItem } from '@/utils/storage'; // Pridėtas getItem
+import { deleteItem, getItem } from '@/utils/storage';
 import { useAuth } from '@/app/_layout';
 
 export default function ProfileModalScreen() {
@@ -39,6 +39,30 @@ export default function ProfileModalScreen() {
     }
   };
 
+  const handleLeaveGroup = async () => {
+    setLoading(true);
+    const token = await getItem('userToken');
+    try {
+      const response = await fetch(`${API_URL}/group/leave`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", "You have left the group.");
+        router.replace('/profile');
+      } else {
+        Alert.alert("Error", data.detail || "Failed to leave the group.");
+      }
+    } catch (e) {
+      Alert.alert("Error", "Could not connect to server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-background items-center justify-center p-6">
       <NeonCard className="w-full p-6 shadow-sm" overflowHidden={false}>
@@ -50,12 +74,11 @@ export default function ProfileModalScreen() {
         </Text>
 
         <View className="gap-3">
-          {/* Rodo tik vartotojam (taip reikes padaryt su join/leave groups veliau) */}
           {user?.role?.toLowerCase() === 'member' && (
             <Pressable
               onPress={handleApplyModerator}
-              disabled={loading}
-              className="w-full rounded-xl bg-secondary px-10 py-5 border border-primary/30"
+            disabled={loading}
+              className="w-full rounded-xl bg-secondary px-10 py-5 border border-primary/30 active:opacity-80"
               accessibilityRole="button"
             >
               {loading ? (
@@ -66,25 +89,30 @@ export default function ProfileModalScreen() {
             </Pressable>
           )}
 
-          <Pressable
-            onPress={() => router.replace('/join-group')}
-            className="w-full rounded-xl bg-primary px-10 py-5"
-            accessibilityRole="button"
-          >
-            <Text className="text-foreground font-extrabold text-lg text-center">Leave group</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => handleLogout()}
-            className="w-full rounded-xl bg-primary px-10 py-5"
-            accessibilityRole="button"
-          >
-            <Text className="text-foreground font-extrabold text-lg text-center">Logout</Text>
-          </Pressable>
+          {user?.team_id ? (
+            <Pressable
+              onPress={handleLeaveGroup}
+              disabled={loading}
+              className="w-full rounded-xl bg-destructive/10 border border-destructive/20 px-10 py-5 active:bg-destructive/20"
+              accessibilityRole="button"
+            >
+              <Text className="text-destructive font-extrabold text-lg text-center">
+                Leave group
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => router.replace('/join-group')}
+              className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
+              accessibilityRole="button"
+            >
+              <Text className="text-foreground font-extrabold text-lg text-center">Join group</Text>
+            </Pressable>
+          )}
 
           <Pressable
             onPress={() => router.navigate('/profile/edit')}
-            className="w-full rounded-xl bg-primary px-10 py-5"
+            className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
             accessibilityRole="button"
           >
             <Text className="text-foreground font-extrabold text-lg text-center">
@@ -93,8 +121,16 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
+            onPress={handleLogout}
+            className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
+            accessibilityRole="button"
+          >
+            <Text className="text-foreground font-extrabold text-lg text-center">Logout</Text>
+          </Pressable>
+
+          <Pressable
             onPress={() => router.replace('/profile')}
-            className="w-full rounded-xl border border-border bg-background px-10 py-4"
+            className="w-full rounded-xl border border-border bg-background px-10 py-4 active:bg-muted"
             accessibilityRole="button"
           >
             <Text className="text-foreground font-extrabold text-lg text-center">Close</Text>

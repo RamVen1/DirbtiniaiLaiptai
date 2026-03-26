@@ -7,6 +7,7 @@ from auth.router import router as auth_router
 from tasks.router import router as tasks_router
 from moderate.router import router as moderate_router
 from admin.router import router as admin_router
+from group.router import router as group_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -24,6 +25,7 @@ app.include_router(auth_router)
 app.include_router(tasks_router)
 app.include_router(moderate_router)
 app.include_router(admin_router)
+app.include_router(group_router)
 
 @app.get("/")
 def read_root():

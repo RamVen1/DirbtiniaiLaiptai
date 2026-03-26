@@ -64,3 +64,14 @@ def get_report_data(current_user_id: int = Depends(get_current_user)):
             days_data.append(1 if day in task_dates else 0)
 
     return {"chart_data": days_data, "total_practice_hours": round(len(tasks) * 0.6, 1)}
+
+@router.get("/check-report")
+def check_report(current_user_id: int = Depends(get_current_user)):
+    with get_db() as conn:
+        cursor = conn.execute(
+            "SELECT 1 FROM Report WHERE User_ID = ? LIMIT 1", 
+            (current_user_id,)
+        )
+        report_exists = cursor.fetchone() is not None
+        
+    return {"exists": report_exists}

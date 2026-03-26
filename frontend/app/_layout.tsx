@@ -4,7 +4,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PortalHost } from '@rn-primitives/portal';
 import { StatusBar } from 'expo-status-bar';
-import { getItem } from '@/utils/storage';
+import { getItem, saveItem } from '@/utils/storage';
 import { View, ActivityIndicator } from 'react-native';
 import '../global.css';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -15,6 +15,7 @@ const AuthContext = createContext<{
   setHasToken: (val: boolean) => void;
   user: any | null;
   setUser: (val: any | null) => void;
+  refreshUser: () => Promise<void>;
 } | null>(null);
 
 export const useAuth = () => {
@@ -24,7 +25,7 @@ export const useAuth = () => {
 };
 
 function AuthGuard({ children, isReady }: { children: React.ReactNode, isReady: boolean }) {
-  const { hasToken } = useAuth();
+  const { hasToken, refreshUser } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -35,8 +36,12 @@ function AuthGuard({ children, isReady }: { children: React.ReactNode, isReady: 
 
     if (!hasToken && !inAuthGroup) {
       router.replace('/LoginForm');
-    } else if (hasToken && inAuthGroup) {
-      router.replace('/(tabs)');
+    } else if (hasToken) {
+      refreshUser().catch(console.error);
+
+      if (inAuthGroup) {
+        router.replace('/(tabs)');
+      }
     }
   }, [hasToken, segments, isReady]);
 
@@ -50,6 +55,33 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const [user, setUser] = useState<any | null>(null);
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+  const refreshUser = async () => {
+    const token = await getItem('userToken');
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const freshData = await response.json();
+        
+        const normalizedUser = {
+          ...freshData,
+          role: freshData.role || freshData.Role
+        };
+
+        setUser(normalizedUser);
+        await saveItem('userData', JSON.stringify(normalizedUser));
+        console.log("AUTH DEBUG - Duomenys sėkmingai atnaujinti");
+      }
+    } catch (e) {
+      console.error("Refresh failed", e);
+    }
+  };
 
   useEffect(() => {
   async function initialize() {
@@ -78,7 +110,7 @@ export default function RootLayout() {
 }, []);
 
   return (
-    <AuthContext.Provider value={{hasToken, setHasToken, user, setUser}}>
+    <AuthContext.Provider value={{hasToken, setHasToken, user, setUser, refreshUser}}>
       <SafeAreaProvider>
         <ThemeProvider value={NAV_THEME[theme]}>
           <AuthGuard isReady={isReady}>

@@ -3,11 +3,13 @@ import { Text, View, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
 import { getItem } from '@/utils/storage';
+import { useAuth } from '@/app/_layout';
 
 export default function JoinGroupScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+  const { refreshUser } = useAuth();
 
   const handleJoin = async () => {
     if (input.length < 4) {
@@ -31,6 +33,8 @@ export default function JoinGroupScreen() {
       const data = await response.json();
 
       if (response.ok) {
+        await refreshUser();
+        router.replace('/profile') 
         Alert.alert("Success", "You have joined the team!", [
           { text: "OK", onPress: () => router.replace('/profile') }
         ]);
@@ -56,7 +60,7 @@ export default function JoinGroupScreen() {
           placeholder="Group code e.g. ABC12345"
           placeholderTextColor="#7A1CAC"
           autoCapitalize="characters"
-          maxLength={8} // Pakeista į 8, nes tavo UUID generatorius naudoja 8 simbolius
+          maxLength={8}
         />
         
         <Button 
@@ -74,7 +78,7 @@ export default function JoinGroupScreen() {
         <Button 
           variant="outline" 
           className="mt-2 w-full border-none" 
-          onPress={() => router.back()}
+          onPress={() => router.replace('/(tabs)')}
         >
           <Text className="text-muted-foreground">Cancel</Text>
         </Button>

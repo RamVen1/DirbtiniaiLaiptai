@@ -2,7 +2,7 @@ import bcrypt
 from fastapi import APIRouter, HTTPException, Depends
 from sqlite3 import Connection
 from core.database import get_db
-from core.security import create_access_token
+from core.security import create_access_token, get_current_user
 from . import service, schemas
 
 router = APIRouter(prefix="", tags=["auth"])
@@ -78,3 +78,23 @@ def login_user(user: schemas.LoginRequest):
             "team_id": db_user_dict.get("team_id")
         }
     }
+
+@router.get("/me")
+def get_current_user_data(current_user_id: str = Depends(get_current_user)):
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT ID, Email, Role, team_id, Username FROM User WHERE ID = ?", 
+            (current_user_id,)
+        ).fetchone()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        u_dict = dict(user)
+        return {
+            "id": u_dict["ID"],
+            "email": u_dict["Email"],
+            "role": u_dict["Role"].lower() if u_dict["Role"] else "member",
+            "team_id": u_dict.get("team_id"),
+            "username": u_dict["Username"]
+        }

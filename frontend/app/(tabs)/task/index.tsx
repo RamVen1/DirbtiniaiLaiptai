@@ -18,7 +18,7 @@ export default function TaskIntroScreen() {
       <LessonTopBar
         title="The Next Step"
         tintColor={tint}
-        onFlamePress={() => router.navigate('/task/description')}
+        onFlamePress={() => router.navigate('/task')}
         onAvatarPress={() => router.navigate('/profile')}
       />
 
@@ -28,15 +28,15 @@ export default function TaskIntroScreen() {
             Ready for the lesson?
           </Text>
           <Text className="text-muted-foreground text-base text-center mb-6">
-            Tap to read the task intro. Then you will load your daily task.
+            Tap to start your next task and take the next step in improving your skills. Remember, consistency is key to growth!
           </Text>
 
           <Pressable
-            onPress={() => router.navigate('/task/description')}
+            onPress={() => router.navigate('/task/daily')}
             className="w-full rounded-xl bg-primary px-10 py-5"
           >
             <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
-              Read task intro
+              Start Your Task
             </RNText>
           </Pressable>
         </NeonCard>

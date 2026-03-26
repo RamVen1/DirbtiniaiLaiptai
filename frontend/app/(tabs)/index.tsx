@@ -1,8 +1,8 @@
-import React from 'react';
-import { ScrollView, View, Pressable, useWindowDimensions, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Pressable, useWindowDimensions, Image, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 
 import { Colors } from '@/constants/theme';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Text } from '@/components/ui/text';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ModuleCard } from '@/components/dashboard/module-card';
 import { useAuth } from '../_layout';
+import { getItem } from '@/utils/storage';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -20,8 +21,30 @@ export default function HomeScreen() {
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   const { user } = useAuth();
 
+  const [hasReport, setHasReport] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const role = user?.role?.toLowerCase();
-  
+
+  useEffect(() => {
+    checkReportStatus();
+  }, []);
+
+  const checkReportStatus = async () => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/check-report`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setHasReport(data.exists);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getDestination = () => {
     if (role === 'admin') return '/AdminRequest';
     if (role === 'moderator') return '/ManageTeams';
@@ -35,90 +58,52 @@ export default function HomeScreen() {
     if (role === 'member' && !user?.team_id) return { label: 'Join a Team', icon: 'add-circle' };
     return { label: 'Continue Daily Next Step', icon: 'flame' };
   };
+
   const destination = getDestination();
   const { label, icon } = getButtonProps();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1">
-        {/* Fixed top app bar (similar to the provided HTML) */}
         <View className="absolute top-0 left-0 right-0 z-50 bg-background border-b border-border/20">
           <View className="flex-row items-center justify-between px-6 py-4">
             <View className="flex-row items-center gap-3">
               <Pressable
                 onPress={() => router.navigate('/profile')}
-                className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary items-center justify-center overflow-hidden active:scale-95"
-                accessibilityRole="button"
-                accessibilityLabel="Open profile"
+                className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden"
               >
-                <Image
-                  source={avatarSource}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 999,
-                  }}
-                  resizeMode="cover"
-                />
-
+                <Image source={avatarSource} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
               </Pressable>
-              <Text className="text-lg font-black text-primary tracking-tighter">
-                The Next Step
-              </Text>
+              <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
             </View>
 
-            <Pressable
-              onPress={() => router.navigate(destination)}
-              className="p-2 active:scale-95"
-            >
+            <Pressable onPress={() => router.navigate(destination)} className="p-2">
               <Ionicons name={icon as any} size={22} color={tint} />
             </Pressable>
           </View>
         </View>
 
-        <ScrollView
-          className="flex-1 bg-background pt-24 px-6 pb-28"
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView className="flex-1 bg-background pt-24 px-6 pb-28" showsVerticalScrollIndicator={false}>
           <View className="mb-8">
             <Text className="text-3xl font-bold tracking-tight text-foreground">
-              Take the next step to improving your soft-skills
+              Improving your {user?.skill || 'Soft-Skills'}
             </Text>
             <Text className="text-foreground/80 font-medium mt-1">
-              Your soft-skills architecture is evolving. Click on the flame to start your next task.
+              Click on the flame to start your next task.
             </Text>
           </View>
 
-          {/* Bento Grid: Hero + Companion */}
           <View className={isTablet ? 'flex-row gap-6' : 'flex-col gap-6'}>
             <View className={isTablet ? 'flex-1' : 'w-full'}>
-              <View className="bg-primary rounded-3xl p-8 relative overflow-hidden shadow-sm">
+              <View className="bg-primary rounded-3xl p-8 relative overflow-hidden">
                 <View className="absolute -right-20 -bottom-20 w-64 h-64 rounded-full bg-secondary/30" />
-                <View className="absolute top-6 right-6 opacity-20">
-                  <Ionicons name="sparkles" size={90} color="#fff" />
-                </View>
-
                 <View className="relative z-10">
-                  <View className="flex-row items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
-                    <Ionicons name="sparkles" size={18} color="#fff" />
-                    <Text className="text-white font-bold text-[10px] uppercase tracking-widest">
-                      Momentum Active
-                    </Text>
-                  </View>
+                  <Text className="text-white font-extrabold text-6xl mb-2">{user?.streak || 0} Days</Text>
+                  <Text className="text-white/80 text-lg">Current daily streak</Text>
 
-                  <Text className="text-white font-extrabold text-6xl mb-2">14 Days</Text>
-                  <Text className="text-white/80 text-lg max-w-[320px]">
-                    You're in the top 5% of engineers refining empathy this week.
-                  </Text>
-                  
-                  <Button
-                    className="mt-8 bg-background border border-border/20"
-                    onPress={() => router.navigate(destination)}
-                  >   
+                  <Button className="mt-8 bg-background" onPress={() => router.navigate(destination)}>
                     <View className="flex-row items-center justify-center gap-2">
-                      <Text className="text-primary font-extrabold text-base">
-                        {label}
-                      </Text>
+                      <Text className="text-primary font-extrabold text-base">{label}</Text>
                       <Ionicons name={icon as any} size={18} color={tint} />
                     </View>
                   </Button>
@@ -127,103 +112,39 @@ export default function HomeScreen() {
             </View>
 
             <View className={isTablet ? 'w-80' : 'w-full'}>
-              <View className="bg-card rounded-3xl p-6 flex-1 items-center justify-center text-center relative overflow-hidden border border-border/20">
-                <View className="w-32 h-32 rounded-full bg-primary/20 items-center justify-center mb-4 relative">
-                  <View className="absolute inset-0 rounded-full bg-primary/10" />
+              <View className="bg-card rounded-3xl p-6 flex-1 items-center justify-center border border-border/20">
+                <View className="w-24 h-24 rounded-full bg-primary/20 items-center justify-center mb-4">
                   <Ionicons name="heart" size={42} color={tint} />
                 </View>
-
                 <Text className="text-foreground font-bold text-xl mb-1">Bit, your Peer</Text>
-                <Text className="text-foreground/80 text-sm mb-4 italic">
+                <Text className="text-foreground/80 text-sm italic text-center">
                   &quot;Your empathy logic is compiling perfectly!&quot;
                 </Text>
-
-                {/* Happiness bar (primary -> secondary look without requiring gradient support) */}
-                <View className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                  <View className="flex-row h-full">
-                    <View className="bg-primary" style={{ width: '65%' }} />
-                    <View className="bg-secondary" style={{ width: '35%' }} />
-                  </View>
-                </View>
-                <Text className="mt-2 text-[10px] uppercase font-bold text-primary tracking-tighter">
-                  Happiness: 88%
-                </Text>
               </View>
             </View>
           </View>
 
-          {/* Active Modules */}
           <View className="mt-6">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-2xl font-bold text-foreground">
-                Current Improvement Course
-              </Text>
-            </View>
+            <Text className="text-2xl font-bold text-foreground mb-6">Current Improvement Course</Text>
 
-            <View className="flex-col gap-6">
-              <Pressable
-                onPress={() => router.push(`/MiniReport`)} // change to your route
-                className="rounded-2xl"
-                android_ripple={{ color: tint + '20' }}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.9 : 1,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                })}
-              >
-
-                <View className="relative">
-                  <ModuleCard
-                    index=""
-                    title=" View Active Listening report "
-                    completionLabel="COMPLETION"
-                    completionValue={75}
-                    barColor="primary"
-                    icon="ear"
-                    iconColor={tint}
-                  />
-
-                </View>
+            {hasReport ? (
+              <Pressable onPress={() => router.push(`/MiniReport`)}>
+                <ModuleCard
+                  index=""
+                  title={`View ${user?.skill || 'Soft-Skills'} report`}
+                  completionLabel="COMPLETION"
+                  completionValue={100}
+                  barColor="primary"
+                  icon="analytics"
+                  iconColor={tint}
+                />
               </Pressable>
-            </View>
-          </View>
-
-          {/* Weekly Skill Matrix (Glass-ish card) */}
-          <View className="mt-6 bg-card/40 border border-border/20 rounded-[2rem] p-8">
-            <View className="flex-col items-center gap-6">
-              {/* Graphs */}
-              <View className="flex-row items-end gap-6">
-                <View className="flex-col items-center gap-2">
-                  <View className="w-12 h-32 bg-primary/20 rounded-full flex items-end p-1">
-                    <View className="w-full h-[80%] bg-primary rounded-full" />
-                  </View>
-                  <Text className="text-[10px] font-bold text-foreground/60 uppercase">COM</Text>
-                </View>
-
-                <View className="flex-col items-center gap-2">
-                  <View className="w-12 h-32 bg-secondary/20 rounded-full flex items-end p-1">
-                    <View className="w-full h-[40%] bg-secondary rounded-full" />
-                  </View>
-                  <Text className="text-[10px] font-bold text-foreground/60 uppercase">LDR</Text>
-                </View>
-
-                <View className="flex-col items-center gap-2">
-                  <View className="w-12 h-32 bg-accent/20 rounded-full flex items-end p-1">
-                    <View className="w-full h-[60%] bg-accent rounded-full" />
-                  </View>
-                  <Text className="text-[10px] font-bold text-foreground/60 uppercase">PRO</Text>
-                </View>
+            ) : (
+              <View className="bg-card/40 border border-dashed border-border p-8 rounded-2xl items-center">
+                <Ionicons name="hourglass-outline" size={32} color={tint} opacity={0.5} />
+                <Text className="text-foreground/50 font-bold mt-2">Keep working to see your progress</Text>
               </View>
-
-              {/* Text under graphs */}
-              <View className="w-full">
-                <Text className="text-2xl font-bold text-foreground mb-2">Weekly Skill Matrix</Text>
-                <Text className="text-foreground/80">
-                  Your &quot;Communication&quot; node is growing faster than your
-                  &quot;Leadership&quot; node. Try a technical mentorship module to balance the
-                  graph.
-                </Text>
-              </View>
-            </View>
+            )}
           </View>
         </ScrollView>
       </View>

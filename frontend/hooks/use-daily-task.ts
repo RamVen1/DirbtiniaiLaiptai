@@ -44,7 +44,6 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
         setDailyTaskError(null);
 
         const token = await getItem('userToken');
-        console.log('Fetching daily task with token:', token);
         const response = await fetch(`${API_URL}/task`, {
           method: "GET",
           headers: {

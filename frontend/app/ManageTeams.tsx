@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,76 +7,140 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
+import { useAuth } from './_layout';
+import { getItem } from '@/utils/storage';
+import * as Clipboard from 'expo-clipboard';
 
 export default function ManageTeamsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-  const [teams, setTeams] = useState([
-    { id: 1, name: 'Frontend Unit', code: 'A7B2X9P1', members: 5 },
-    { id: 2, name: 'Backend Squad', code: 'K9L0M1Z2', members: 3 },
-  ]);
+  const [teams, setTeams] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const createTeam = () => {
-    // Čia būtų generuojamas kodas ir siunčiama į Backend
-    const newCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    Alert.alert("New Team Created", `Team Code: ${newCode}`);
+  const fetchTeams = async () => {
+    const token = await getItem('userToken');
+  
+    try {
+      const response = await fetch(`${API_URL}/moderate/teams`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    
+      const data = await response.json();
+      if (data.teams) {
+        setTeams(data.teams);
+      }
+    } catch (error) {
+      console.error("Fetch teams error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => { fetchTeams(); }, [user]);
+
+  const handleCreateTeam = async () => {
+    const token = await getItem('userToken');
+    try {
+      const response = await fetch(`${API_URL}/moderate/teams/create`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        },
+      });
+
+      if (response.ok) {
+        const newTeam = await response.json();
+        Alert.alert("Success", `Created Team #${newTeam.ID}`);
+        fetchTeams();
+      } else {
+        Alert.alert("Error", "Failed to create team.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
+  const handleDeleteTeam = async (teamId: number) => {
+  try {
+    const token = await getItem('userToken');
+
+    const url = `${API_URL}/moderate/teams/${teamId}`;
+
+    const response = await fetch(url, { 
+      method: 'DELETE',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      fetchTeams(); 
+    } else {
+      const errorText = await response.text();
+      console.log("KLAIDA IŠ SERVERIO:", errorText);
+    }
+  } catch (e) {
+    console.error("TINKLO KLAIDA:", e);
+  }
+};
+
+  const copyToClipboard = async (code: string) => {
+    await Clipboard.setStringAsync(code);
+    Alert.alert("Copied", "Team code copied to clipboard!");
+  };
+
+  if (loading) return <ActivityIndicator style={{flex: 1}} color={tint} />;
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      {/* Header */}
       <View className="px-6 py-4 flex-row items-center justify-between border-b border-border/20">
-        <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+        <Pressable onPress={() => router.navigate('/(tabs)')} className="p-2 -ml-2">
           <Ionicons name="chevron-back" size={24} color={tint} />
         </Pressable>
         <Text className="text-xl font-bold text-foreground">My Teams</Text>
-        <Pressable onPress={createTeam} className="p-2">
+        <Pressable onPress={handleCreateTeam} className="p-2">
           <Ionicons name="add" size={28} color={tint} />
         </Pressable>
       </View>
 
       <ScrollView className="flex-1 px-6 pt-4">
-        <View className="mb-6 bg-primary/10 p-4 rounded-2xl border border-primary/20">
-          <Text className="text-primary font-bold">Moderator Mode</Text>
-          <Text className="text-primary/80 text-sm mt-1">
-            Create teams and share the 8-symbol code with your members.
-          </Text>
-        </View>
+        {teams.length === 0 ? (
+          <Text className="text-center text-muted-foreground mt-10">No teams created yet.</Text>
+        ) : (
+          teams.map((team) => (
+            <View key={team.ID} className="bg-card border border-border/20 rounded-2xl p-5 mb-4 shadow-sm">
+              <View className="flex-row justify-between items-start mb-3">
+                <View>
+                  <Text className="text-sm text-primary font-bold uppercase">Active Team</Text>
+                  <Text className="text-2xl font-black text-foreground">Team #{team.ID}</Text>
+                </View>
+                <Pressable onPress={() => handleDeleteTeam(team.ID)} className="p-2 bg-destructive/10 rounded-full">
+                  <Ionicons name="trash-outline" size={20} color="#ff4444" />
+                </Pressable>
+              </View>
 
-        <Text className="text-lg font-bold text-foreground mb-4">Active Teams</Text>
-
-        {teams.map((team) => (
-          <View key={team.id} className="bg-card border border-border/20 rounded-2xl p-5 mb-4 relative overflow-hidden">
-            <View className="absolute -right-4 -bottom-4 opacity-5">
-               <Ionicons name="people" size={80} color={tint} />
-            </View>
-
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-xl font-extrabold text-foreground">{team.name}</Text>
-              <View className="flex-row items-center gap-1">
-                <Ionicons name="person" size={14} color={tint} />
-                <Text className="text-foreground/60 font-bold">{team.members}</Text>
+              <View className="bg-muted p-4 rounded-xl flex-row justify-between items-center border border-border/50">
+                <Text className="font-mono text-primary font-bold text-xl tracking-[4px]">
+                  {team.Code}
+                </Text>
+                <Pressable onPress={() => copyToClipboard(team.Code)}>
+                  <Ionicons name="copy-outline" size={20} color={tint} />
+                </Pressable>
               </View>
             </View>
-
-            <View className="bg-muted p-3 rounded-xl flex-row justify-between items-center border border-border/50">
-              <Text className="font-mono text-primary font-bold text-lg tracking-widest">
-                {team.code}
-              </Text>
-              <Pressable onPress={() => Alert.alert("Copied", "Code copied to clipboard")}>
-                <Ionicons name="copy-outline" size={20} color={tint} />
-              </Pressable>
-            </View>
-          </View>
-        ))}
-
-        <Button 
-          className="mt-4 bg-primary rounded-2xl h-14" 
-          onPress={createTeam}
-        >
-          <Text className="text-white font-black text-lg">Create New Team</Text>
-        </Button>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

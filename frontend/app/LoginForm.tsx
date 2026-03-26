@@ -6,7 +6,7 @@ import { saveItem } from '@/utils/storage';
 import { useAuth } from './_layout';
 
 export default function LoginForm() {
-  const { setHasToken } = useAuth();
+  const { setHasToken, setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,7 +48,15 @@ export default function LoginForm() {
 
       await saveItem('userToken', data.token);
       if (data.user) {
-        await saveItem('userData', JSON.stringify(data.user));
+        const cleanUser = {
+        id: data.user.id,
+        username: data.user.username,
+        role: data.user.Role || data.user.role,
+        team_id: data.user.team_id
+      };
+
+      await saveItem('userData', JSON.stringify(cleanUser));
+      setUser(cleanUser);
       }
 
       setHasToken(true);

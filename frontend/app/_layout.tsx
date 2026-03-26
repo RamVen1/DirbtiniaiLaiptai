@@ -13,6 +13,8 @@ import { NAV_THEME } from '@/lib/theme';
 const AuthContext = createContext<{
   hasToken: boolean;
   setHasToken: (val: boolean) => void;
+  user: any | null;
+  setUser: (val: any | null) => void;
 } | null>(null);
 
 export const useAuth = () => {
@@ -47,18 +49,36 @@ export default function RootLayout() {
 
   const [isReady, setIsReady] = useState(false);
   const [hasToken, setHasToken] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
-    async function initialize() {
-      const token = await getItem('userToken');
-      setHasToken(!!token);
-      setIsReady(true);
+  async function initialize() {
+    const token = await getItem('userToken');
+    const userDataStr = await getItem('userData');
+    
+    setHasToken(!!token);
+
+    if (userDataStr) {
+      try {
+        const parsedUser = JSON.parse(userDataStr);
+        const normalizedUser = {
+          ...parsedUser,
+          role: parsedUser.Role || parsedUser.role
+        };
+
+        console.log("AUTH DEBUG - Vartotojo rolė:", parsedUser.username);
+        setUser(normalizedUser);
+      } catch (e) {
+        console.error("Failed to parse userData", e);
+      }
     }
-    initialize();
-  }, []);
+    setIsReady(true);
+  }
+  initialize();
+}, []);
 
   return (
-    <AuthContext.Provider value={{ hasToken, setHasToken }}>
+    <AuthContext.Provider value={{hasToken, setHasToken, user, setUser}}>
       <SafeAreaProvider>
         <ThemeProvider value={NAV_THEME[theme]}>
           <AuthGuard isReady={isReady}>
@@ -67,6 +87,9 @@ export default function RootLayout() {
               <Stack.Screen name="LoginForm" />
               <Stack.Screen name="RegisterForm" />
               <Stack.Screen name="MiniReport" options={{ headerShown: true, title: 'Home' }} />
+              <Stack.Screen name="AdminRequest" />
+              <Stack.Screen name="ManageTeams" />
+              <Stack.Screen name="join-group" />
             </Stack>
           </AuthGuard>
           <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />

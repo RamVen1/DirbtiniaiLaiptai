@@ -74,6 +74,7 @@ def login_user(user: schemas.LoginRequest):
         "user": {
             "id": db_user_dict["ID"],
             "username": db_user_dict["Username"],
-            "role": db_user_dict["Role"]
+            "role": db_user_dict["Role"].lower() if db_user_dict["Role"] else "member",
+            "team_id": db_user_dict.get("team_id")
         }
     }

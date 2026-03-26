@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ModuleCard } from '@/components/dashboard/module-card';
+import { useAuth } from '../_layout';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -17,6 +18,26 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
+  const { user } = useAuth();
+
+  const role = user?.role?.toLowerCase();
+  
+  const getDestination = () => {
+    if (role === 'admin') return '/AdminRequest';
+    if (role === 'moderator') return '/ManageTeams';
+    if (role === 'member' && !user?.team_id) return '/join-group';
+    return '/task';
+  };
+
+  const getButtonProps = () => {
+    if (role === 'admin') return { label: 'Review Requests', icon: 'shield-checkmark' };
+    if (role === 'moderator') return { label: 'Manage My Teams', icon: 'people' };
+    if (role === 'member' && !user?.team_id) return { label: 'Join a Team', icon: 'add-circle' };
+    return { label: 'Continue Daily Next Step', icon: 'flame' };
+  };
+  const destination = getDestination();
+  const { label, icon } = getButtonProps();
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1">
@@ -47,12 +68,10 @@ export default function HomeScreen() {
             </View>
 
             <Pressable
-              onPress={() => router.navigate('/task')}
+              onPress={() => router.navigate(destination)}
               className="p-2 active:scale-95"
-              accessibilityRole="button"
-              accessibilityLabel="Open Daily Mission"
             >
-              <Ionicons name="flame" size={22} color={tint} />
+              <Ionicons name={icon as any} size={22} color={tint} />
             </Pressable>
           </View>
         </View>
@@ -91,16 +110,16 @@ export default function HomeScreen() {
                   <Text className="text-white/80 text-lg max-w-[320px]">
                     You're in the top 5% of engineers refining empathy this week.
                   </Text>
-
+                  
                   <Button
                     className="mt-8 bg-background border border-border/20"
-                    onPress={() => router.navigate('/task')}
-                  >
+                    onPress={() => router.navigate(destination)}
+                  >   
                     <View className="flex-row items-center justify-center gap-2">
                       <Text className="text-primary font-extrabold text-base">
-                        Continue Daily Next Step
+                        {label}
                       </Text>
-                      <Ionicons name="arrow-forward" size={18} color={tint} />
+                      <Ionicons name={icon as any} size={18} color={tint} />
                     </View>
                   </Button>
                 </View>

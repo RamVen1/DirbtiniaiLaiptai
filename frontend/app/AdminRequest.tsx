@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,52 +6,13 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
-import { getItem } from '@/utils/storage';
+import { useAdminRequest } from '@/hooks/use-admin-request';
 
 export default function AdminRequestScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  
-  const [requests, setRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-
-  const fetchRequests = async () => {
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/admin/requests`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setRequests(data.requests || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchRequests(); }, []);
-
-  const handleAction = async (id: number, action: 'Accept' | 'Decline') => {
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/admin/requests/${id}/action`, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action })
-      });
-      if (response.ok) {
-        setRequests(prev => prev.filter(r => r.ID !== id));
-      }
-    } catch (e) {
-      Alert.alert("Error", "Action failed");
-    }
-  };
+  const { requests, loading, handleAction } = useAdminRequest();
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} color={tint} />;
 

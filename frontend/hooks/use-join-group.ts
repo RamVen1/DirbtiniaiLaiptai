@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { getItem } from '@/utils/storage';
-import { useAuth } from '@/app/_layout';
+import { useAuth } from '@/hooks/use-auth';
 
 export function useJoinGroup() {
   const [input, setInput] = useState('');

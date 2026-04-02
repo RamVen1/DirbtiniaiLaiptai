@@ -1,15 +1,14 @@
-import { useAuth } from "@/app/_layout";
-import { Colors } from "@/constants/theme";
+import { useAuth } from '@/hooks/use-auth';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useState } from "react";
-import { Alert, useColorScheme } from "react-native";
+import { Alert } from "react-native";
 import { getItem } from "@/utils/storage";
 import { useEffect } from "react";
 import * as Clipboard from 'expo-clipboard';
 
 export function useManageTeam(){
   const { user } = useAuth();
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
   const [teams, setTeams] = useState<any[]>([]);

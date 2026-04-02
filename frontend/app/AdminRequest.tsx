@@ -4,14 +4,12 @@ import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useAdminRequest } from '@/hooks/use-admin-request';
 
 export default function AdminRequestScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
   const { requests, loading, handleAction } = useAdminRequest();
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} color={tint} />;

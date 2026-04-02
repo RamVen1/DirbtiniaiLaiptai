@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import { useState } from 'react';
 import { deleteItem, getItem } from '@/utils/storage';
 import { router } from 'expo-router';
-import { useAuth } from '@/app/_layout';
+import { useAuth } from '@/hooks/use-auth';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 

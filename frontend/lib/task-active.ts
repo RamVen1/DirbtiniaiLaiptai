@@ -1,12 +1,9 @@
 import { router } from 'expo-router';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { getItem } from '@/utils/storage';
 
-export function TaskActive(){
-
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+export function TaskActive() {
+  const { tint } = useThemePalette();
 
   const handleDifficultyUpdate = async (adjustment: number) => {
     try {

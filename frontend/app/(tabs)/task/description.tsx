@@ -8,15 +8,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 
 export default function TaskDescriptionScreen() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
 
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
 
   return (
     <SafeAreaView className="flex-1 bg-background">

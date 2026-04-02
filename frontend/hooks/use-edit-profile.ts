@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 
 export function useEditProfile(){
   const [showAvatarPanel, setShowAvatarPanel] = useState(false);
@@ -10,9 +9,7 @@ export function useEditProfile(){
     require('@/assets/images/avatars/avatar2.jpg'),
     require('@/assets/images/avatars/avatar3.jpg')
   ];
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const text = Colors[colorScheme === 'dark' ? 'dark' : 'light'].text;
+  const { tint, text } = useThemePalette();
   const [name, setName] = useState('Name Surname');
   const [role, setRole] = useState('Senior Cloud Architect');
   const [email, setEmail] = useState('engineer@logic.io');

@@ -1,15 +1,12 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWindowDimensions } from 'react-native';
 
+import { useThemePalette } from '@/hooks/use-color-scheme';
 
-export function useProfile(){
+export function useProfile() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
 
-  return { width, isTablet, colorScheme, tint, avatarSource }
-
+  return { width, isTablet, tint, avatarSource };
 }

@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useWindowDimensions } from 'react-native';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
-import { useAuth } from '../app/_layout';
+import { useThemePalette } from '@/hooks/use-color-scheme';
+import { useAuth } from "@/hooks/use-auth";
 import { getItem } from '@/utils/storage';
 
 export function useHomeScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   const { user } = useAuth();
 

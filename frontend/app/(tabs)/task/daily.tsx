@@ -12,14 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useDailyTask } from '@/hooks/use-daily-task';
 import { formatElapsed } from '@/lib/format-elapsed';
 
 export default function TaskDailyScreen() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
   const { dailyTask, loadingDailyTask, dailyTaskError, elapsedSeconds, handleCompleteTask } = useDailyTask();
 
   return (

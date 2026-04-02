@@ -1,13 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 
 export function useTeamMembers() {
   const router = useRouter();
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   const { teamId, teamCode } = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
 
   const members = [
     { id: 1, fullName: 'Mantas Jankauskas', itRole: 'Backend Developer', email: 'mantas.jankauskas@company.lt' },

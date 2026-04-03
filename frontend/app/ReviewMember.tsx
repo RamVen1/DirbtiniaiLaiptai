@@ -1,43 +1,14 @@
 import React from 'react';
 import { View, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Text } from '@/components/ui/text';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
+import { useReviewMember } from '@/hooks/use-review-member';
 
 export default function ReviewMemberScreen() {
-  const router = useRouter();
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
-  const { memberId, memberName, memberRole, memberEmail } = useLocalSearchParams<{
-    memberId?: string;
-    memberName?: string;
-    memberRole?: string;
-    memberEmail?: string;
-  }>();
-
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-
-  const completedModules = [
-    { id: 1, name: 'Active Listening', score: 92, hours: 4.5 },
-    { id: 2, name: 'Constructive Feedback', score: 88, hours: 3.0 },
-    { id: 3, name: 'Conflict Resolution', score: 90, hours: 2.5 },
-    { id: 4, name: 'Mentorship', score: 85, hours: 3.5 },
-    { id: 5, name: 'Presentation', score: 94, hours: 2.0 },
-  ];
-  const activeModule = {
-    title: 'Strategic Communication in Projects',
-    progress: 68,
-    nextTask: 'Stakeholder Alignment Exercise',
-  };
-
-  const totalHours = completedModules.reduce((sum, item) => sum + item.hours, 0);
-  const avgScore = Math.round(
-    completedModules.reduce((sum, item) => sum + item.score, 0) / completedModules.length
-  );
+  const { router, avatarSource, memberName, memberRole, memberEmail, tint, completedModules, activeModule, totalHours, avgScore } = useReviewMember();
 
   return (
     <SafeAreaView className="flex-1 bg-background">

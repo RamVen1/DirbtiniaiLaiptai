@@ -1,30 +1,19 @@
 import { Tabs, router } from 'expo-router';  // ← import router here
-import React, { useEffect } from 'react';
+import React from 'react';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAuth } from '../_layout';
+import { useAuth } from '@/hooks/use-auth';
+import { useTabLayoutDebug } from '@/hooks/use-tab-layout-debug';
+import { getMiddleTabConfig } from '@/lib/middle-tab-config';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint, background } = useThemePalette();
   const { user } = useAuth();
 
-  useEffect(() => {
-    console.log("TAB LAYOUT DEBUG:", user?.team_id);
-  }, [user]);
-
-  const getMiddleTabConfig = () => {
-    const role = user?.role?.toLowerCase();
-    if (role === 'admin') return { title: 'Requests', icon: 'shield-checkmark' };
-    if (role === 'moderator') return { title: 'Manage', icon: 'people' };
-    if (role === 'member' && !user?.team_id) return { title: 'Join', icon: 'add-circle' };
-    return { title: 'Task', icon: 'flame' };
-  };
-
-  const config = getMiddleTabConfig();
+  useTabLayoutDebug(user);
+  const config = getMiddleTabConfig(user);
 
   return (
     <Tabs
@@ -33,7 +22,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme === 'dark' ? 'dark' : 'light'].background,
+          backgroundColor: background,
           borderTopWidth: 1,
           borderTopColor: 'rgba(0,0,0,0.05)',
         }

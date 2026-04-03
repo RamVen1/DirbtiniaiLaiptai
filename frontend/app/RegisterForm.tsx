@@ -1,52 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
-import { router } from 'expo-router';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+import { useRegisterForm } from '@/hooks/use-register-form';
 
 export default function RegisterForm() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleRegister = async () => {
-    setError(null);
-
-    if (!username || !email || !password) {
-      setError('All fields are required.');
-      return;
-    }
-
-    if (password.length < 7) {
-      setError('Password must be at least 7 characters.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.detail || 'Registration failed.');
-      } else {
-        router.push('/LoginForm');
-      }
-    } catch (err) {
-      setError('Network error. Check your server connection.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+     username,
+     setUsername,
+     email,
+     setEmail,
+     password,
+     setPassword,
+     error,
+     loading,
+     handleRegister,
+  } = useRegisterForm();
 
   return (
     <ScrollView

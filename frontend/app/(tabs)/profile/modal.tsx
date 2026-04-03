@@ -1,67 +1,19 @@
-import React, { useState } from 'react';
-import { Pressable, View, Alert, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { Pressable, View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
-import { deleteItem, getItem } from '@/utils/storage';
-import { useAuth } from '@/app/_layout';
+import { useProfileModal } from '@/hooks/use-profile-modal';
 
 export default function ProfileModalScreen() {
-  const { setHasToken, user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-  const handleLogout = async () => {
-    await deleteItem('userToken');
-    await deleteItem('userData');
-    setHasToken(false);
-  };
-
-  const handleApplyModerator = async () => {
-    setLoading(true);
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/admin/request-moderator`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        Alert.alert("Success", "Request submitted! An admin will review it.");
-      } else {
-        Alert.alert("Notice", data.detail || "You already have a pending request.");
-      }
-    } catch (e) {
-      Alert.alert("Error", "Could not connect to server.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLeaveGroup = async () => {
-    setLoading(true);
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/group/leave`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert("Success", "You have left the group.");
-        router.replace('/profile');
-      } else {
-        Alert.alert("Error", data.detail || "Failed to leave the group.");
-      }
-    } catch (e) {
-      Alert.alert("Error", "Could not connect to server.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    user, 
+    loading,
+    handleLogout,
+    handleApplyModerator,
+    handleLeaveGroup
+  } = useProfileModal()
 
   return (
     <View className="flex-1 bg-background items-center justify-center p-6">

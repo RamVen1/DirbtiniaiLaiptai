@@ -8,10 +8,10 @@ services:
     container_name: dirbtiniai_laiptai_backend
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
       - PORT=8000
-      - JWT_KEY=${JWT_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - ./backend:/app
       - /app/__pycache__

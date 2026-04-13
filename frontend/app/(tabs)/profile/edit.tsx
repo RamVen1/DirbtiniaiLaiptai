@@ -6,29 +6,28 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useEditProfile } from '@/hooks/use-edit-profile'
 
 
 export default function EditProfileScreen() {
-  const [showAvatarPanel, setShowAvatarPanel] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
-  const avatars = [
-    require('@/assets/images/avatars/avatar1.jpg'),
-    require('@/assets/images/avatars/avatar2.jpg'),
-    require('@/assets/images/avatars/avatar3.jpg')
-  ];
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const text = Colors[colorScheme === 'dark' ? 'dark' : 'light'].text;
 
-  const [name, setName] = useState('Name Surname');
-  const [role, setRole] = useState('Senior Cloud Architect');
-  const [email, setEmail] = useState('engineer@logic.io');
+  const { 
+    name, 
+    setName, 
+    role, 
+    setRole, 
+    email, 
+    setEmail, 
+    defaultAvatar,
+    showAvatarPanel, 
+    setShowAvatarPanel,
+    selectedAvatar,
+    setSelectedAvatar,
+    tint,
+    text,
+    avatars
+  } = useEditProfile();
 
-
-
-  const defaultAvatar = require('@/assets/images/avatars/avatar1.jpg');
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView

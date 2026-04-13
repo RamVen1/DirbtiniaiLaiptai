@@ -1,66 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Pressable, useWindowDimensions, Image, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { ScrollView, View, Pressable, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, Stack } from 'expo-router';
 
-import { Colors } from '@/constants/theme';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ModuleCard } from '@/components/dashboard/module-card';
-import { useAuth } from '../_layout';
-import { getItem } from '@/utils/storage';
+import { useHomeScreen } from '@/hooks/use-home-screen';
 
 export default function HomeScreen() {
-  const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 900;
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
-  const { user } = useAuth();
-
-  const [hasReport, setHasReport] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const role = user?.role?.toLowerCase();
-
-  useEffect(() => {
-    checkReportStatus();
-  }, []);
-
-  const checkReportStatus = async () => {
-    try {
-      const token = await getItem('userToken');
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/check-report`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setHasReport(data.exists);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDestination = () => {
-    if (role === 'admin') return '/AdminRequest';
-    if (role === 'moderator') return '/ManageTeams';
-    if (role === 'member' && !user?.team_id) return '/join-group';
-    return '/task';
-  };
-
-  const getButtonProps = () => {
-    if (role === 'admin') return { label: 'Review Requests', icon: 'shield-checkmark' };
-    if (role === 'moderator') return { label: 'Manage My Teams', icon: 'people' };
-    if (role === 'member' && !user?.team_id) return { label: 'Join a Team', icon: 'add-circle' };
-    return { label: 'Continue Daily Next Step', icon: 'flame' };
-  };
-
-  const destination = getDestination();
-  const { label, icon } = getButtonProps();
+  const {
+    router,
+    isTablet,
+    tint,
+    avatarSource,
+    user,
+    hasReport,
+    destination,
+    label,
+    icon,
+  } = useHomeScreen();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -77,7 +36,7 @@ export default function HomeScreen() {
               <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
             </View>
 
-            <Pressable onPress={() => router.navigate(destination)} className="p-2">
+            <Pressable onPress={() => router.navigate(destination as any)} className="p-2">
               <Ionicons name={icon as any} size={22} color={tint} />
             </Pressable>
           </View>
@@ -101,7 +60,7 @@ export default function HomeScreen() {
                   <Text className="text-white font-extrabold text-6xl mb-2">{user?.streak || 0} Days</Text>
                   <Text className="text-white/80 text-lg">Current daily streak</Text>
 
-                  <Button className="mt-8 bg-background" onPress={() => router.navigate(destination)}>
+                  <Button className="mt-8 bg-background" onPress={() => router.navigate(destination as any)}>
                     <View className="flex-row items-center justify-center gap-2">
                       <Text className="text-primary font-extrabold text-base">{label}</Text>
                       <Ionicons name={icon as any} size={18} color={tint} />

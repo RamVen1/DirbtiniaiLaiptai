@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { getItem } from '@/utils/storage';
+import { useElapsedSeconds } from '@/hooks/use-elapsed-seconds';
 
 
 type DailyTaskResponse = {
@@ -14,6 +16,7 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
   const [dailyTask, setDailyTask] = useState<string | null>(null);
   const [loadingDailyTask, setLoadingDailyTask] = useState(false);
   const [dailyTaskError, setDailyTaskError] = useState<string | null>(null);
+  const { elapsedSeconds, resetTimer } = useElapsedSeconds({ autoStart: true });
 
   const hasFetchedRef = useRef(false);
 
@@ -22,7 +25,6 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
   useEffect(() => {
     if (!enabled) return;
 
-    // Reset the "fetch once per focus" guard when leaving the screen.
     if (!isFocused) {
       hasFetchedRef.current = false;
       return;
@@ -70,5 +72,18 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
     };
   }, [API_URL, enabled, isFocused]);
 
-  return { dailyTask, loadingDailyTask, dailyTaskError };
+  useEffect(() => {
+    if (elapsedSeconds >= 86400) {
+      handleCompleteTask();
+    }
+  }, [elapsedSeconds]);
+
+  const handleCompleteTask = async () => {
+    await resetTimer();
+    router.navigate('/task/active');
+  };
+
+
+
+  return { dailyTask, loadingDailyTask, dailyTaskError, elapsedSeconds, handleCompleteTask };
 }

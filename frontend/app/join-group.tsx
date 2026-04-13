@@ -1,62 +1,11 @@
-import { useState } from 'react';
-import { Text, View, TextInput, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
+import React from 'react';
+import { Text, View, TextInput, ActivityIndicator, Modal, Pressable } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
-import { getItem } from '@/utils/storage';
-import { useAuth } from '@/app/_layout';
-
-const SKILLS = ['Communication', 'Time-management', 'Problem solving'];
+import { useJoinGroup } from '@/hooks/use-join-group';
 
 export default function JoinGroupScreen() {
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showSkillModal, setShowSkillModal] = useState(false);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-  const { refreshUser } = useAuth();
-
-  const handleJoinAttempt = () => {
-    if (input.length < 4) {
-      Alert.alert("Error", "Code is too short");
-      return;
-    }
-    setShowSkillModal(true);
-  };
-
-  const submitJoin = async (selectedSkill: string) => {
-    setShowSkillModal(false);
-    setLoading(true);
-    const token = await getItem('userToken');
-
-    try {
-      const response = await fetch(`${API_URL}/group/join`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          code: input.trim(),
-          skill: selectedSkill 
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        await refreshUser();
-        router.replace('/profile') 
-        Alert.alert("Success", `Joined team as ${selectedSkill}!`, [
-          { text: "OK", onPress: () => router.replace('/profile') }
-        ]);
-      } else {
-        Alert.alert("Error", data.detail || "Failed to join group");
-      }
-    } catch (error) {
-      Alert.alert("Error", "Could not connect to server");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { input, setInput, loading, showSkillModal, setShowSkillModal, skills, handleJoinAttempt, submitJoin } = useJoinGroup();
 
   return (
     <View className="flex-1 bg-background px-6 pt-16 items-start">
@@ -110,7 +59,7 @@ export default function JoinGroupScreen() {
             </Text>
 
             <View className="gap-3">
-              {SKILLS.map((skill) => (
+              {skills.map((skill) => (
                 <Pressable
                   key={skill}
                   onPress={() => submitJoin(skill)}

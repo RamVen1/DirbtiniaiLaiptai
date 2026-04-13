@@ -1,109 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
-import { useAuth } from './_layout';
-import { getItem } from '@/utils/storage';
-import * as Clipboard from 'expo-clipboard';
-
+import { useManageTeam } from '@/hooks/use-manage-team';
+import { useAuth } from '@/hooks/use-auth';
 export default function ManageTeamsScreen() {
-  const router = useRouter();
   const { user } = useAuth();
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-
-  const [teams, setTeams] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const allowedRoles = ['admin', 'moderator'];
-    if (user && !allowedRoles.includes(user.role?.toLowerCase())) {
-      router.replace('/(tabs)');
-    }
-  }, [user]);
-
-  const fetchTeams = async () => {
-    const token = await getItem('userToken');
-  
-    try {
-      const response = await fetch(`${API_URL}/moderate/teams`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-    
-      const data = await response.json();
-      if (data.teams) {
-        setTeams(data.teams);
-      }
-    } catch (error) {
-      console.error("Fetch teams error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { 
-    const allowedRoles = ['admin', 'moderator'];
-    if (user && allowedRoles.includes(user.role?.toLowerCase())) {
-      fetchTeams(); 
-    }
-  }, [user]);
-
-  const handleCreateTeam = async () => {
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/moderate/teams/create`, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json' 
-        },
-      });
-
-      if (response.ok) {
-        const newTeam = await response.json();
-        Alert.alert("Success", `Created Team #${newTeam.ID}`);
-        fetchTeams();
-      } else {
-        Alert.alert("Error", "Failed to create team.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "Could not connect to server.");
-    }
-  };
-
-  const handleDeleteTeam = async (teamId: number) => {
-    try {
-      const token = await getItem('userToken');
-      const response = await fetch(`${API_URL}/moderate/teams/${teamId}`, { 
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        fetchTeams(); 
-      }
-    } catch (e) {
-      console.error("Delete team error:", e);
-    }
-  };
-
-  const copyToClipboard = async (code: string) => {
-    await Clipboard.setStringAsync(code);
-    Alert.alert("Copied", "Team code copied to clipboard!");
-  };
+  const { teams, loading, tint, handleCreateTeam, handleDeleteTeam, copyToClipboard } = useManageTeam();
 
   if (!user || !['admin', 'moderator'].includes(user.role?.toLowerCase()) || loading) {
     return (

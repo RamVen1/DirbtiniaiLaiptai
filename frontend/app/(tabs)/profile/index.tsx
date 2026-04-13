@@ -1,32 +1,25 @@
 import React from 'react';
-import { Pressable, ScrollView, View, useWindowDimensions, Image, ActivityIndicator } from 'react-native';
+import { Pressable, ScrollView, View, Image } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { NeonCard } from '@/components/dashboard/neon-card';
 import { SkillCard } from '@/components/dashboard/skill-card';
-import { useAuth } from '@/app/_layout';
+import { useProfile } from '@/hooks/use-profile';
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 900;
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
+  const { isTablet, tint, avatarSource, user } = useProfile();
 
   if (!user) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color={tint} />
-      </View>
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <Text className="text-foreground">Loading profile...</Text>
+      </SafeAreaView>
     );
   }
-
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top App Bar */}

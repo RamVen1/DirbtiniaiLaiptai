@@ -1,45 +1,13 @@
 import React from 'react';
 import { View, Pressable, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Text } from '@/components/ui/text';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
-
-type Member = {
-  id: number;
-  fullName: string;
-  itRole: string;
-  email: string;
-};
+import { useTeamMembers } from '@/hooks/use-team-members';
 
 export default function TeamMembersScreen() {
-  const router = useRouter();
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
-  const { teamId, teamCode } = useLocalSearchParams<{ teamId?: string; teamCode?: string }>();
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-
-  const members: Member[] = [
-    { id: 1, fullName: 'Mantas Jankauskas', itRole: 'Backend Developer', email: 'mantas.jankauskas@company.lt' },
-    { id: 2, fullName: 'Egle Kazlaite', itRole: 'Frontend Developer', email: 'egle.kazlaite@company.lt' },
-    { id: 3, fullName: 'Lukas Petraitis', itRole: 'QA Engineer', email: 'lukas.petraitis@company.lt' },
-    { id: 4, fullName: 'Greta Vaiciulyte', itRole: 'DevOps Engineer', email: 'greta.vaiciulyte@company.lt' },
-  ];
-
-  const handleReviewStats = (member: Member) => {
-    router.push({
-      pathname: '/ReviewMember',
-      params: {
-        memberId: String(member.id),
-        memberName: member.fullName,
-        memberRole: member.itRole,
-        memberEmail: member.email,
-      },
-    });
-  };
+  const { router, avatarSource, teamId, teamCode, tint, members, handleReviewStats } = useTeamMembers();
 
   return (
     <SafeAreaView className="flex-1 bg-background">

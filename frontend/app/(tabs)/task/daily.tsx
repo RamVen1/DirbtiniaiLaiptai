@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -7,34 +6,19 @@ import {
   View,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router, Stack } from 'expo-router';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useElapsedSeconds } from '@/hooks/use-elapsed-seconds';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useDailyTask } from '@/hooks/use-daily-task';
 import { formatElapsed } from '@/lib/format-elapsed';
 
 export default function TaskDailyScreen() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const { dailyTask, loadingDailyTask, dailyTaskError } = useDailyTask();
-  const { elapsedSeconds, resetTimer } = useElapsedSeconds({ autoStart: true });
-
-  useEffect(() => {
-    if (elapsedSeconds >= 86400) {
-      handleCompleteTask();
-    }
-  }, [elapsedSeconds]);
-
-  const handleCompleteTask = async () => {
-    await resetTimer();
-    router.navigate('/task/active');
-  };
+  const { tint } = useThemePalette();
+  const { dailyTask, loadingDailyTask, dailyTaskError, elapsedSeconds, handleCompleteTask } = useDailyTask();
 
   return (
     <SafeAreaView className="flex-1 bg-background">

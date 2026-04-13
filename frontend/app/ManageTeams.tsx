@@ -21,6 +21,13 @@ export default function ManageTeamsScreen() {
   const [teams, setTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const allowedRoles = ['admin', 'moderator'];
+    if (user && !allowedRoles.includes(user.role?.toLowerCase())) {
+      router.replace('/(tabs)');
+    }
+  }, [user]);
+
   const fetchTeams = async () => {
     const token = await getItem('userToken');
   
@@ -44,7 +51,12 @@ export default function ManageTeamsScreen() {
     }
   };
 
-  useEffect(() => { fetchTeams(); }, [user]);
+  useEffect(() => { 
+    const allowedRoles = ['admin', 'moderator'];
+    if (user && allowedRoles.includes(user.role?.toLowerCase())) {
+      fetchTeams(); 
+    }
+  }, [user]);
 
   const handleCreateTeam = async () => {
     const token = await getItem('userToken');
@@ -70,36 +82,36 @@ export default function ManageTeamsScreen() {
   };
 
   const handleDeleteTeam = async (teamId: number) => {
-  try {
-    const token = await getItem('userToken');
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(`${API_URL}/moderate/teams/${teamId}`, { 
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    const url = `${API_URL}/moderate/teams/${teamId}`;
-
-    const response = await fetch(url, { 
-      method: 'DELETE',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+      if (response.ok) {
+        fetchTeams(); 
       }
-    });
-
-    if (response.ok) {
-      fetchTeams(); 
-    } else {
-      const errorText = await response.text();
-      console.log("KLAIDA IŠ SERVERIO:", errorText);
+    } catch (e) {
+      console.error("Delete team error:", e);
     }
-  } catch (e) {
-    console.error("TINKLO KLAIDA:", e);
-  }
-};
+  };
 
   const copyToClipboard = async (code: string) => {
     await Clipboard.setStringAsync(code);
     Alert.alert("Copied", "Team code copied to clipboard!");
   };
 
-  if (loading) return <ActivityIndicator style={{flex: 1}} color={tint} />;
+  if (!user || !['admin', 'moderator'].includes(user.role?.toLowerCase()) || loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={tint} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -109,8 +121,6 @@ export default function ManageTeamsScreen() {
             <Pressable
               onPress={() => router.navigate('/(tabs)')}
               className="p-2 -ml-2 active:scale-95"
-              accessibilityRole="button"
-              accessibilityLabel="Back to home"
             >
               <Ionicons name="chevron-back" size={22} color={tint} />
             </Pressable>
@@ -120,8 +130,6 @@ export default function ManageTeamsScreen() {
             <Pressable
               onPress={handleCreateTeam}
               className="w-10 h-10 rounded-full bg-primary items-center justify-center active:scale-95"
-              accessibilityRole="button"
-              accessibilityLabel="Create team"
             >
               <Ionicons name="add" size={22} color="#ffffff" />
             </Pressable>
@@ -171,8 +179,6 @@ export default function ManageTeamsScreen() {
                           })
                         }
                         className="flex-1"
-                        accessibilityRole="button"
-                        accessibilityLabel={`Open Team ${team.ID} members`}
                       >
                         <Text className="text-[11px] text-primary font-bold uppercase tracking-widest">Active Team</Text>
                         <Text className="text-2xl font-black text-foreground">Team #{team.ID}</Text>
@@ -180,8 +186,6 @@ export default function ManageTeamsScreen() {
                       <Pressable
                         onPress={() => handleDeleteTeam(team.ID)}
                         className="w-9 h-9 items-center justify-center bg-destructive/10 rounded-full active:scale-95"
-                        accessibilityRole="button"
-                        accessibilityLabel={`Delete team ${team.ID}`}
                       >
                         <Ionicons name="trash-outline" size={18} color="#ff4444" />
                       </Pressable>
@@ -199,8 +203,6 @@ export default function ManageTeamsScreen() {
                           })
                         }
                         className="flex-1"
-                        accessibilityRole="button"
-                        accessibilityLabel={`Open Team ${team.ID} members`}
                       >
                         <Text className="font-mono text-primary font-bold text-xl tracking-[3px]">
                           {team.Code}
@@ -209,8 +211,6 @@ export default function ManageTeamsScreen() {
                       <Pressable
                         onPress={() => copyToClipboard(team.Code)}
                         className="w-9 h-9 rounded-lg bg-background border border-border/20 items-center justify-center active:scale-95"
-                        accessibilityRole="button"
-                        accessibilityLabel={`Copy team ${team.ID} code`}
                       >
                         <Ionicons name="copy-outline" size={18} color={tint} />
                       </Pressable>

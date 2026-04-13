@@ -8,15 +8,23 @@ import { Button } from '@/components/ui/button';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import { getItem } from '@/utils/storage';
+import { useAuth } from './_layout';
 
 export default function AdminRequestScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const colorScheme = useColorScheme();
   const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
   
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+  useEffect(() => {
+    if (user && user.role?.toLowerCase() !== 'admin') {
+      router.replace('/(tabs)');
+    }
+  }, [user]);
 
   const fetchRequests = async () => {
     const token = await getItem('userToken');
@@ -33,7 +41,11 @@ export default function AdminRequestScreen() {
     }
   };
 
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => { 
+    if (user?.role?.toLowerCase() === 'admin') {
+      fetchRequests(); 
+    }
+  }, [user]);
 
   const handleAction = async (id: number, action: 'Accept' | 'Decline') => {
     const token = await getItem('userToken');
@@ -54,7 +66,13 @@ export default function AdminRequestScreen() {
     }
   };
 
-  if (loading) return <ActivityIndicator style={{ flex: 1 }} color={tint} />;
+  if (!user || user.role?.toLowerCase() !== 'admin' || loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={tint} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -63,7 +81,7 @@ export default function AdminRequestScreen() {
           <Ionicons name="chevron-back" size={24} color={tint} />
         </Pressable>
         <Text className="text-xl font-bold text-foreground">Admin Control</Text>
-        <View className="w-10" /> {/* Balansas tarpui */}
+        <View className="w-10" />
       </View>
 
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>

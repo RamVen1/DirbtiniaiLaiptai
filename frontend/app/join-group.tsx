@@ -1,22 +1,29 @@
 import { useState } from 'react';
-import { Text, View, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { Text, View, TextInput, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { useAuth } from '@/app/_layout';
 
+const SKILLS = ['Communication', 'Time-management', 'Problem solving'];
+
 export default function JoinGroupScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
   const { refreshUser } = useAuth();
 
-  const handleJoin = async () => {
+  const handleJoinAttempt = () => {
     if (input.length < 4) {
       Alert.alert("Error", "Code is too short");
       return;
     }
+    setShowSkillModal(true);
+  };
 
+  const submitJoin = async (selectedSkill: string) => {
+    setShowSkillModal(false);
     setLoading(true);
     const token = await getItem('userToken');
 
@@ -27,7 +34,10 @@ export default function JoinGroupScreen() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code: input.trim() })
+        body: JSON.stringify({ 
+          code: input.trim(),
+          skill: selectedSkill 
+        })
       });
 
       const data = await response.json();
@@ -35,7 +45,7 @@ export default function JoinGroupScreen() {
       if (response.ok) {
         await refreshUser();
         router.replace('/profile') 
-        Alert.alert("Success", "You have joined the team!", [
+        Alert.alert("Success", `Joined team as ${selectedSkill}!`, [
           { text: "OK", onPress: () => router.replace('/profile') }
         ]);
       } else {
@@ -65,7 +75,7 @@ export default function JoinGroupScreen() {
         
         <Button 
           className="mt-3 w-full" 
-          onPress={handleJoin}
+          onPress={handleJoinAttempt}
           disabled={loading}
         >
           {loading ? (
@@ -83,6 +93,43 @@ export default function JoinGroupScreen() {
           <Text className="text-muted-foreground">Cancel</Text>
         </Button>
       </View>
+
+      {/* Skills Selection Modal */}
+      <Modal
+        visible={showSkillModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 px-6">
+          <View className="bg-card w-full p-6 rounded-2xl border border-border shadow-xl">
+            <Text className="text-xl font-bold text-foreground mb-4 text-center">
+              Select your skill
+            </Text>
+            <Text className="text-muted-foreground mb-6 text-center">
+              Choose how you will contribute to the team.
+            </Text>
+
+            <View className="gap-3">
+              {SKILLS.map((skill) => (
+                <Pressable
+                  key={skill}
+                  onPress={() => submitJoin(skill)}
+                  className="w-full bg-secondary py-4 rounded-xl active:bg-primary/20 border border-primary/10"
+                >
+                  <Text className="text-primary font-semibold text-center text-lg">{skill}</Text>
+                </Pressable>
+              ))}
+              
+              <Pressable 
+                onPress={() => setShowSkillModal(false)}
+                className="mt-2"
+              >
+                <Text className="text-muted-foreground text-center py-2">Go back</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -57,7 +57,9 @@ def login_user(user: schemas.LoginRequest):
         stored_hash_bytes = db_val.encode('utf-8')
     else:
         stored_hash_bytes = db_val
-    stored_hash_bytes = db_val.replace("$2b$", "$2a$")
+    stored_hash_bytes = db_val.replace(b"$2b$", b"$2a$")
+    # stored_hash_bytes = db_val.replace("$2b$", "$2a$")
+    # Abi versijos cia, idk kolkas taip paleiku kad pakeist butu galima bet kada
 
     is_valid = bcrypt.checkpw(
         user.password.encode('utf-8'), 

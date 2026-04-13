@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from core.database import get_db
-from core.security import get_current_user
+from core.security import get_current_user, role_required
 from . import service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -14,13 +14,13 @@ def request_role(current_user_id: str = Depends(get_current_user)):
         return {"message": "Success"}
 
 @router.get("/requests")
-def get_requests(current_user_id: str = Depends(get_current_user)):
+def get_requests(admin=Depends(role_required(["admin"]))):
     with get_db() as conn:
         reqs = service.get_all_pending_requests(conn)
         return {"requests": [dict(r) for r in reqs]}
 
 @router.post("/requests/{req_id}/action")
-def take_action(req_id: int, payload: dict, current_user_id: str = Depends(get_current_user)):
+def take_action(req_id: int, payload: dict, admin=Depends(role_required(["admin"]))):
     action = payload.get("action")
     with get_db() as conn:
         service.process_request(conn, req_id, action)

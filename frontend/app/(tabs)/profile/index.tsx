@@ -1,22 +1,22 @@
 import React from 'react';
-import { Pressable, ScrollView, View, useWindowDimensions, Image } from 'react-native';
+import { Pressable, ScrollView, View, Image } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { NeonCard } from '@/components/dashboard/neon-card';
 import { SkillCard } from '@/components/dashboard/skill-card';
+import { useProfile } from '@/hooks/use-profile';
 
 export default function ProfileScreen() {
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 900;
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
+
+  const {
+    isTablet,
+    tint,
+    avatarSource
+  } = useProfile()
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top App Bar */}

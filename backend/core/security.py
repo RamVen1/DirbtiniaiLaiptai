@@ -17,7 +17,7 @@ def get_current_user(authorization: str = Header(None)):
     token = authorization.split(" ")[1]
     print(f"Received token: {token}")  # Debug print to check the token value
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, str(settings.JWT_SECRET_KEY), algorithms=["HS256"])
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")

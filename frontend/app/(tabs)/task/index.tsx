@@ -4,14 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
 import { Text } from '@/components/ui/text';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemePalette } from '@/hooks/use-color-scheme';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
 import { NeonCard } from '@/components/dashboard/neon-card';
 
 export default function TaskIntroScreen() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
+  const { tint } = useThemePalette();
 
   return (
     <SafeAreaView className="flex-1 bg-background">

@@ -6,17 +6,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
+import { NeonCard } from '@/components/dashboard/neon-card';
 import { SkillCard } from '@/components/dashboard/skill-card';
 import { useProfile } from '@/hooks/use-profile';
 
 export default function ProfileScreen() {
+  const { isTablet, tint, avatarSource, user } = useProfile();
 
-  const {
-    isTablet,
-    tint,
-    avatarSource
-  } = useProfile()
-
+  if (!user) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <Text className="text-foreground">Loading profile...</Text>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top App Bar */}
@@ -24,10 +27,8 @@ export default function ProfileScreen() {
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
             <View className="flex-1 items-center justify-center">
-           <Image
-                source={
-                  avatarSource
-                }
+              <Image
+                source={avatarSource}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -46,18 +47,16 @@ export default function ProfileScreen() {
           accessibilityRole="button"
           accessibilityLabel="Settings"
         >
-          <View className="flex-1 items-center justify-center">
+          <View className="w-8 h-8 items-center justify-center">
             <Image
-                source={
-                  avatarSource
-                }
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 999,
-                }}
-                resizeMode="cover"
-              />
+              source={avatarSource}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: 999,
+              }}
+              resizeMode="cover"
+            />
           </View>
         </Pressable>
       </View>
@@ -67,18 +66,16 @@ export default function ProfileScreen() {
         <View className="items-center mt-8 mb-10">
           <View className="relative mb-6">
             <View className="w-36 h-36 rounded-full p-1 bg-primary/20 items-center justify-center">
-              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center over">
-                  <Image
-                source={
-                  avatarSource
-                }
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 999,
-                }}
-                resizeMode="cover"
-              />
+              <View className="w-full h-full rounded-full border-4 border-background items-center justify-center overflow-hidden">
+                <Image
+                  source={avatarSource}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 999,
+                  }}
+                  resizeMode="cover"
+                />
               </View>
             </View>
             <View className="absolute bottom-1 right-1 bg-primary px-2 py-0.5 rounded-full items-center justify-center">
@@ -86,16 +83,19 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <Text className="text-3xl font-bold tracking-tight text-foreground">Name Surname</Text>
-          <Text className="text-muted-foreground font-medium tracking-wide uppercase text-xs mt-1">
-            Senior Cloud Architect
+          <Text className="text-2xl font-bold tracking-tight text-foreground text-center">
+            {user.username} ({user.email})
+          </Text>
+          <Text className="text-primary font-bold tracking-widest uppercase text-xs mt-1">
+            {user.role}
           </Text>
 
-          <View className="flex-row gap-3 mt-4">
-            <Button className="flex-1 rounded-xl" onPress={() => { router.navigate('/join-group') }}>
-              <Text className="text-white font-bold text-base">Join Team</Text>
-            </Button>
-            <Button variant="outline" className="flex-1 rounded-xl" onPress={() => { router.navigate('/profile/modal') }}>
+          <View className="mt-6 w-full px-4">
+            <Button 
+              variant="outline" 
+              className="w-full rounded-xl border-primary/20" 
+              onPress={() => { router.navigate('/profile/modal') }}
+            >
               <Text className="text-primary font-bold text-base">Profile Settings</Text>
             </Button>
           </View>
@@ -126,12 +126,11 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-
         {/* Navigation Links */}
         <View className="mb-12">
           <Pressable
             onPress={() => { }}
-            className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2"
+            className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2 border border-border/10"
           >
             <View className="flex-row items-center gap-4">
               <Ionicons name={'time' as any} size={18} color={tint} />

@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -6,13 +7,21 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useAdminRequest } from '@/hooks/use-admin-request';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function AdminRequestScreen() {
   const router = useRouter();
   const { tint } = useThemePalette();
+  const { user } = useAuth();
   const { requests, loading, handleAction } = useAdminRequest();
 
-  if (loading) return <ActivityIndicator style={{ flex: 1 }} color={tint} />;
+  if (!user || user.role?.toLowerCase() !== 'admin' || loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={tint} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -21,7 +30,7 @@ export default function AdminRequestScreen() {
           <Ionicons name="chevron-back" size={24} color={tint} />
         </Pressable>
         <Text className="text-xl font-bold text-foreground">Admin Control</Text>
-        <View className="w-10" /> {/* Balansas tarpui */}
+        <View className="w-10" />
       </View>
 
       <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>

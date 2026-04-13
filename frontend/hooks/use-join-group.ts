@@ -7,15 +7,21 @@ import { useAuth } from '@/hooks/use-auth';
 export function useJoinGroup() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
   const { refreshUser } = useAuth();
+  const skills = ['Frontend', 'Backend', 'Design', 'Testing', 'Other'];
 
-  const handleJoin = async () => {
+  const handleJoinAttempt = () => {
     if (input.length < 4) {
       Alert.alert('Error', 'Code is too short');
       return;
     }
+    setShowSkillModal(true);
+  };
 
+  const submitJoin = async (skill: string) => {
+    setShowSkillModal(false);
     setLoading(true);
     const token = await getItem('userToken');
 
@@ -26,7 +32,7 @@ export function useJoinGroup() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code: input.trim() }),
+        body: JSON.stringify({ code: input.trim(), skill }),
       });
 
       const data = await response.json();
@@ -52,6 +58,10 @@ export function useJoinGroup() {
     input,
     setInput,
     loading,
-    handleJoin,
+    showSkillModal,
+    setShowSkillModal,
+    skills,
+    handleJoinAttempt,
+    submitJoin,
   };
 }

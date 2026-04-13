@@ -10,7 +10,7 @@ export function useJoinGroup() {
   const [showSkillModal, setShowSkillModal] = useState(false);
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
   const { refreshUser } = useAuth();
-  const skills = ['Frontend', 'Backend', 'Design', 'Testing', 'Other'];
+  const skills = ['Communication', 'Time-management', 'Problem solving'];
 
   const handleJoinAttempt = () => {
     if (input.length < 4) {

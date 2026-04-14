@@ -54,7 +54,7 @@ export default function ProfileModalScreen() {
             </Pressable>
           ) : (
             <Pressable
-              onPress={() => router.replace('/join-group')}
+              onPress={() => router.push('/join-group')}
               className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
               accessibilityRole="button"
             >
@@ -81,7 +81,13 @@ export default function ProfileModalScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.replace('/profile')}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+                return;
+              }
+              router.replace('/profile');
+            }}
             className="w-full rounded-xl border border-border bg-background px-10 py-4 active:bg-muted"
             accessibilityRole="button"
           >

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,13 +13,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { NeonCard } from '@/components/dashboard/neon-card';
 import { LessonTopBar } from '@/components/dashboard/lesson-top-bar';
+import { ConfettiBurst } from '@/components/animations/confetti-burst';
 import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useDailyTask } from '@/hooks/use-daily-task';
 import { formatElapsed } from '@/lib/format-elapsed';
 
 export default function TaskDailyScreen() {
   const { tint } = useThemePalette();
-  const { dailyTask, loadingDailyTask, dailyTaskError, elapsedSeconds, handleCompleteTask } = useDailyTask();
+  const {
+    dailyTask,
+    loadingDailyTask,
+    dailyTaskError,
+    elapsedSeconds,
+    showConfetti,
+    isCompleting,
+    handleDonePress,
+  } = useDailyTask();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -65,16 +75,16 @@ export default function TaskDailyScreen() {
                 </Text>
 
                 <Pressable
-                  disabled={!dailyTask || loadingDailyTask}
-                  className={`w-full rounded-2xl px-10 py-5 shadow-lg active:scale-95 ${!dailyTask || loadingDailyTask ? 'bg-primary/40' : 'bg-primary'
+                  disabled={!dailyTask || loadingDailyTask || isCompleting}
+                  className={`w-full rounded-2xl px-10 py-5 shadow-lg active:scale-95 ${!dailyTask || loadingDailyTask || isCompleting ? 'bg-primary/40' : 'bg-primary'
                     }`}
-                  onPress={handleCompleteTask}
+                  onPress={handleDonePress}
                 >
                   <RNText
                     className="font-extrabold text-xl text-center"
                     style={{ color: '#FFFFFF' }}
                   >
-                    {loadingDailyTask ? 'Loading...' : 'Mark as Done'}
+                    {loadingDailyTask ? 'Loading...' : isCompleting ? 'Great work...' : 'Mark as Done'}
                   </RNText>
                 </Pressable>
               </View>
@@ -82,6 +92,7 @@ export default function TaskDailyScreen() {
           </NeonCard>
         </View>
       </ScrollView>
+      <ConfettiBurst visible={showConfetti} />
     </SafeAreaView>
   );
 }

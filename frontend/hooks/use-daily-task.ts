@@ -16,6 +16,8 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
   const [dailyTask, setDailyTask] = useState<string | null>(null);
   const [loadingDailyTask, setLoadingDailyTask] = useState(false);
   const [dailyTaskError, setDailyTaskError] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const { elapsedSeconds, resetTimer } = useElapsedSeconds({ autoStart: true });
 
   const hasFetchedRef = useRef(false);
@@ -83,7 +85,23 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
     router.navigate('/task/active');
   };
 
+  const handleDonePress = async () => {
+    if (isCompleting || !dailyTask || loadingDailyTask) return;
 
+    setIsCompleting(true);
+    setShowConfetti(true);
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    await handleCompleteTask();
+  };
 
-  return { dailyTask, loadingDailyTask, dailyTaskError, elapsedSeconds, handleCompleteTask };
+  return {
+    dailyTask,
+    loadingDailyTask,
+    dailyTaskError,
+    elapsedSeconds,
+    showConfetti,
+    isCompleting,
+    handleCompleteTask,
+    handleDonePress,
+  };
 }

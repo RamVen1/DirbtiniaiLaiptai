@@ -16,7 +16,13 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider value={NAV_THEME[theme]}>
           <AuthGuard>
-            <Stack screenOptions={{ headerShown: false }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: "slide_from_right",
+                gestureEnabled: true,
+              }}
+            >
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="LoginForm" />
               <Stack.Screen name="RegisterForm" />

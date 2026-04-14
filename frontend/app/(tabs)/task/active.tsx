@@ -10,7 +10,7 @@ import { TaskActive } from '@/lib/task-active';
 
 export default function TaskActiveScreen() {
 
-  const { tint, handleDifficultyUpdate } = TaskActive();
+  const { tint, handleDifficultyUpdate, isSubmitting } = TaskActive();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -33,6 +33,7 @@ export default function TaskActiveScreen() {
           <View className="w-full gap-3">
             <Pressable
               className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              disabled={isSubmitting}
               onPress={() => handleDifficultyUpdate(-1)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
@@ -42,6 +43,7 @@ export default function TaskActiveScreen() {
 
             <Pressable
               className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              disabled={isSubmitting}
               onPress={() => handleDifficultyUpdate(0)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
@@ -51,6 +53,7 @@ export default function TaskActiveScreen() {
 
             <Pressable
               className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-90"
+              disabled={isSubmitting}
               onPress={() => handleDifficultyUpdate(1)}
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>

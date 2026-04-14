@@ -1,14 +1,29 @@
 import React from 'react';
-import { Text, View, TextInput, ActivityIndicator, Modal, Pressable } from 'react-native';
+import {
+  Text,
+  View,
+  TextInput,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Animated,
+} from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
 import { useJoinGroup } from '@/hooks/use-join-group';
+import { useEntranceAnimation } from '@/hooks/use-entrance-animation';
+import { useBackOrTabs } from '@/hooks/use-back-or-tabs';
 
 export default function JoinGroupScreen() {
   const { input, setInput, loading, showSkillModal, setShowSkillModal, skills, handleJoinAttempt, submitJoin } = useJoinGroup();
+  const { opacity: containerOpacity, translateY: containerTranslateY } = useEntranceAnimation();
+  const handleCancel = useBackOrTabs();
 
   return (
-    <View className="flex-1 bg-background px-6 pt-16 items-start">
+    <Animated.View
+      className="flex-1 bg-background px-6 pt-16 items-start"
+      style={{ opacity: containerOpacity, transform: [{ translateY: containerTranslateY }] }}
+    >
       <Text className="text-3xl text-foreground font-semibold pb-5">Join a group</Text>
       
       <View className="w-full">
@@ -37,7 +52,7 @@ export default function JoinGroupScreen() {
         <Button 
           variant="outline" 
           className="mt-2 w-full border-none" 
-          onPress={() => router.replace('/(tabs)')}
+          onPress={handleCancel}
         >
           <Text className="text-muted-foreground">Cancel</Text>
         </Button>
@@ -47,7 +62,7 @@ export default function JoinGroupScreen() {
       <Modal
         visible={showSkillModal}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
       >
         <View className="flex-1 justify-center items-center bg-black/50 px-6">
           <View className="bg-card w-full p-6 rounded-2xl border border-border shadow-xl">
@@ -79,6 +94,6 @@ export default function JoinGroupScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 }

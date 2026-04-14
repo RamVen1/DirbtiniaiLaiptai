@@ -1,11 +1,16 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { useThemePalette } from '@/hooks/use-color-scheme';
 import { getItem } from '@/utils/storage';
 
 export function TaskActive() {
   const { tint } = useThemePalette();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDifficultyUpdate = async (adjustment: number) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
       const token = await getItem('userToken');
       const response = await fetch(
@@ -34,8 +39,10 @@ export function TaskActive() {
     } catch (error) {
       console.error(error);
       router.replace('/(tabs)');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return { tint, handleDifficultyUpdate}
+  return { tint, handleDifficultyUpdate, isSubmitting };
 }

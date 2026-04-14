@@ -142,7 +142,13 @@ export default function EditProfileScreen() {
           <View className="mt-10 gap-4">
             <Button
               className="rounded-xl"
-              onPress={() => router.replace('/profile')}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
+                router.replace('/profile');
+              }}
             >
               <Text className="text-white font-bold text-base">
                 Save Changes

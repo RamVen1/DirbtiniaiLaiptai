@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Animated } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { ModuleCard } from '@/components/dashboard/module-card';
 import { useHomeScreen } from '@/hooks/use-home-screen';
+import { useEntranceAnimation } from '@/hooks/use-entrance-animation';
+import { usePulseAnimation } from '@/hooks/use-pulse-animation';
 
 export default function HomeScreen() {
   const {
@@ -20,6 +22,8 @@ export default function HomeScreen() {
     label,
     icon,
   } = useHomeScreen();
+  const { opacity: heroOpacity, translateY: heroTranslateY } = useEntranceAnimation();
+  const heartScale = usePulseAnimation();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -42,7 +46,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <ScrollView className="flex-1 bg-background pt-24 px-6 pb-28" showsVerticalScrollIndicator={false}>
+        <Animated.ScrollView
+          className="flex-1 bg-background pt-24 px-6 pb-28"
+          showsVerticalScrollIndicator={false}
+          style={{ opacity: heroOpacity, transform: [{ translateY: heroTranslateY }] }}
+        >
           <View className="mb-8">
             <Text className="text-3xl font-bold tracking-tight text-foreground">
               Improving your {user?.skill || 'Soft-Skills'}
@@ -72,9 +80,12 @@ export default function HomeScreen() {
 
             <View className={isTablet ? 'w-80' : 'w-full'}>
               <View className="bg-card rounded-3xl p-6 flex-1 items-center justify-center border border-border/20">
-                <View className="w-24 h-24 rounded-full bg-primary/20 items-center justify-center mb-4">
+                <Animated.View
+                  className="w-24 h-24 rounded-full bg-primary/20 items-center justify-center mb-4"
+                  style={{ transform: [{ scale: heartScale }] }}
+                >
                   <Ionicons name="heart" size={42} color={tint} />
-                </View>
+                </Animated.View>
                 <Text className="text-foreground font-bold text-xl mb-1">Bit, your Peer</Text>
                 <Text className="text-foreground/80 text-sm italic text-center">
                   &quot;Your empathy logic is compiling perfectly!&quot;
@@ -105,7 +116,7 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
       </View>
     </SafeAreaView>
   );

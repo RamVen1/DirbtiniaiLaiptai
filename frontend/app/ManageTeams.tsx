@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Pressable, ActivityIndicator, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,9 +7,13 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { useManageTeam } from '@/hooks/use-manage-team';
 import { useAuth } from '@/hooks/use-auth';
+import { useEntranceAnimation } from '@/hooks/use-entrance-animation';
+import { useBackOrTabs } from '@/hooks/use-back-or-tabs';
 export default function ManageTeamsScreen() {
   const { user } = useAuth();
   const { teams, loading, tint, handleCreateTeam, handleDeleteTeam, copyToClipboard } = useManageTeam();
+  const { opacity: contentOpacity, translateY: contentTranslateY } = useEntranceAnimation();
+  const handleBack = useBackOrTabs();
 
   if (!user || !['admin', 'moderator'].includes(user.role?.toLowerCase()) || loading) {
     return (
@@ -25,7 +29,7 @@ export default function ManageTeamsScreen() {
         <View className="absolute top-0 left-0 right-0 z-50 bg-background border-b border-border/20">
           <View className="flex-row items-center justify-between px-6 py-4">
             <Pressable
-              onPress={() => router.navigate('/(tabs)')}
+              onPress={handleBack}
               className="p-2 -ml-2 active:scale-95"
             >
               <Ionicons name="chevron-back" size={22} color={tint} />
@@ -42,9 +46,10 @@ export default function ManageTeamsScreen() {
           </View>
         </View>
 
-        <ScrollView
+        <Animated.ScrollView
           className="flex-1 bg-background pt-24 px-6 pb-24"
           showsVerticalScrollIndicator={false}
+          style={{ opacity: contentOpacity, transform: [{ translateY: contentTranslateY }] }}
         >
           <View className="mb-6">
             <Text className="text-3xl font-bold tracking-tight text-foreground">
@@ -126,7 +131,7 @@ export default function ManageTeamsScreen() {
               </View>
             )}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
       </View>
     </SafeAreaView>
   );

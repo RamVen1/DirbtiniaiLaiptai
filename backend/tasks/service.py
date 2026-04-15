@@ -51,10 +51,14 @@ def get_or_create_weekly_report(user_id: int):
         ).fetchone()
         
         if not report:
+            
+            user = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+            skill = user['Skill'] if user else None
+            
             conn.execute(
-                """INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours)
-                   VALUES (?, ?, ?, 0, 0)""",
-                (user_id, week_start, week_end)
+                """INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Skill)
+                   VALUES (?, ?, ?, 0, 0, ?)""",
+                (user_id, week_start, week_end, skill)
             )
             conn.commit()
             report = conn.execute(
@@ -98,6 +102,9 @@ def create_test_week_data(user_id: int):
         week_start = get_monday_of_week()
         week_end = get_sunday_of_week()
         
+        
+        user = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+        skill = user['Skill'] if user else None
 
         existing_report = conn.execute(
             "SELECT * FROM Report WHERE User_ID = ? AND Week_Start = ?",
@@ -111,9 +118,9 @@ def create_test_week_data(user_id: int):
         else:
  
             conn.execute(
-                """INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours)
-                   VALUES (?, ?, ?, 0, 0)""",
-                (user_id, week_start, week_end)
+                """INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Skill)
+                   VALUES (?, ?, ?, 0, 0, ?)""",
+                (user_id, week_start, week_end, skill)
             )
             conn.commit()
             report_id = conn.execute(

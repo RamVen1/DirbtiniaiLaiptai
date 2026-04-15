@@ -246,6 +246,38 @@ def complete_weekly_report(current_user_id: int = Depends(get_current_user), rep
         
     return {"status": "completed"}
 
+@router.get("/report-history")
+def get_report_history(current_user_id: int = Depends(get_current_user)):
+    with get_db() as conn:
+        user_id = int(current_user_id)
+        
+        reports = conn.execute(
+            """SELECT ID, Skill, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Created_At, Completed_At
+               FROM Report 
+               WHERE User_ID = ? AND Completed_At IS NOT NULL
+               ORDER BY Week_Start DESC""",
+            (user_id,)
+        ).fetchall()
+        
+        if not reports:
+            return {"grouped_history": {}}
+        
+        grouped = {}
+        for report in reports:
+            skill = report['Skill'] or "Unknown Skill"
+            if skill not in grouped:
+                grouped[skill] = []
+            grouped[skill].append({
+                "id": report['ID'],
+                "week_start": report['Week_Start'],
+                "week_end": report['Week_End'],
+                "tasks_completed": report['Total_Tasks_Completed'],
+                "practice_hours": report['Total_Practice_Hours'],
+                "completed_at": report['Completed_At']
+            })
+        
+        return {"grouped_history": grouped}
+
 @router.post("/test-create-week-data")
 def test_create_week_data(current_user_id: int = Depends(get_current_user)):
     """TEST ENDPOINT: Create hardcoded test data for a full week of tasks"""

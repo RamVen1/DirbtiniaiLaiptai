@@ -91,9 +91,9 @@ export default function ProfileScreen() {
           </Text>
 
           <View className="mt-6 w-full px-4">
-            <Button 
-              variant="outline" 
-              className="w-full rounded-xl border-primary/20" 
+            <Button
+              variant="outline"
+              className="w-full rounded-xl border-primary/20"
               onPress={() => { router.navigate('/profile/modal') }}
             >
               <Text className="text-primary font-bold text-base">Profile Settings</Text>
@@ -101,7 +101,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Skill Matrix */}
         <View className="mb-12">
           <View className="flex-row items-center gap-2 mb-6">
             <View className="w-8 h-[2px] bg-primary" />
@@ -126,10 +125,9 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Navigation Links */}
         <View className="mb-12">
           <Pressable
-            onPress={() => { }}
+            onPress={() => router.navigate('history' as any)}
             className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2 border border-border/10"
           >
             <View className="flex-row items-center gap-4">

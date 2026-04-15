@@ -46,6 +46,7 @@ def init_db():
                 Week_End DATE NOT NULL,
                 Total_Tasks_Completed INTEGER DEFAULT 0,
                 Total_Practice_Hours REAL DEFAULT 0,
+                Skill TEXT NULL,
                 Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 Completed_At TIMESTAMP NULL,
                 FOREIGN KEY (User_ID) REFERENCES User (ID)

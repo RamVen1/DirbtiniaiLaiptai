@@ -73,7 +73,10 @@ def init_db():
                 RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
                 Status TEXT NOT NULL DEFAULT '{RequestStatus.Pending.value}',
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (ID)
+                Admin_ID INTEGER NULL,
+                ProcessedDate DATETIME NULL,
+                FOREIGN KEY (User_ID) REFERENCES User (ID),
+                FOREIGN KEY (Admin_ID) REFERENCES User (ID)
             )
         """)
         

@@ -1,34 +1,49 @@
-from sqlite3 import Connection
+from core.database import RequestStatus, UserRole
 from datetime import datetime
 
-def check_existing_request(db: Connection, user_id: int):
-    return db.execute("SELECT 1 FROM RoleRequest WHERE User_ID = ?", (user_id,)).fetchone()
+def check_existing_request(conn, user_id: int):
+    cursor = conn.execute(
+        "SELECT 1 FROM RoleRequest WHERE User_ID = ? AND Status = ?", 
+        (user_id, RequestStatus.Pending.value)
+    )
+    return cursor.fetchone() is not None
 
-def create_role_request(db: Connection, user_id: int):
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    db.execute(
-        "INSERT INTO RoleRequest (RequestDate, Status, User_ID) VALUES (?, ?, ?)",
-        (date_str, "Pending", user_id)
-      )
-    db.commit()
+def create_role_request(conn, user_id: int):
+    conn.execute(
+        "INSERT INTO RoleRequest (User_ID) VALUES (?)", 
+        (user_id,)
+    )
+    conn.commit()
 
-def get_all_pending_requests(db: Connection):
-    cursor = db.execute("""
-        SELECT rr.ID, rr.RequestDate, rr.Status, u.Email 
-        FROM RoleRequest rr 
-        JOIN User u ON rr.User_ID = u.id 
-        WHERE rr.Status = 'Pending'
-    """)
+def get_all_pending_requests(conn):
+    cursor = conn.execute("""
+        SELECT r.ID, r.RequestDate, u.Email 
+        FROM RoleRequest r
+        JOIN User u ON r.User_ID = u.ID
+        WHERE r.Status = ?
+    """, (RequestStatus.Pending.value,))
     return cursor.fetchall()
 
-def process_request(db: Connection, request_id: int, action: str):
-    row = db.execute("SELECT User_ID FROM RoleRequest WHERE ID = ?", (request_id,)).fetchone()
-    if not row: return False
+def process_request(conn, req_id: int, action: str, admin_id: int):
+    status = RequestStatus.Accepted.value if action == "Accept" else RequestStatus.Denied.value
     
+    cursor = conn.execute("SELECT User_ID FROM RoleRequest WHERE ID = ?", (req_id,))
+    row = cursor.fetchone()
+    if not row:
+        return
+
     user_id = row["User_ID"]
+
+    conn.execute("""
+        UPDATE RoleRequest 
+        SET Status = ?, Admin_ID = ?, ProcessedDate = ? 
+        WHERE ID = ?
+    """, (status, admin_id, datetime.utcnow(), req_id))
+
     if action == "Accept":
-        db.execute("UPDATE User SET Role = 'Moderator' WHERE id = ?", (user_id,))
+        conn.execute(
+            "UPDATE User SET Role = ? WHERE ID = ?", 
+            (UserRole.Moderator.value, user_id)
+        )
     
-    db.execute("DELETE FROM RoleRequest WHERE ID = ?", (request_id,))
-    db.commit()
-    return True
+    conn.commit()

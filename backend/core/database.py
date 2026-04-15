@@ -39,12 +39,30 @@ def init_db():
         """)
 
     conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS Report (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                User_ID INTEGER NOT NULL,
+                Week_Start DATE NOT NULL,
+                Week_End DATE NOT NULL,
+                Total_Tasks_Completed INTEGER DEFAULT 0,
+                Total_Practice_Hours REAL DEFAULT 0,
+                Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                Completed_At TIMESTAMP NULL,
+                FOREIGN KEY (User_ID) REFERENCES User (ID)
+            )
+        """)
+
+    conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Task (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Task_content TEXT,
                 Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (ID)
+                Report_ID INTEGER,
+                Completed_At TIMESTAMP NULL,
+                Difficulty_Rating INTEGER,
+                FOREIGN KEY (User_ID) REFERENCES User (ID),
+                FOREIGN KEY (Report_ID) REFERENCES Report (ID)
             )
         """)
         
@@ -58,16 +76,7 @@ def init_db():
             )
         """)
         
-    conn.execute(f"""
-            CREATE TABLE IF NOT EXISTS Report (
-                ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                Start DATETIME,
-                End DATETIME,
-                CompletionRate REAL,
-                User_ID INTEGER,
-                FOREIGN KEY (User_ID) REFERENCES User (ID)   
-            )
-        """)
+
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Companion (

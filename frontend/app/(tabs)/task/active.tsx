@@ -9,8 +9,72 @@ import { NeonCard } from '@/components/dashboard/neon-card';
 import { TaskActive } from '@/lib/task-active';
 
 export default function TaskActiveScreen() {
+  const colorScheme = useColorScheme();
+  const tint = Colors[colorScheme === 'dark' ? 'dark' : 'light'].tint;
 
-  const { tint, handleDifficultyUpdate, isSubmitting } = TaskActive();
+  const handleDifficultyUpdate = async (adjustment: number) => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/update-difficulty?adjustment=${adjustment}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Check if we should show the report based on backend logic
+        if (data.show_report) {
+          // Pass report_id if it exists (for previous week reports)
+          if (data.report_id) {
+            router.push(`/MiniReport?reportId=${data.report_id}`);
+          } else {
+            router.push('/MiniReport');
+          }
+        } else {
+          router.replace('/(tabs)');
+        }
+      } else {
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      console.error(error);
+      router.replace('/(tabs)');
+    }
+  };
+
+  const handleTestData = async () => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/test-create-week-data`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Test data created:', data);
+        // Navigate to MiniReport to see the test data
+        router.push('/MiniReport');
+      } else {
+        console.error('Failed to create test data');
+      }
+    } catch (error) {
+      console.error('Test data error:', error);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -58,6 +122,16 @@ export default function TaskActiveScreen() {
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
                 Too easy
+              </RNText>
+            </Pressable>
+
+            {/* TEST BUTTON - Remove this after testing */}
+            <Pressable
+              className="w-full rounded-xl bg-orange-500 px-10 py-3 active:opacity-90 mt-4"
+              onPress={handleTestData}
+            >
+              <RNText className="font-bold text-sm text-center" style={{ color: '#FFFFFF' }}>
+                [TEST] Create Full Week Data
               </RNText>
             </Pressable>
           </View>

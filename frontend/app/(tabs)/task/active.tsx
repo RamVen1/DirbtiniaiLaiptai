@@ -30,10 +30,15 @@ export default function TaskActiveScreen() {
 
       if (response.ok) {
         const data = await response.json();
-        const count = data.total_tasks;
 
-        if (count > 0 && count % 7 === 0) {
-          router.push('/MiniReport');
+        // Check if we should show the report based on backend logic
+        if (data.show_report) {
+          // Pass report_id if it exists (for previous week reports)
+          if (data.report_id) {
+            router.push(`/MiniReport?reportId=${data.report_id}`);
+          } else {
+            router.push('/MiniReport');
+          }
         } else {
           router.replace('/(tabs)');
         }
@@ -43,6 +48,33 @@ export default function TaskActiveScreen() {
     } catch (error) {
       console.error(error);
       router.replace('/(tabs)');
+    }
+  };
+
+  const handleTestData = async () => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/test-create-week-data`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Test data created:', data);
+        // Navigate to MiniReport to see the test data
+        router.push('/MiniReport');
+      } else {
+        console.error('Failed to create test data');
+      }
+    } catch (error) {
+      console.error('Test data error:', error);
     }
   };
 
@@ -89,6 +121,16 @@ export default function TaskActiveScreen() {
             >
               <RNText className="font-extrabold text-lg text-center" style={{ color: '#FFFFFF' }}>
                 Too easy
+              </RNText>
+            </Pressable>
+
+            {/* TEST BUTTON - Remove this after testing */}
+            <Pressable
+              className="w-full rounded-xl bg-orange-500 px-10 py-3 active:opacity-90 mt-4"
+              onPress={handleTestData}
+            >
+              <RNText className="font-bold text-sm text-center" style={{ color: '#FFFFFF' }}>
+                [TEST] Create Full Week Data
               </RNText>
             </Pressable>
           </View>

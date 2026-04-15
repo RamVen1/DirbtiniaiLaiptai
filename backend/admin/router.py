@@ -22,6 +22,7 @@ def get_requests(admin=Depends(role_required(["admin"]))):
 @router.post("/requests/{req_id}/action")
 def take_action(req_id: int, payload: dict, admin=Depends(role_required(["admin"]))):
     action = payload.get("action")
+    admin_id = int(admin["ID"])
     with get_db() as conn:
-        service.process_request(conn, req_id, action)
+        service.process_request(conn, req_id, action, admin_id)
         return {"message": "Processed"}

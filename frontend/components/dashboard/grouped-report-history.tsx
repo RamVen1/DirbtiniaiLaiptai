@@ -21,7 +21,7 @@ interface GroupedReportHistoryProps {
     isTablet?: boolean;
 }
 
-export function GroupedReportHistory({
+export function GroupedReportHistorys({
     groupedHistory,
     loading,
     error,

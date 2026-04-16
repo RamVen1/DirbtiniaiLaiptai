@@ -19,6 +19,11 @@ def get_requests(admin=Depends(role_required(["admin"]))):
         reqs = service.get_all_pending_requests(conn)
         return {"requests": [dict(r) for r in reqs]}
 
+@router.get("/requests/summary")
+def get_requests_summary(admin=Depends(role_required(["admin"]))):
+    with get_db() as conn:
+        return service.get_request_summary(conn)
+
 @router.post("/requests/{req_id}/action")
 def take_action(req_id: int, payload: dict, admin=Depends(role_required(["admin"]))):
     action = payload.get("action")

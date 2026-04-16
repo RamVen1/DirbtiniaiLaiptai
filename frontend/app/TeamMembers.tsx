@@ -34,11 +34,9 @@ export default function TeamMembersScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View className="bg-card border border-border/20 rounded-3xl p-6">
-            <Text className="text-[11px] text-primary font-bold uppercase tracking-widest">Selected Team</Text>
             <Text className="text-3xl font-black text-foreground mt-1">Team #{teamId ?? 'N/A'}</Text>
 
             <View className="mt-5 bg-primary/10 p-4 rounded-2xl border border-primary/20">
-              <Text className="text-xs uppercase tracking-widest text-foreground/60">Code</Text>
               <Text className="font-mono text-primary font-bold text-xl tracking-[3px] mt-1">
                 {teamCode ?? 'Not available'}
               </Text>
@@ -51,9 +49,12 @@ export default function TeamMembersScreen() {
 
             <View className="mt-4 gap-3">
               {members.map((member) => (
-                <View
+                <Pressable
                   key={member.id}
-                  className="bg-background border border-border/20 rounded-2xl p-4"
+                  onPress={() => handleReviewStats(member)}
+                  className="bg-background border border-border/20 rounded-2xl p-4 active:opacity-80"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Review stats for ${member.fullName}`}
                 >
                   <View className="flex-row items-center justify-between gap-3">
                     <View className="flex-row items-center gap-3 flex-1">
@@ -66,19 +67,9 @@ export default function TeamMembersScreen() {
                       </View>
                     </View>
 
-                    <Pressable
-                      onPress={() => handleReviewStats(member)}
-                      className="px-4 py-2 rounded-xl bg-primary/15 border border-primary/25 active:scale-95"
-                      accessibilityRole="button"
-                      accessibilityLabel={`Review stats for ${member.fullName}`}
-                    >
-                      <View className="flex-row items-center gap-2">
-                        <Ionicons name="stats-chart" size={16} color={tint} />
-                        <Text className="text-primary font-bold">Review</Text>
-                      </View>
-                    </Pressable>
+                    
                   </View>
-                </View>
+                </Pressable>
               ))}
             </View>
           </View>

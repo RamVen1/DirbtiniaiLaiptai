@@ -26,20 +26,16 @@ export default function ReviewMemberScreen() {
               <Ionicons name="chevron-back" size={22} color={tint} />
             </Pressable>
 
-            <Text className="text-lg font-black text-primary tracking-tighter">Member Review</Text>
+            <Text className="text-lg font-black text-primary tracking-tighter"> Member Progress</Text>
 
             <View className="w-8" />
           </View>
         </View>
 
         <ScrollView className="flex-1 bg-background pt-24 px-6 pb-24" showsVerticalScrollIndicator={false}>
-          <View className="mb-6">
-            <Text className="text-3xl font-bold tracking-tight text-foreground">Member Progress</Text>
-          </View>
+          
 
           <View className="bg-primary rounded-3xl p-6 mb-6 shadow-lg shadow-primary/20">
-            <Text className="text-white/80 font-bold uppercase tracking-wider text-xs">Team Member</Text>
-
             <View className="mt-3 flex-row items-center gap-3">
               <View className="w-14 h-14 rounded-full border-2 border-white/70 overflow-hidden">
                 <Image source={avatarSource} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
@@ -64,10 +60,6 @@ export default function ReviewMemberScreen() {
               <View className="flex-1">
                 <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest">Active Module</Text>
                 <Text className="text-foreground text-xl font-black mt-1">{activeModule.title}</Text>
-
-              </View>
-              <View className="bg-primary/10 px-3 py-1 rounded-full border border-primary/25">
-                <Text className="text-primary text-xs font-bold">In Progress</Text>
               </View>
             </View>
 
@@ -92,7 +84,7 @@ export default function ReviewMemberScreen() {
 
           <View className="bg-card border border-border/20 rounded-3xl p-5">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-bold text-foreground">Completed Modules</Text>
+              <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest">Completed Modules</Text>
               <Text className="text-sm text-foreground/70">{totalHours.toFixed(1)}h total</Text>
             </View>
 

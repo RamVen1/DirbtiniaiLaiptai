@@ -66,9 +66,10 @@ def process_request(conn, req_id: int, action: str, admin_id: int):
     """, (status, admin_id, datetime.utcnow(), req_id))
 
     if action == "Accept":
-        conn.execute(
-            "UPDATE User SET Role = ? WHERE ID = ?", 
-            (UserRole.Moderator.value, user_id)
-        )
+        conn.execute("""
+            UPDATE User 
+            SET Role = ?, team_id = NULL, skill = NULL 
+            WHERE ID = ?
+        """, (UserRole.Moderator.value, user_id))
     
     conn.commit()

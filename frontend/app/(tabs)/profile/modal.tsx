@@ -6,7 +6,6 @@ import { NeonCard } from '@/components/dashboard/neon-card';
 import { useProfileModal } from '@/hooks/use-profile-modal';
 
 export default function ProfileModalScreen() {
-
   const {
     user, 
     loading,
@@ -14,6 +13,8 @@ export default function ProfileModalScreen() {
     handleApplyModerator,
     handleLeaveGroup
   } = useProfileModal()
+
+  const isMember = user?.role?.toLowerCase() === 'member';
 
   return (
     <View className="flex-1 bg-background items-center justify-center p-6">
@@ -26,10 +27,10 @@ export default function ProfileModalScreen() {
         </Text>
 
         <View className="gap-3">
-          {user?.role?.toLowerCase() === 'member' && (
+          {isMember && (
             <Pressable
               onPress={handleApplyModerator}
-            disabled={loading}
+              disabled={loading}
               className="w-full rounded-xl bg-secondary px-10 py-5 border border-primary/30 active:opacity-80"
               accessibilityRole="button"
             >
@@ -41,25 +42,27 @@ export default function ProfileModalScreen() {
             </Pressable>
           )}
 
-          {user?.team_id ? (
-            <Pressable
-              onPress={handleLeaveGroup}
-              disabled={loading}
-              className="w-full rounded-xl bg-destructive/10 border border-destructive/20 px-10 py-5 active:bg-destructive/20"
-              accessibilityRole="button"
-            >
-              <Text className="text-destructive font-extrabold text-lg text-center">
-                Leave group
-              </Text>
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={() => router.push('/join-group')}
-              className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
-              accessibilityRole="button"
-            >
-              <Text className="text-foreground font-extrabold text-lg text-center">Join group</Text>
-            </Pressable>
+          {isMember && (
+            user?.team_id ? (
+              <Pressable
+                onPress={handleLeaveGroup}
+                disabled={loading}
+                className="w-full rounded-xl bg-destructive/10 border border-destructive/20 px-10 py-5 active:bg-destructive/20"
+                accessibilityRole="button"
+              >
+                <Text className="text-destructive font-extrabold text-lg text-center">
+                  Leave group
+                </Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => router.push('/join-group')}
+                className="w-full rounded-xl bg-primary px-10 py-5 active:opacity-80"
+                accessibilityRole="button"
+              >
+                <Text className="text-foreground font-extrabold text-lg text-center">Join group</Text>
+              </Pressable>
+            )
           )}
 
           <Pressable

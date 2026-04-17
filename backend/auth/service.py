@@ -18,3 +18,16 @@ def create_user(db: Connection, user: RegisterRequest):
 
 def verify_password(plain_password: str, hashed_password: str):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def update_user_profile(conn, user_id: int, username: str, email: str):
+    conn.execute(
+        "UPDATE User SET Username = ?, Email = ? WHERE ID = ?",
+        (username, email, user_id)
+    )
+    conn.commit()
+    
+    cursor = conn.execute(
+        "SELECT ID, Username as username, Email as email, Role as role, team_id FROM User WHERE ID = ?", 
+        (user_id,)
+    )
+    return cursor.fetchone()

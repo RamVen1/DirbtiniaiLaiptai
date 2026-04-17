@@ -4,8 +4,13 @@ from sqlite3 import Connection
 from core.database import get_db
 from core.security import create_access_token, get_current_user
 from . import service, schemas
+from pydantic import BaseModel
 
 router = APIRouter(prefix="", tags=["auth"])
+
+class UpdateProfileRequest(BaseModel):
+    username: str
+    email: str
 
 @router.post("/register")
 def register_user(user: schemas.RegisterRequest):
@@ -98,3 +103,20 @@ def get_current_user_data(current_user_id: str = Depends(get_current_user)):
             "team_id": u_dict.get("team_id"),
             "username": u_dict["Username"]
         }
+
+@router.put("/me")
+def update_profile(data: UpdateProfileRequest, current_user_id: str = Depends(get_current_user)):
+    with get_db() as conn:
+        try:
+            updated_user = service.update_user_profile(
+                conn, 
+                int(current_user_id), 
+                data.username, 
+                data.email
+            )
+            if not updated_user:
+                raise HTTPException(status_code=404, detail="User not found")
+            return dict(updated_user)
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            raise HTTPException(status_code=500, detail="Internal Server Error")

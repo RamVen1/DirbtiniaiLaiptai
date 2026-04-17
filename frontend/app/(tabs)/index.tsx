@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Pressable, Image, Animated } from 'react-native';
+import { View, Pressable, Image as RNImage, Animated } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useEntranceAnimation } from '@/hooks/use-entrance-animation';
 import { usePulseAnimation } from '@/hooks/use-pulse-animation';
 
 export default function HomeScreen() {
+  const petSprite = require('@/assets/images/pets/fox-animation.gif');
   const {
     router,
     isTablet,
@@ -42,9 +44,15 @@ export default function HomeScreen() {
                 onPress={() => router.navigate('/profile')}
                 className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden"
               >
-                <Image source={avatarSource} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                <RNImage
+                  source={avatarSource}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
               </Pressable>
-              <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
+              <Text className="text-lg font-black text-primary tracking-tighter">
+                The Next Step
+              </Text>
             </View>
 
             <Pressable onPress={() => router.navigate(destination as any)} className="p-2">
@@ -86,10 +94,15 @@ export default function HomeScreen() {
                 <View className="absolute -right-20 -bottom-20 w-64 h-64 rounded-full bg-secondary/30" />
                 <View className="relative z-10">
                   <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">Requests</Text>
-                  <Text className="text-white font-extrabold text-6xl mt-2">{adminSummary.pending_count}</Text>
+                  <Text className="text-white font-extrabold text-6xl mt-2">
+                    {adminSummary.pending_count}
+                  </Text>
                   <Text className="text-white/80 text-lg mt-2">Pending moderator requests</Text>
 
-                  <Button className="mt-8 bg-background" onPress={() => router.navigate('/AdminRequest' as any)}>
+                  <Button
+                    className="mt-8 bg-background"
+                    onPress={() => router.navigate('/AdminRequest' as any)}
+                  >
                     <View className="flex-row items-center justify-center gap-2">
                       <Text className="text-primary font-extrabold text-base">Go to requests</Text>
                       <Ionicons name="shield-checkmark" size={18} color={tint} />
@@ -100,20 +113,30 @@ export default function HomeScreen() {
 
               <View>
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">Latest Handled Requests</Text>
+                  <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">
+                    Latest Handled Requests
+                  </Text>
                 </View>
 
                 {adminSummary.recent_handled_requests.length > 0 ? (
                   <View className="gap-3">
                     {adminSummary.recent_handled_requests.map((request) => (
-                      <View key={request.ID} className="rounded-2xl border border-border/20 bg-card p-4">
+                      <View
+                        key={request.ID}
+                        className="rounded-2xl border border-border/20 bg-card p-4"
+                      >
                         <View className="mb-3">
-                          <Text className="text-sm font-bold text-foreground">{request.UserEmail}</Text>
+                          <Text className="text-sm font-bold text-foreground">
+                            {request.UserEmail}
+                          </Text>
                           <Text className="text-xs text-foreground/60 mt-1">
                             Submitted: {new Date(request.RequestDate).toLocaleDateString()}
                           </Text>
                           <Text className="text-xs text-foreground/60 mt-1">
-                            Processed: {request.ProcessedDate ? new Date(request.ProcessedDate).toLocaleDateString() : 'Handled'}
+                            Processed:{' '}
+                            {request.ProcessedDate
+                              ? new Date(request.ProcessedDate).toLocaleDateString()
+                              : 'Handled'}
                           </Text>
                         </View>
                       </View>
@@ -124,7 +147,6 @@ export default function HomeScreen() {
                       </Pressable>
                     </View>
                   </View>
-
                 ) : (
                   <View className="rounded-2xl border border-border/20 bg-card p-4 items-center">
                     <Text className="text-foreground/70 font-bold">No handled requests yet</Text>
@@ -137,11 +159,15 @@ export default function HomeScreen() {
               <View className="rounded-3xl bg-primary p-8 relative overflow-hidden">
                 <View className="absolute -right-20 -bottom-20 w-64 h-64 rounded-full bg-secondary/30" />
                 <View className="relative z-10">
-                  <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">Your teams</Text>
+                  <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">
+                    Your teams
+                  </Text>
                   <Text className="text-white font-extrabold text-6xl mt-2">{teams.length}</Text>
 
-
-                  <Button className="mt-8 bg-background" onPress={() => router.navigate('/ManageTeams' as any)}>
+                  <Button
+                    className="mt-8 bg-background"
+                    onPress={() => router.navigate('/ManageTeams' as any)}
+                  >
                     <View className="flex-row items-center justify-center gap-2">
                       <Text className="text-primary font-extrabold text-base">Create new team</Text>
                       <Ionicons name="people" size={18} color={tint} />
@@ -151,7 +177,9 @@ export default function HomeScreen() {
               </View>
 
               <View className="rounded-3xl border border-border/20 bg-card p-5">
-                <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">Manage Your Teams</Text>
+                <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">
+                  Manage Your Teams
+                </Text>
                 <View className="mt-4 gap-3">
                   {teams.length > 0 ? (
                     teams.map((team) => (
@@ -172,7 +200,6 @@ export default function HomeScreen() {
                           <Text className="font-bold text-foreground">Team #{team.ID}</Text>
                           <Text className="text-sm text-foreground/60">Code {team.Code}</Text>
                         </View>
-
                       </Pressable>
                     ))
                   ) : (
@@ -189,8 +216,20 @@ export default function HomeScreen() {
                   <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">Streak</Text>
                   <Text className="text-white font-extrabold text-6xl mb-2">{streak} Days</Text>
 
+                  <View className=" items-end">
+                    <Image
+                      source={petSprite}
+                      style={{ width: 120, height: 120, backgroundColor: 'transparent' }}
+                      contentFit="contain"
+                      autoplay
+                      cachePolicy="memory-disk"
+                    />
+                  </View>
 
-                  <Button className="mt-8 bg-background" onPress={() => router.navigate(destination as any)}>
+                  <Button
+                    className="bg-background"
+                    onPress={() => router.navigate(destination as any)}
+                  >
                     <View className="flex-row items-center justify-center gap-2">
                       <Text className="text-primary font-extrabold text-base">{label}</Text>
                       <Ionicons name={icon as any} size={18} color={tint} />
@@ -215,14 +254,18 @@ export default function HomeScreen() {
                 ) : (
                   <View className="bg-card/40 border border-dashed border-border p-8 rounded-2xl items-center">
                     <Ionicons name="hourglass-outline" size={32} color={tint} opacity={0.5} />
-                    <Text className="text-foreground/50 font-bold mt-2">Finish the course to unlock your report</Text>
+                    <Text className="text-foreground/50 font-bold mt-2">
+                      Finish the course to unlock your report
+                    </Text>
                   </View>
                 )}
               </View>
 
               <View>
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">Companions</Text>
+                  <Text className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/50">
+                    Companions
+                  </Text>
                 </View>
                 <View className={isTablet ? 'flex-row flex-wrap gap-4' : 'gap-4'}>
                   {petMilestones.map((pet) => (
@@ -241,7 +284,9 @@ export default function HomeScreen() {
 
                       <View className="mt-2 flex-1 items-center justify-center">
                         <Text className="text-foreground font-bold text-base">{pet.name}</Text>
-                        <Text className="text-foreground/65 mt-1 text-xs">{pet.skill || 'Soft-Skills'}</Text>
+                        <Text className="text-foreground/65 mt-1 text-xs">
+                          {pet.skill || 'Soft-Skills'}
+                        </Text>
                       </View>
                     </View>
                   ))}
@@ -255,11 +300,23 @@ export default function HomeScreen() {
                   <View className="bg-primary rounded-3xl p-8 relative overflow-hidden">
                     <View className="absolute -right-20 -bottom-20 w-64 h-64 rounded-full bg-secondary/30" />
                     <View className="relative z-10">
-                      <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">Streak</Text>
+                      <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">
+                        Streak
+                      </Text>
                       <Text className="text-white font-extrabold text-6xl mb-2">{streak} Days</Text>
                       <Text className="text-white/80 text-lg">Current daily streak</Text>
 
-                      <Button className="mt-8 bg-background" onPress={() => router.navigate(destination as any)}>
+                      <View className="items-end relative">
+                        <Image
+                          source={petSprite}
+                          style={{ width: 120, height: 120, backgroundColor: 'transparent' }}
+                        />
+                      </View>
+
+                      <Button
+                        className="mt bg-background"
+                        onPress={() => router.navigate(destination as any)}
+                      >
                         <View className="flex-row items-center justify-center gap-2">
                           <Text className="text-primary font-extrabold text-base">{label}</Text>
                           <Ionicons name={icon as any} size={18} color={tint} />
@@ -286,7 +343,9 @@ export default function HomeScreen() {
               </View>
 
               <View>
-                <Text className="text-2xl font-bold text-foreground mb-4">Current Improvement Course</Text>
+                <Text className="text-2xl font-bold text-foreground mb-4">
+                  Current Improvement Course
+                </Text>
 
                 {hasReport ? (
                   <Pressable onPress={() => router.push(`/MiniReport`)}>
@@ -303,7 +362,9 @@ export default function HomeScreen() {
                 ) : (
                   <View className="bg-card/40 border border-dashed border-border p-8 rounded-2xl items-center">
                     <Ionicons name="hourglass-outline" size={32} color={tint} opacity={0.5} />
-                    <Text className="text-foreground/50 font-bold mt-2">Keep working to see your progress</Text>
+                    <Text className="text-foreground/50 font-bold mt-2">
+                      Keep working to see your progress
+                    </Text>
                   </View>
                 )}
               </View>

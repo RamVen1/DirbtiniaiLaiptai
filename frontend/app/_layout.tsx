@@ -31,6 +31,7 @@ export default function RootLayout() {
                 options={{ headerShown: true, title: "Home" }}
               />
               <Stack.Screen name="AdminRequest" />
+              <Stack.Screen name="AdminHistory" />
               <Stack.Screen name="ManageTeams" />
               <Stack.Screen name="join-group" />
             </Stack>

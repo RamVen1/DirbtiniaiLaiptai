@@ -142,7 +142,7 @@ export default function HomeScreen() {
                       </View>
                     ))}
                     <View className=" items-center justify-center mt-4">
-                      <Pressable onPress={() => router.navigate('/AdminRequest' as any)}>
+                      <Pressable onPress={() => router.navigate('/AdminHistory' as any)}>
                         <Text className="font-bold text-primary text-xs">See all</Text>
                       </Pressable>
                     </View>

@@ -17,7 +17,7 @@ def create_role_request(conn, user_id: int):
 
 def get_all_pending_requests(conn):
     cursor = conn.execute("""
-        SELECT r.ID, r.RequestDate, u.Email 
+        SELECT r.ID, r.RequestDate, u.Email, u.Username
         FROM RoleRequest r
         JOIN User u ON r.User_ID = u.ID
         WHERE r.Status = ?
@@ -48,6 +48,18 @@ def get_request_summary(conn):
         "latest_handled": handled_requests[0] if handled_requests else None,
         "recent_handled_requests": handled_requests,
     }
+
+def get_handled_requests(conn):
+    rows = conn.execute("""
+        SELECT r.ID, r.Status, r.RequestDate, r.ProcessedDate, u.Email AS UserEmail, u.Username AS UserUsername, a.Email AS AdminEmail
+        FROM RoleRequest r
+        JOIN User u ON r.User_ID = u.ID
+        LEFT JOIN User a ON r.Admin_ID = a.ID
+        WHERE r.ProcessedDate IS NOT NULL
+        ORDER BY r.ProcessedDate DESC
+    """).fetchall()
+
+    return rows
 
 def process_request(conn, req_id: int, action: str, admin_id: int):
     status = RequestStatus.Accepted.value if action == "Accept" else RequestStatus.Denied.value

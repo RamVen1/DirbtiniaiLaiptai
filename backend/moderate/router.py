@@ -12,9 +12,9 @@ def list_my_teams(current_user_id: str = Depends(get_current_user)):
         return {"teams": [dict(t) for t in teams]}
 
 @router.post("/teams/create")
-def create_team(current_user_id: str = Depends(get_current_user)):
+def create_team(payload: schemas.TeamCreate, current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
-        new_team = service.create_new_team(conn, int(current_user_id))
+        new_team = service.create_new_team(conn, int(current_user_id), payload.name)
         return new_team
 
 @router.delete("/teams/{team_id}")

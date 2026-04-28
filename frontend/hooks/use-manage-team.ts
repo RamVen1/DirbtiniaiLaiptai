@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { useThemePalette } from '@/hooks/use-color-scheme';
 import { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { getItem } from "@/utils/storage";
 import { useEffect } from "react";
 import * as Clipboard from 'expo-clipboard';
@@ -39,26 +39,38 @@ export function useManageTeam(){
 
   useEffect(() => { fetchTeams(); }, [user]);
 
-  const handleCreateTeam = async () => {
-    const token = await getItem('userToken');
-    try {
-      const response = await fetch(`${API_URL}/moderate/teams/create`, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json' 
-        },
-      });
+const handleCreateTeam = async () => {
+    const action = async (teamName: string | null) => {
+      if (!teamName || teamName.trim() === "") return;
 
-      if (response.ok) {
-        const newTeam = await response.json();
-        Alert.alert("Success", `Created Team #${newTeam.ID}`);
-        fetchTeams();
-      } else {
-        Alert.alert("Error", "Failed to create team.");
+      const token = await getItem('userToken');
+      try {
+        const response = await fetch(`${API_URL}/moderate/teams/create`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ name: teamName })
+        });
+
+        if (response.ok) {
+          fetchTeams();
+        } else {
+          Alert.alert("Error", "Failed to create team");
+        }
+      } catch (error) {
+        Alert.alert("Error", "Network error");
       }
-    } catch (error) {
-      Alert.alert("Error", "Could not connect to server.");
+    };
+
+    if (Platform.OS === 'web') {
+      const name = window.prompt("Enter team name:");
+      if (name) action(name);
+    } else if (Platform.OS === 'ios') {
+      Alert.prompt("New Team", "Enter team name:", (name) => action(name));
+    } else {
+      action("New Team " + (teams.length + 1));
     }
   };
 

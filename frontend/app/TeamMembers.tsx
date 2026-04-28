@@ -6,7 +6,7 @@ import { Text } from '@/components/ui/text';
 import { useTeamMembers } from '@/hooks/use-team-members';
 
 export default function TeamMembersScreen() {
-  const { router, avatarSource, teamId, teamCode, tint, members, loading, handleReviewStats } = useTeamMembers();
+  const { router, avatarSource, teamId, teamCode, teamName, tint, members, loading, handleReviewStats } = useTeamMembers();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -26,7 +26,7 @@ export default function TeamMembersScreen() {
         ) : (
           <ScrollView className="flex-1 pt-28 px-6 pb-8" showsVerticalScrollIndicator={false}>
             <View className="bg-card border border-border/20 rounded-3xl p-6">
-              <Text className="text-3xl font-black text-foreground">Team #{teamId}</Text>
+              <Text className="text-3xl font-black text-foreground">{teamName}</Text>
               <View className="mt-5 bg-primary/10 p-4 rounded-2xl border border-primary/20">
                 <Text className="font-mono text-primary font-bold text-xl tracking-[3px]">{teamCode}</Text>
               </View>

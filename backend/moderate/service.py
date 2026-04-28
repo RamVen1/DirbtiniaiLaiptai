@@ -5,16 +5,21 @@ def get_moderator_teams(db: Connection, moderator_id: int):
     cursor = db.execute("SELECT * FROM Team WHERE ModeratorID = ?", (moderator_id,))
     return cursor.fetchall()
 
-def create_new_team(db: Connection, moderator_id: int):
+def create_new_team(db: Connection, moderator_id: int, name: str):
     new_code = str(uuid.uuid4()).replace("-", "").upper()[:8]
     
     cursor = db.execute(
-        "INSERT INTO Team (Code, ModeratorID) VALUES (?, ?)",
-        (new_code, moderator_id)
+        "INSERT INTO Team (Name, Code, ModeratorID) VALUES (?, ?, ?)",
+        (name, new_code, moderator_id)
     )
     db.commit()
     
-    return {"ID": cursor.lastrowid, "Code": new_code, "ModeratorID": moderator_id}
+    return {
+        "ID": cursor.lastrowid, 
+        "Name": name, 
+        "Code": new_code, 
+        "ModeratorID": moderator_id
+    }
 
 def delete_team(db: Connection, team_id: int, moderator_id: int):
     cursor = db.execute(

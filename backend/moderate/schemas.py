@@ -10,7 +10,7 @@ class TeamBase(BaseModel):
         from_attributes = True
 
 class TeamCreate(BaseModel):
-    pass
+    name: str
 
 class TeamResponse(BaseModel):
     teams: List[TeamBase]

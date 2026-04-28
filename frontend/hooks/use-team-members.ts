@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 export const useTeamMembers = () => {
   const router = useRouter();
-  const { teamId, teamCode } = useLocalSearchParams();
+  const { teamId, teamCode, teamName } = useLocalSearchParams();
   const { tint } = useThemePalette();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,5 +33,5 @@ export const useTeamMembers = () => {
     });
   };
 
-  return { router, avatarSource, teamId, teamCode, tint, members, loading, handleReviewStats };
+  return { router, avatarSource, teamId, teamCode, teamName, tint, members, loading, handleReviewStats };
 };

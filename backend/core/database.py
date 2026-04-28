@@ -95,6 +95,7 @@ def init_db():
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Team (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT NOT NULL,
                 Code TEXT UNIQUE,
                 ModeratorID INTEGER,
                 FOREIGN KEY (ModeratorID) REFERENCES User (ID)

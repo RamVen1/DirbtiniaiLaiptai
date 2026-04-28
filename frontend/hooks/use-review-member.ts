@@ -1,42 +1,42 @@
+import { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useThemePalette } from '@/hooks/use-color-scheme';
+import { useThemePalette } from './use-color-scheme';
+import { api } from '@/lib/api';
 
-export function useReviewMember() {
+export const useReviewMember = () => {
   const router = useRouter();
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
-  const { memberId, memberName, memberRole, memberEmail } = useLocalSearchParams();
+  const { memberId } = useLocalSearchParams();
   const { tint } = useThemePalette();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const completedModules = [
-    { id: 1, name: 'Active Listening', score: 92, hours: 4.5 },
-    { id: 2, name: 'Constructive Feedback', score: 88, hours: 3.0 },
-    { id: 3, name: 'Conflict Resolution', score: 90, hours: 2.5 },
-    { id: 4, name: 'Mentorship', score: 85, hours: 3.5 },
-    { id: 5, name: 'Presentation', score: 94, hours: 2.0 },
-  ];
+  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
 
-  const activeModule = {
-    title: 'Strategic Communication in Projects',
-    progress: 68,
-    nextTask: 'Stakeholder Alignment Exercise',
-  };
-
-  const totalHours = completedModules.reduce((sum, item) => sum + item.hours, 0);
-  const avgScore = Math.round(
-    completedModules.reduce((sum, item) => sum + item.score, 0) / completedModules.length
-  );
+  useEffect(() => {
+    const fetchProgress = async () => {
+      try {
+        const response = await api.get(`/moderate/members/${memberId}/progress`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch progress:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (memberId) fetchProgress();
+  }, [memberId]);
 
   return {
     router,
     avatarSource,
-    memberId,
-    memberName,
-    memberRole,
-    memberEmail,
     tint,
-    completedModules,
-    activeModule,
-    totalHours,
-    avgScore,
+    loading,
+    memberName: data?.memberName,
+    memberRole: data?.memberRole,
+    memberEmail: data?.memberEmail,
+    completedModules: data?.completedModules || [],
+    activeModule: data?.activeModule || { title: 'N/A', progress: 0 },
+    totalHours: data?.totalHours || 0,
+    avgScore: data?.avgScore || 0,
   };
-}
+};

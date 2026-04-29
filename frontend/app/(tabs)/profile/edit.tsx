@@ -10,25 +10,22 @@ import { useEditProfile } from '@/hooks/use-edit-profile';
 
 export default function EditProfileScreen() {
   const { 
-    name, 
-    setName, 
+    name, setName, 
     role, 
-    email, 
-    setEmail, 
+    email, setEmail, 
     loading,
     handleSave,
-    defaultAvatar,
-    showAvatarPanel, 
-    setShowAvatarPanel,
-    selectedAvatar,
-    setSelectedAvatar,
+    showAvatarPanel, setShowAvatarPanel,
+    selectedAvatar, setSelectedAvatar,
     tint,
     avatars
   } = useEditProfile();
 
   const onSave = async () => {
-    await handleSave();
-    router.back();
+    const success = await handleSave();
+    if (success) {
+      router.back();
+    }
   };
 
   return (
@@ -43,7 +40,7 @@ export default function EditProfileScreen() {
             <Ionicons name="arrow-back" size={22} color={tint} />
           </Pressable>
 
-          <Text className="text-lg font-bold tracking-tight">
+          <Text className="text-lg font-bold tracking-tight text-foreground">
             Edit Profile
           </Text>
 
@@ -59,11 +56,7 @@ export default function EditProfileScreen() {
           <View className="items-center mt-6 mb-10">
             <View className="w-32 h-32 rounded-full bg-primary/20 items-center justify-center overflow-hidden border-4 border-background shadow-sm">
               <Image
-                source={
-                  selectedAvatar !== null
-                    ? avatars[selectedAvatar]
-                    : defaultAvatar
-                }
+                source={avatars[selectedAvatar]}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -85,7 +78,6 @@ export default function EditProfileScreen() {
 
           {/* Form Fields */}
           <View className="gap-6">
-            {/* Username / Name */}
             <View>
               <Text className="text-xs mb-2 text-primary tracking-widest font-bold uppercase">
                 Username
@@ -101,7 +93,6 @@ export default function EditProfileScreen() {
               </View>
             </View>
 
-            {/* Role - Read Only */}
             <View>
               <Text className="text-xs mb-2 text-muted-foreground tracking-widest font-bold uppercase">
                 Role (Managed by Admin)
@@ -115,7 +106,6 @@ export default function EditProfileScreen() {
               </View>
             </View>
 
-            {/* Email */}
             <View>
               <Text className="text-xs mb-2 text-primary tracking-widest font-bold uppercase">
                 Email Address
@@ -163,7 +153,7 @@ export default function EditProfileScreen() {
           <View className="absolute inset-0 justify-end bg-black/50">
             <Pressable className="absolute inset-0" onPress={() => setShowAvatarPanel(false)} />
             <View className="bg-card rounded-t-3xl p-6">
-              <Text className="text-lg font-bold mb-6 text-center">Choose Avatar</Text>
+              <Text className="text-lg font-bold mb-6 text-center text-foreground">Choose Avatar</Text>
               <View className="flex-row flex-wrap justify-center gap-4">
                 {avatars.map((avatar, index) => {
                   const isSelected = selectedAvatar === index;
@@ -181,8 +171,8 @@ export default function EditProfileScreen() {
                   );
                 })}
               </View>
-              <Button className="mt-6 rounded-xl" onPress={() => setShowAvatarPanel(false)}>
-                <Text className="text-white">Cancel</Text>
+              <Button variant="ghost" className="mt-6 rounded-xl" onPress={() => setShowAvatarPanel(false)}>
+                <Text className="text-foreground">Cancel</Text>
               </Button>
             </View>
           </View>

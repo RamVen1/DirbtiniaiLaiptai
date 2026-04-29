@@ -54,8 +54,17 @@ export function useHomeScreen() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
   const { tint } = useThemePalette();
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
   const { user } = useAuth();
+
+  const avatars = [
+    require('@/assets/images/avatars/avatar1.jpg'),
+    require('@/assets/images/avatars/avatar2.jpg'),
+    require('@/assets/images/avatars/avatar3.jpg')
+  ];
+
+  const avatarSource = user?.avatar_index !== undefined 
+    ? avatars[user.avatar_index] 
+    : avatars[0];
 
   const [hasReport, setHasReport] = useState(false);
   const [teams, setTeams] = useState<TeamSummary[]>([]);

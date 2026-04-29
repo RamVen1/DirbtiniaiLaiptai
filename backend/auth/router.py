@@ -11,6 +11,7 @@ router = APIRouter(prefix="", tags=["auth"])
 class UpdateProfileRequest(BaseModel):
     username: str
     email: str
+    avatar_index: int
 
 @router.post("/register")
 def register_user(user: schemas.RegisterRequest):
@@ -33,7 +34,7 @@ def register_user(user: schemas.RegisterRequest):
         hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
 
         conn.execute(
-            "INSERT INTO User (Username, Email, Password, Role) VALUES (?, ?, ?, 'Member')",
+            "INSERT INTO User (Username, Email, Password, Role, avatar_index) VALUES (?, ?, ?, 'Member', 0)",
             (user.username, user.email, hashed_password)
         )
         conn.commit()
@@ -80,7 +81,8 @@ def login_user(user: schemas.LoginRequest):
             "id": db_user_dict["ID"],
             "username": db_user_dict["Username"],
             "role": db_user_dict["Role"].lower() if db_user_dict["Role"] else "member",
-            "team_id": db_user_dict.get("team_id")
+            "team_id": db_user_dict.get("team_id"),
+            "avatar_index": db_user_dict.get("avatar_index", 0)
         }
     }
 
@@ -88,7 +90,7 @@ def login_user(user: schemas.LoginRequest):
 def get_current_user_data(current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
         user = conn.execute(
-            "SELECT ID, Email, Role, team_id, Username FROM User WHERE ID = ?", 
+            "SELECT ID, Email, Role, team_id, Username, avatar_index FROM User WHERE ID = ?", 
             (current_user_id,)
         ).fetchone()
         
@@ -101,21 +103,25 @@ def get_current_user_data(current_user_id: str = Depends(get_current_user)):
             "email": u_dict["Email"],
             "role": u_dict["Role"].lower() if u_dict["Role"] else "member",
             "team_id": u_dict.get("team_id"),
-            "username": u_dict["Username"]
+            "username": u_dict["Username"],
+            "avatar_index": u_dict.get("avatar_index", 0)
         }
 
 @router.put("/me")
 def update_profile(data: UpdateProfileRequest, current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
         try:
+            # Perduodame data.avatar_index į servisą
             updated_user = service.update_user_profile(
                 conn, 
                 int(current_user_id), 
                 data.username, 
-                data.email
+                data.email,
+                data.avatar_index
             )
             if not updated_user:
                 raise HTTPException(status_code=404, detail="User not found")
+            
             return dict(updated_user)
         except Exception as e:
             print(f"Error updating profile: {e}")

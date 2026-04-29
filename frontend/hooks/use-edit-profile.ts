@@ -13,10 +13,14 @@ export const useEditProfile = () => {
   const [role] = useState(user?.role || '');
   const [loading, setLoading] = useState(false);
   const [showAvatarPanel, setShowAvatarPanel] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+  
+  const [selectedAvatar, setSelectedAvatar] = useState<number>(user?.avatar_index ?? 0);
 
-  const avatars = [require('@/assets/images/avatars/avatar1.jpg')]; 
-  const defaultAvatar = avatars[0];
+  const avatars = [
+    require('@/assets/images/avatars/avatar1.jpg'),
+    require('@/assets/images/avatars/avatar2.jpg'),
+    require('@/assets/images/avatars/avatar3.jpg')
+  ]; 
 
   const handleSave = async () => {
     if (!name || !email) {
@@ -28,7 +32,8 @@ export const useEditProfile = () => {
     try {
       const response = await api.put('/me', { 
         username: name, 
-        email: email 
+        email: email,
+        avatar_index: selectedAvatar
       });
 
       if (response.data) {
@@ -50,7 +55,6 @@ export const useEditProfile = () => {
     role,
     email, setEmail,
     loading, handleSave,
-    defaultAvatar,
     showAvatarPanel, setShowAvatarPanel,
     selectedAvatar, setSelectedAvatar,
     tint,

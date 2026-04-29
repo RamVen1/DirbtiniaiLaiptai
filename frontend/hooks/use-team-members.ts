@@ -1,38 +1,37 @@
+import { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useThemePalette } from '@/hooks/use-color-scheme';
+import { useThemePalette } from './use-color-scheme';
+import { api } from '@/lib/api';
 
-export function useTeamMembers() {
+export const useTeamMembers = () => {
   const router = useRouter();
-  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
-  const { teamId, teamCode } = useLocalSearchParams();
+  const { teamId, teamCode, teamName } = useLocalSearchParams();
   const { tint } = useThemePalette();
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const members = [
-    { id: 1, fullName: 'Mantas Jankauskas', itRole: 'Backend Developer', email: 'mantas.jankauskas@company.lt' },
-    { id: 2, fullName: 'Egle Kazlaite', itRole: 'Frontend Developer', email: 'egle.kazlaite@company.lt' },
-    { id: 3, fullName: 'Lukas Petraitis', itRole: 'QA Engineer', email: 'lukas.petraitis@company.lt' },
-    { id: 4, fullName: 'Greta Vaiciulyte', itRole: 'DevOps Engineer', email: 'greta.vaiciulyte@company.lt' },
-  ];
+  const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await api.get(`/moderate/teams/${teamId}/members`);
+        setMembers(response.data);
+      } catch (error) {
+        console.error("Failed to fetch members:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (teamId) fetchMembers();
+  }, [teamId]);
 
   const handleReviewStats = (member: any) => {
     router.push({
       pathname: '/ReviewMember',
-      params: {
-        memberId: String(member.id),
-        memberName: member.fullName,
-        memberRole: member.itRole,
-        memberEmail: member.email,
-      },
+      params: { memberId: member.id }
     });
   };
 
-  return {
-    router,
-    avatarSource,
-    teamId,
-    teamCode,
-    tint,
-    members,
-    handleReviewStats,
-  };
-}
+  return { router, avatarSource, teamId, teamCode, teamName, tint, members, loading, handleReviewStats };
+};

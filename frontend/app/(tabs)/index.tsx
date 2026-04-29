@@ -191,13 +191,14 @@ export default function HomeScreen() {
                             params: {
                               teamId: String(team.ID),
                               teamCode: String(team.Code),
+                              teamName: String(team.Name)
                             },
                           })
                         }
                         className="rounded-2xl border border-border/10 bg-background px-4 py-3 flex-row items-center justify-between active:opacity-80"
                       >
                         <View>
-                          <Text className="font-bold text-foreground">Team #{team.ID}</Text>
+                          <Text className="font-bold text-foreground">{team.Name}</Text>
                           <Text className="text-sm text-foreground/60">Code {team.Code}</Text>
                         </View>
                       </Pressable>

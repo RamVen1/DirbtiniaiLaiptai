@@ -70,14 +70,13 @@ export default function ManageTeamsScreen() {
             ) : (
               <View className="flex-col gap-4">
                 {teams.map((team) => (
-                  <View
-                    key={team.ID}
-                    className="bg-card border border-border/20 rounded-3xl p-5 shadow-sm"
-                  >
+                  <View key={team.ID} className="bg-card border border-border/20 rounded-3xl p-5 shadow-sm">
                     <View className="flex-row items-start justify-between gap-4 mb-4">
                       <View className="flex-1">
                         <Text className="text-[11px] text-primary font-bold uppercase tracking-widest">Active Team</Text>
-                        <Text className="text-2xl font-black text-foreground mt-1">Team #{team.ID}</Text>
+                        <Text className="text-2xl font-black text-foreground mt-1">
+                          {team.Name || `Team #${team.ID}`}
+                        </Text>
                       </View>
                       <Pressable
                         onPress={() => handleDeleteTeam(team.ID)}

@@ -24,6 +24,7 @@ type TeamSummary = {
   ID: number;
   Code: string;
   ModeratorID: number;
+  Name: string
 };
 
 type PetMilestone = {

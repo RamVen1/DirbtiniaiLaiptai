@@ -34,6 +34,7 @@ def init_db():
                 skill TEXT NULL,
                 difficulty INTEGER NULL DEFAULT 0,
                 team_id INTEGER NULL,
+                avatar_index INTEGER DEFAULT 0,
                 FOREIGN KEY (team_id) REFERENCES Team (Id)
             )
         """)

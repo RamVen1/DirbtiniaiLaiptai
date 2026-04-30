@@ -30,24 +30,19 @@ type TeamSummary = {
 type PetMilestone = {
   name: string;
   skill: string;
+  quarter_number?: number;
+  awarded_at?: string;
 };
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const PET_ASSET_MAP: Record<string, number> = {
+  bunny: require('@/assets/images/pets/bunny-animation.gif'),
+  fox: require('@/assets/images/pets/fox-animation.gif'),
+  panda: require('@/assets/images/pets/red-panda-animation-transparent.gif'),
+  'red panda': require('@/assets/images/pets/red-panda-animation-transparent.gif'),
+};
 
-const getPetMilestones = (streak: number): PetMilestone[] => [
-  {
-    name: 'Dragon',
-    skill: 'Networking',
-  },
-  {
-    name: 'Bunny',
-    skill: 'Time Management',
-  },
-  {
-    name: 'Dog',
-    skill: 'Active Listening',
-  },
-];
+const normalizePetName = (name?: string) => (name || '').trim().toLowerCase().replace(/[-_]+/g, ' ');
 
 export function useHomeScreen() {
   const router = useRouter();
@@ -64,6 +59,7 @@ export function useHomeScreen() {
     latest_handled: null,
     recent_handled_requests: [],
   });
+  const [petMilestones, setPetMilestones] = useState<PetMilestone[]>([]);
   const [loading, setLoading] = useState(true);
 
   const role = user?.role?.toLowerCase();
@@ -96,6 +92,21 @@ export function useHomeScreen() {
           }
         } else {
           setHasReport(false);
+        }
+
+        if (isMemberWithTeam) {
+          const response = await fetch(`${API_URL}/pets`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setPetMilestones((data?.pets || []) as PetMilestone[]);
+          } else {
+            setPetMilestones([]);
+          }
+        } else {
+          setPetMilestones([]);
         }
 
         if (role === 'moderator') {
@@ -135,6 +146,7 @@ export function useHomeScreen() {
         setHasReport(false);
         setTeams([]);
         setAdminSummary({ pending_count: 0, latest_handled: null, recent_handled_requests: [] });
+        setPetMilestones([]);
       } finally {
         setLoading(false);
       }
@@ -159,7 +171,7 @@ export function useHomeScreen() {
 
   const destination = getDestination();
   const { label, icon } = getButtonProps();
-  const petMilestones = getPetMilestones(streak);
+  const getPetAssetByName = (petName?: string) => PET_ASSET_MAP[normalizePetName(petName)] || null;
 
   return {
     router,
@@ -177,6 +189,7 @@ export function useHomeScreen() {
     teams,
     adminSummary,
     petMilestones,
+    getPetAssetByName,
     streak,
     loading,
   };

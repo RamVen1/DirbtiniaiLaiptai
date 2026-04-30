@@ -91,6 +91,19 @@ def init_db():
                 FOREIGN KEY (User_ID) REFERENCES User (ID)
             )
         """)
+
+    conn.execute("""
+            CREATE TABLE IF NOT EXISTS UserPet (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                User_ID INTEGER NOT NULL,
+                Pet_Name TEXT NOT NULL,
+                Skill TEXT NOT NULL,
+                Quarter_Number INTEGER NOT NULL,
+                Awarded_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (User_ID) REFERENCES User (ID),
+                UNIQUE(User_ID, Skill, Quarter_Number)
+            )
+        """)
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS Team (

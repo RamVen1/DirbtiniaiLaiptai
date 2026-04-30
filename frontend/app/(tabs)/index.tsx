@@ -29,6 +29,7 @@ export default function HomeScreen() {
     teams,
     adminSummary,
     petMilestones,
+    getPetAssetByName,
     streak,
   } = useHomeScreen();
   const { opacity: heroOpacity, translateY: heroTranslateY } = useEntranceAnimation();
@@ -216,17 +217,6 @@ export default function HomeScreen() {
                 <View className="relative z-10">
                   <Text className="text-white/80 text-sm uppercase tracking-[0.3em]">Streak</Text>
                   <Text className="text-white font-extrabold text-6xl mb-2">{streak} Days</Text>
-
-                  <View className=" items-end">
-                    <Image
-                      source={petSprite}
-                      style={{ width: 120, height: 120, backgroundColor: 'transparent' }}
-                      contentFit="contain"
-                      autoplay
-                      cachePolicy="memory-disk"
-                    />
-                  </View>
-
                   <Button
                     className="bg-background"
                     onPress={() => router.navigate(destination as any)}
@@ -269,28 +259,50 @@ export default function HomeScreen() {
                   </Text>
                 </View>
                 <View className={isTablet ? 'flex-row flex-wrap gap-4' : 'gap-4'}>
-                  {petMilestones.map((pet) => (
-                    <View
-                      key={pet.name}
-                      className={`${isTablet ? 'w-[48%]' : 'w-full'} bg-card rounded-3xl p-6 border border-border/20 min-h-[220px]`}
-                    >
-                      <View className="flex-2 items-center justify-center">
-                        <Animated.View
-                          className="w-24 h-24 rounded-full bg-primary/20 items-center justify-center"
-                          style={{ transform: [{ scale: heartScale }] }}
-                        >
-                          <Ionicons name="heart" size={42} color={tint} />
-                        </Animated.View>
-                      </View>
-
-                      <View className="mt-2 flex-1 items-center justify-center">
-                        <Text className="text-foreground font-bold text-base">{pet.name}</Text>
-                        <Text className="text-foreground/65 mt-1 text-xs">
-                          {pet.skill || 'Soft-Skills'}
-                        </Text>
-                      </View>
+                  {petMilestones.length === 0 ? (
+                    <View className="bg-card/40 border border-dashed border-border p-8 rounded-2xl items-center w-full">
+                      <Ionicons name="paw-outline" size={32} color={tint} opacity={0.5} />
+                      <Text className="text-foreground/50 font-bold mt-2 text-center">
+                        Finish your quarterly improvement course to unlock a companion
+                      </Text>
                     </View>
-                  ))}
+                  ) : (
+                    petMilestones.map((pet) => (
+                      <View
+                        key={`${pet.name}-${pet.skill}-${pet.quarter_number || ''}`}
+                        className={`${isTablet ? 'w-[48%]' : 'w-full'} bg-card rounded-3xl p-6 border border-border/20 min-h-[220px]`}
+                      >
+                        <View className="flex-2 items-center justify-center">
+                          {getPetAssetByName(pet.name) ? (
+                            <RNImage
+                              source={getPetAssetByName(pet.name)!}
+                              style={{ width: 120, height: 120, backgroundColor: 'transparent' }}
+                              resizeMode="contain"
+                            />
+                          ) : (
+                            <Animated.View
+                              className="w-24 h-24 rounded-full bg-primary/20 items-center justify-center"
+                              style={{ transform: [{ scale: heartScale }] }}
+                            >
+                              <Ionicons name="heart" size={42} color={tint} />
+                            </Animated.View>
+                          )}
+                        </View>
+
+                        <View className="mt-2 flex-1 items-center justify-center">
+                          <Text className="text-foreground font-bold text-base">{pet.name}</Text>
+                          <Text className="text-foreground/65 mt-1 text-xs">
+                            {pet.skill || 'Soft-Skills'}
+                          </Text>
+                          {pet.quarter_number ? (
+                            <Text className="text-foreground/55 mt-1 text-[10px]">
+                              Quarter {pet.quarter_number} reward
+                            </Text>
+                          ) : null}
+                        </View>
+                      </View>
+                    ))
+                  )}
                 </View>
               </View>
             </View>

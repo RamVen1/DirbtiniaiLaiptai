@@ -7,6 +7,12 @@ from datetime import datetime, timedelta
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('models/gemini-2.5-flash')
 
+PETS_CATALOG = [
+    "Bunny",
+    "Fox",
+    "Red Panda",
+]
+
 def get_monday_of_week(date=None):
     """Get the Monday of the week for a given date (or today)"""
     if date is None:
@@ -167,3 +173,15 @@ def create_test_week_data(user_id: int):
         }
     finally:
         conn.close()
+
+
+def get_quarter_number(completed_reports_count: int) -> int:
+    if completed_reports_count <= 0 or completed_reports_count % 13 != 0:
+        return 0
+    return completed_reports_count // 13
+
+
+def select_pet_for_skill_and_quarter(skill: str, quarter_number: int) -> str:
+    key = f"{skill.lower()}:{quarter_number}"
+    index = sum(ord(ch) for ch in key) % len(PETS_CATALOG)
+    return PETS_CATALOG[index]

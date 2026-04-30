@@ -224,27 +224,97 @@ def complete_weekly_report(current_user_id: int = Depends(get_current_user), rep
     Otherwise, complete current week's report."""
     with get_db() as conn:
         user_id = int(current_user_id)
-        
+        week_start = service.get_monday_of_week()
+
+        if report_id:
+            report = conn.execute(
+                "SELECT * FROM Report WHERE ID = ? AND User_ID = ?",
+                (report_id, user_id),
+            ).fetchone()
+        else:
+            report = conn.execute(
+                "SELECT * FROM Report WHERE User_ID = ? AND Week_Start = ?",
+                (user_id, week_start),
+            ).fetchone()
+
+        if not report:
+            return {"status": "not_found", "pet_awarded": False}
+
         if report_id:
             # Complete specific report
             conn.execute(
                 """UPDATE Report 
                    SET Completed_At = CURRENT_TIMESTAMP 
-                   WHERE ID = ? AND User_ID = ?""",
+                   WHERE ID = ? AND User_ID = ? AND Completed_At IS NULL""",
                 (report_id, user_id)
             )
         else:
             # Complete current week's report
-            week_start = service.get_monday_of_week()
             conn.execute(
                 """UPDATE Report 
                    SET Completed_At = CURRENT_TIMESTAMP 
-                   WHERE User_ID = ? AND Week_Start = ?""",
+                   WHERE User_ID = ? AND Week_Start = ? AND Completed_At IS NULL""",
                 (user_id, week_start)
             )
+
+        skill = (report["Skill"] or "").strip()
+        pet_awarded = False
+        pet_name = None
+        quarter_number = None
+
+        if skill:
+            completed_count_row = conn.execute(
+                """SELECT COUNT(*) as completed_count
+                   FROM Report
+                   WHERE User_ID = ? AND Skill = ? AND Completed_At IS NOT NULL""",
+                (user_id, skill),
+            ).fetchone()
+            completed_count = completed_count_row["completed_count"] if completed_count_row else 0
+
+            quarter_number = service.get_quarter_number(completed_count)
+            if quarter_number > 0:
+                pet_name = service.select_pet_for_skill_and_quarter(skill, quarter_number)
+                cursor = conn.execute(
+                    """INSERT OR IGNORE INTO UserPet (User_ID, Pet_Name, Skill, Quarter_Number)
+                       VALUES (?, ?, ?, ?)""",
+                    (user_id, pet_name, skill, quarter_number),
+                )
+                pet_awarded = cursor.rowcount > 0
+
         conn.commit()
-        
-    return {"status": "completed"}
+
+    return {
+        "status": "completed",
+        "pet_awarded": pet_awarded,
+        "pet_name": pet_name,
+        "skill": skill if skill else None,
+        "quarter_number": quarter_number,
+    }
+
+
+@router.get("/pets")
+def get_user_pets(current_user_id: int = Depends(get_current_user)):
+    with get_db() as conn:
+        user_id = int(current_user_id)
+        pets = conn.execute(
+            """SELECT Pet_Name, Skill, Quarter_Number, Awarded_At
+               FROM UserPet
+               WHERE User_ID = ?
+               ORDER BY Awarded_At DESC""",
+            (user_id,),
+        ).fetchall()
+
+        return {
+            "pets": [
+                {
+                    "name": pet["Pet_Name"],
+                    "skill": pet["Skill"],
+                    "quarter_number": pet["Quarter_Number"],
+                    "awarded_at": pet["Awarded_At"],
+                }
+                for pet in pets
+            ]
+        }
 
 @router.get("/report-history")
 def get_report_history(current_user_id: int = Depends(get_current_user)):

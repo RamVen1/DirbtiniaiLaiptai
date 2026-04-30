@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -75,13 +75,23 @@ export default function MiniReport() {
         queryString = `?report_id=${reportId}`;
       }
 
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/complete-weekly-report`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/complete-weekly-report${queryString}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data?.pet_awarded && data?.pet_name) {
+          Alert.alert(
+            'New Companion Unlocked',
+            `${data.pet_name} joined your companions for completing quarter ${data.quarter_number} in ${data.skill || 'your skill'}.`
+          );
+        }
+      }
 
       router.replace('/(tabs)');
     } catch (error) {

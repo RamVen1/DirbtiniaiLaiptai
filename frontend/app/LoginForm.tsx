@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // Pridėtas useRef
 import { View, Text, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
@@ -7,6 +7,7 @@ import { useLoginForm } from '@/hooks/use-login-form';
 export default function LoginForm() {
 
   const { email, setEmail, password, setPassword, loading, error, handleLogin } = useLoginForm();
+  const passwordRef = useRef<TextInput>(null);
 
   return (
     <View className="flex-1 bg-background px-6 pt-16">
@@ -22,18 +23,24 @@ export default function LoginForm() {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            blurOnSubmit={false}
           />
         </View>
 
         <View>
           <Text className="text-lg mb-2 text-foreground font-medium">Password</Text>
           <TextInput
+            ref={passwordRef}
             className="border-2 border-border bg-card rounded-2xl p-4 text-lg text-foreground"
             placeholder="********"
             placeholderTextColor="#7A1CAC"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
           />
         </View>
 

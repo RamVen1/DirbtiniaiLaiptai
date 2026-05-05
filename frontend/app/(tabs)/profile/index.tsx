@@ -128,122 +128,124 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="mb-12">
-          <Pressable
-            onPress={() => setExpandedHistory(!expandedHistory)}
-            className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2 border border-border/10"
-          >
-            <View className="flex-row items-center gap-4">
-              <Ionicons name={'time' as any} size={18} color={tint} />
-              <Text className="font-semibold">Learning History</Text>
-            </View>
-            <Ionicons
-              name={expandedHistory ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={tint}
-            />
-          </Pressable>
+        {user.role?.toLowerCase() === 'member' && (
+          <View className="mb-12">
+            <Pressable
+              onPress={() => setExpandedHistory(!expandedHistory)}
+              className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2 border border-border/10"
+            >
+              <View className="flex-row items-center gap-4">
+                <Ionicons name={'time' as any} size={18} color={tint} />
+                <Text className="font-semibold">Learning History</Text>
+              </View>
+              <Ionicons
+                name={expandedHistory ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={tint}
+              />
+            </Pressable>
 
-          {expandedHistory && (
-            <View className="mt-4">
-              {loading && (
-                <View className="items-center justify-center py-8">
-                  <ActivityIndicator size="large" color={tint} />
-                  <Text className="mt-4 text-foreground">Loading history...</Text>
-                </View>
-              )}
+            {expandedHistory && (
+              <View className="mt-4">
+                {loading && (
+                  <View className="items-center justify-center py-8">
+                    <ActivityIndicator size="large" color={tint} />
+                    <Text className="mt-4 text-foreground">Loading history...</Text>
+                  </View>
+                )}
 
-              {error && (
-                <View className="items-center justify-center py-8 px-6">
-                  <Ionicons name="alert-circle" size={48} color={tint} />
-                  <Text className="mt-4 text-foreground font-semibold">Unable to load history</Text>
-                  <Text className="mt-2 text-sm text-foreground/60 text-center">{error}</Text>
-                </View>
-              )}
+                {error && (
+                  <View className="items-center justify-center py-8 px-6">
+                    <Ionicons name="alert-circle" size={48} color={tint} />
+                    <Text className="mt-4 text-foreground font-semibold">Unable to load history</Text>
+                    <Text className="mt-2 text-sm text-foreground/60 text-center">{error}</Text>
+                  </View>
+                )}
 
-              {!loading && !error && getSortedSkills().length === 0 && (
-                <View className="items-center justify-center py-8 px-6">
-                  <Ionicons name="document-outline" size={48} color={tint} />
-                  <Text className="mt-4 text-foreground font-semibold">No completed reports yet</Text>
-                  <Text className="mt-2 text-sm text-foreground/60 text-center">
-                    Complete your first weekly report to see your learning history here.
-                  </Text>
-                </View>
-              )}
+                {!loading && !error && getSortedSkills().length === 0 && (
+                  <View className="items-center justify-center py-8 px-6">
+                    <Ionicons name="document-outline" size={48} color={tint} />
+                    <Text className="mt-4 text-foreground font-semibold">No completed reports yet</Text>
+                    <Text className="mt-2 text-sm text-foreground/60 text-center">
+                      Complete your first weekly report to see your learning history here.
+                    </Text>
+                  </View>
+                )}
 
-              {!loading && !error && getSortedSkills().map((skill) => {
-                const reports = groupedHistory[skill] || [];
-                const stats = getSkillStats(skill);
+                {!loading && !error && getSortedSkills().map((skill) => {
+                  const reports = groupedHistory[skill] || [];
+                  const stats = getSkillStats(skill);
 
-                return (
-                  <View key={skill} className="mb-6">
-                    <View className="mb-3">
-                      <View className="flex-row items-center gap-2 mb-2">
-                        <View className="w-4 h-[2px] bg-primary" />
-                        <Text className="font-bold text-foreground">{skill}</Text>
+                  return (
+                    <View key={skill} className="mb-6">
+                      <View className="mb-3">
+                        <View className="flex-row items-center gap-2 mb-2">
+                          <View className="w-4 h-[2px] bg-primary" />
+                          <Text className="font-bold text-foreground">{skill}</Text>
+                        </View>
+
+                        <View className={isTablet ? 'flex-row gap-3' : 'flex-col gap-2'}>
+                          <View className={isTablet ? 'flex-1' : 'w-full'}>
+                            <Text className="text-xs text-foreground/60 uppercase tracking-widest">Weeks</Text>
+                            <Text className="text-lg font-bold text-primary">{stats.totalReports}</Text>
+                          </View>
+                          <View className={isTablet ? 'flex-1' : 'w-full'}>
+                            <Text className="text-xs text-foreground/60 uppercase tracking-widest">Tasks</Text>
+                            <Text className="text-lg font-bold text-primary">{stats.totalTasks}</Text>
+                          </View>
+                          <View className={isTablet ? 'flex-1' : 'w-full'}>
+                            <Text className="text-xs text-foreground/60 uppercase tracking-widest">Avg/Week</Text>
+                            <Text className="text-lg font-bold text-primary">{stats.averageTasksPerWeek}</Text>
+                          </View>
+                          <View className={isTablet ? 'flex-1' : 'w-full'}>
+                            <Text className="text-xs text-foreground/60 uppercase tracking-widest">Hours</Text>
+                            <Text className="text-lg font-bold text-primary">{stats.totalHours.toFixed(1)}h</Text>
+                          </View>
+                        </View>
                       </View>
 
-                      <View className={isTablet ? 'flex-row gap-3' : 'flex-col gap-2'}>
-                        <View className={isTablet ? 'flex-1' : 'w-full'}>
-                          <Text className="text-xs text-foreground/60 uppercase tracking-widest">Weeks</Text>
-                          <Text className="text-lg font-bold text-primary">{stats.totalReports}</Text>
-                        </View>
-                        <View className={isTablet ? 'flex-1' : 'w-full'}>
-                          <Text className="text-xs text-foreground/60 uppercase tracking-widest">Tasks</Text>
-                          <Text className="text-lg font-bold text-primary">{stats.totalTasks}</Text>
-                        </View>
-                        <View className={isTablet ? 'flex-1' : 'w-full'}>
-                          <Text className="text-xs text-foreground/60 uppercase tracking-widest">Avg/Week</Text>
-                          <Text className="text-lg font-bold text-primary">{stats.averageTasksPerWeek}</Text>
-                        </View>
-                        <View className={isTablet ? 'flex-1' : 'w-full'}>
-                          <Text className="text-xs text-foreground/60 uppercase tracking-widest">Hours</Text>
-                          <Text className="text-lg font-bold text-primary">{stats.totalHours.toFixed(1)}h</Text>
-                        </View>
-                      </View>
-                    </View>
+                      <View className="gap-2">
+                        {reports.slice(0, 3).map((report, index) => {
+                          const startDate = new Date(report.week_start);
+                          const completionDate = new Date(report.completed_at);
 
-                    <View className="gap-2">
-                      {reports.slice(0, 3).map((report, index) => {
-                        const startDate = new Date(report.week_start);
-                        const completionDate = new Date(report.completed_at);
-
-                        return (
-                          <Pressable
-                            key={`${skill}-${index}`}
-                            onPress={() => router.push({
-                              pathname: '/MiniReport',
-                              params: { reportId: report.id }
-                            })}
-                            className="active:opacity-70"
-                          >
-                            <View className="p-3 bg-card/50 rounded-lg border border-border/10">
-                              <View className="flex-row items-center justify-between">
-                                <View className="flex-1">
-                                  <Text className="text-sm font-semibold text-foreground">
-                                    Week of {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                  </Text>
-                                  <Text className="text-xs text-foreground/60 mt-1">
-                                    {report.tasks_completed} tasks · {report.practice_hours.toFixed(1)}h
-                                  </Text>
+                          return (
+                            <Pressable
+                              key={`${skill}-${index}`}
+                              onPress={() => router.push({
+                                pathname: '/MiniReport',
+                                params: { reportId: report.id }
+                              })}
+                              className="active:opacity-70"
+                            >
+                              <View className="p-3 bg-card/50 rounded-lg border border-border/10">
+                                <View className="flex-row items-center justify-between">
+                                  <View className="flex-1">
+                                    <Text className="text-sm font-semibold text-foreground">
+                                      Week of {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                    </Text>
+                                    <Text className="text-xs text-foreground/60 mt-1">
+                                      {report.tasks_completed} tasks · {report.practice_hours.toFixed(1)}h
+                                    </Text>
+                                  </View>
                                 </View>
                               </View>
-                            </View>
-                          </Pressable>
-                        );
-                      })}
-                      {reports.length > 3 && (
-                        <Text className="text-xs text-primary/60 text-center mt-2">
-                          +{reports.length - 3} more reports
-                        </Text>
-                      )}
+                            </Pressable>
+                          );
+                        })}
+                        {reports.length > 3 && (
+                          <Text className="text-xs text-primary/60 text-center mt-2">
+                            +{reports.length - 3} more reports
+                          </Text>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </View>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

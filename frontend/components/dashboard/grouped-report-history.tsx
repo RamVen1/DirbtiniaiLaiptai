@@ -2,8 +2,7 @@ import React from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from '@/components/ui/text';
-import { NeonCard } from '@/components/dashboard/neon-card';
-import { GroupedReportHistory, Report } from '@/hooks/use-report-history';
+import type { GroupedReportHistory, Report } from '@/hooks/use-report-history';
 
 interface GroupedReportHistoryProps {
     groupedHistory: GroupedReportHistory;
@@ -30,7 +29,7 @@ export function GroupedReportHistorys({
     onReportPress,
     tint = '#7C3AED',
     isTablet = false,
-}: GroupedReportHistoryProps) {
+}: GroupedReportHistoryProps): React.ReactElement {
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center py-8">
@@ -102,7 +101,6 @@ export function GroupedReportHistorys({
                             {reports.map((report, index) => {
                                 const startDate = new Date(report.week_start);
                                 const endDate = new Date(report.week_end);
-                                const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
                                 const completionDate = new Date(report.completed_at);
 
                                 return (

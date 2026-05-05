@@ -126,3 +126,27 @@ def update_profile(data: UpdateProfileRequest, current_user_id: str = Depends(ge
         except Exception as e:
             print(f"Error updating profile: {e}")
             raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/history")
+def get_user_history(current_user_id: str = Depends(get_current_user)):
+    conn = get_db()
+    try:
+        history = service.get_user_report_history(conn, int(current_user_id))
+        return {"history": history}
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        conn.close()
+
+@router.get("/report-history")
+def get_grouped_report_history(current_user_id: str = Depends(get_current_user)):
+    conn = get_db()
+    try:
+        grouped_history = service.get_grouped_report_history(conn, int(current_user_id))
+        return {"grouped_history": grouped_history}
+    except Exception as e:
+        print(f"Error fetching grouped history: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        conn.close()

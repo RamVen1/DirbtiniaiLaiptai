@@ -84,8 +84,8 @@ export default function HomeScreen() {
 
               <Button className="mt-6 w-full" onPress={() => router.navigate('/join-group' as any)}>
                 <View className="flex-row items-center justify-center gap-2">
-                  <Text className="text-primary font-extrabold text-base">Join a Team</Text>
-                  <Ionicons name="add-circle" size={18} color={tint} />
+                  <Text className="font-extrabold text-base">Join a Team</Text>
+                  <Ionicons name="add-circle" size={18} color="#FFFFFF" />
                 </View>
               </Button>
             </View>

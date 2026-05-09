@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import { View, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 import { useRegisterForm } from '@/hooks/use-register-form';
 
 export default function RegisterForm() {

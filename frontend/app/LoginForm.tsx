@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react'; // Pridėtas useRef
-import { View, Text, TextInput, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import { View, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 import { router } from 'expo-router';
 import { useLoginForm } from '@/hooks/use-login-form';
 

@@ -107,9 +107,13 @@ export default function ManageTeamsScreen() {
           </View>
 
           <View className="mt-6">
-            <Button onPress={handleCreateTeam} className="bg-primary py-4 rounded-2xl flex-row items-center justify-center gap-2">
-              <Ionicons name="add" size={20} color="#ffffff" />
-              <Text className="text-white font-bold text-base">Add team</Text>
+            <Button
+              onPress={handleCreateTeam}
+              size="lg"
+              className="h-14 bg-primary rounded-2xl flex-row items-center justify-center gap-2"
+            >
+              <Ionicons name="add" size={20} color={tint} />
+              <Text className="font-bold text-base">Add team</Text>
             </Button>
           </View>
         </Animated.ScrollView>

@@ -11,16 +11,19 @@ export const useEditProfile = () => {
   const [name, setName] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [role] = useState(user?.role || '');
+  
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  
   const [loading, setLoading] = useState(false);
   const [showAvatarPanel, setShowAvatarPanel] = useState(false);
-  
   const [selectedAvatar, setSelectedAvatar] = useState<number>(user?.avatar_index ?? 0);
 
   const avatars = [
     require('@/assets/images/avatars/avatar1.jpg'),
     require('@/assets/images/avatars/avatar2.jpg'),
     require('@/assets/images/avatars/avatar3.jpg')
-  ]; 
+  ];
 
   const handleSave = async () => {
     if (!name || !email) {
@@ -28,21 +31,44 @@ export const useEditProfile = () => {
       return false;
     }
 
+    const isChangingPassword = oldPassword.trim() !== '' || newPassword.trim() !== '';
+    
+    if (isChangingPassword) {
+      if (!oldPassword || !newPassword) {
+        Alert.alert("Klaida", "Norėdami pakeisti slaptažodį, turite įvesti ir senąjį, ir naująjį slaptažodį.");
+        return false;
+      }
+      if (newPassword.length < 6) {
+        Alert.alert("Klaida", "Naujas slaptažodis turi būti bent 6 simbolių ilgio.");
+        return false;
+      }
+    }
+
     setLoading(true);
     try {
-      const response = await api.put('/me', { 
-        username: name, 
+      const payload: any = {
+        username: name,
         email: email,
         avatar_index: selectedAvatar
-      });
+      };
+
+      if (isChangingPassword) {
+        payload.old_password = oldPassword;
+        payload.new_password = newPassword;
+      }
+
+      const response = await api.put('/me', payload);
 
       if (response.data) {
         setUser(response.data);
+        setOldPassword('');
+        setNewPassword('');
         return true;
       }
     } catch (error: any) {
+      const message = error.response?.data?.message || "Nepavyko išsaugoti pakeitimų.";
+      Alert.alert("Klaida", message);
       console.error("Profile update failed:", error.response?.data || error.message);
-      Alert.alert("Klaida", "Nepavyko išsaugoti pakeitimų.");
       return false;
     } finally {
       setLoading(false);
@@ -54,6 +80,8 @@ export const useEditProfile = () => {
     name, setName,
     role,
     email, setEmail,
+    oldPassword, setOldPassword,
+    newPassword, setNewPassword,
     loading, handleSave,
     showAvatarPanel, setShowAvatarPanel,
     selectedAvatar, setSelectedAvatar,

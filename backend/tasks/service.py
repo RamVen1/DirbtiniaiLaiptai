@@ -185,3 +185,119 @@ def select_pet_for_skill_and_quarter(skill: str, quarter_number: int) -> str:
     key = f"{skill.lower()}:{quarter_number}"
     index = sum(ord(ch) for ch in key) % len(PETS_CATALOG)
     return PETS_CATALOG[index]
+
+
+def get_quarterly_report_data(user_id: int, quarter_number: int = None):
+    conn = get_db()
+    try:
+        reports = conn.execute(
+            """SELECT ID, Skill, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Completed_At
+               FROM Report 
+               WHERE User_ID = ? AND Completed_At IS NOT NULL
+               ORDER BY Week_Start ASC""",
+            (user_id,)
+        ).fetchall()
+        
+        if not reports:
+            return None
+        
+        # Determine which quarter to analyze
+        if quarter_number is None :
+            completed_count = len(reports)
+            quarter_number = (completed_count - 1) // 13 + 1
+        
+        start_idx = (quarter_number - 1) * 13
+        end_idx = quarter_number * 13
+        
+        quarter_reports = reports[start_idx:end_idx]
+        
+        if not quarter_reports:
+            return None
+        
+        total_tasks = sum(r['Total_Tasks_Completed'] for r in quarter_reports)
+        total_hours = sum(r['Total_Practice_Hours'] for r in quarter_reports)
+        
+        skills = {}
+        for report in quarter_reports:
+            skill = report['Skill'] or "Unknown"
+            if skill not in skills:
+                skills[skill] = {'weeks': 0, 'tasks': 0, 'hours': 0}
+            skills[skill]['weeks'] += 1
+            skills[skill]['tasks'] += report['Total_Tasks_Completed']
+            skills[skill]['hours'] += report['Total_Practice_Hours']
+        
+        avg_tasks_per_week = total_tasks / len(quarter_reports) if quarter_reports else 0
+        weeks_active = len(quarter_reports)
+        consistency_score = (weeks_active / 13) * 100 
+        
+        weekly_data = []
+        for i, report in enumerate(quarter_reports):
+            week_num = i + 1
+            weekly_data.append({
+                'week': week_num,
+                'tasks': report['Total_Tasks_Completed'],
+                'hours': report['Total_Practice_Hours'],
+                'skill': report['Skill'],
+                'week_start': str(report['Week_Start']),
+                'report_id': report['ID'],
+            })
+        
+        if len(quarter_reports) > 1:
+            first_week_avg = sum(r['Total_Tasks_Completed'] for r in quarter_reports[:3]) / 3
+            last_week_avg = sum(r['Total_Tasks_Completed'] for r in quarter_reports[-3:]) / 3
+            progression_trend = "improving" if last_week_avg > first_week_avg else "maintaining" if last_week_avg == first_week_avg else "declining"
+            improvement_percent = ((last_week_avg - first_week_avg) / first_week_avg * 100) if first_week_avg > 0 else 0
+        else:
+            progression_trend = "new"
+            improvement_percent = 0
+        
+        return {
+            'quarter_number': quarter_number,
+            'total_weeks': weeks_active,
+            'total_tasks': total_tasks,
+            'total_hours': round(total_hours, 1),
+            'avg_tasks_per_week': round(avg_tasks_per_week, 1),
+            'consistency_score': round(consistency_score, 1),
+            'skills': skills,
+            'weekly_data': weekly_data,
+            'progression_trend': progression_trend,
+            'improvement_percent': round(improvement_percent, 1),
+            'quarter_start': str(quarter_reports[0]['Week_Start']),
+            'quarter_end': str(quarter_reports[-1]['Week_End']),
+        }
+    finally:
+        conn.close()
+
+
+def get_all_quarters_summary(user_id: int):
+    conn = get_db()
+    try:
+        reports = conn.execute(
+            """SELECT ID, Skill, Week_Start, Total_Tasks_Completed, Total_Practice_Hours, Completed_At
+               FROM Report 
+               WHERE User_ID = ? AND Completed_At IS NOT NULL
+               ORDER BY Week_Start ASC""",
+            (user_id,)
+        ).fetchall()
+        
+        if not reports:
+            return []
+        
+        quarters = []
+        total_completed = len(reports)
+        total_quarters = (total_completed - 1) // 13 + 1 if total_completed % 13 != 0 or total_completed > 0 else total_completed // 13
+        
+        for q_num in range(1, total_quarters + 1):
+            q_data = get_quarterly_report_data(user_id, q_num)
+            if q_data:
+                quarters.append({
+                    'quarter_number': q_num,
+                    'total_tasks': q_data['total_tasks'],
+                    'total_hours': q_data['total_hours'],
+                    'skills': list(q_data['skills'].keys()),
+                    'consistency_score': q_data['consistency_score'],
+                })
+        
+        return quarters
+    finally:
+        conn.close()

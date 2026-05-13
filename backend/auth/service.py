@@ -19,18 +19,27 @@ def create_user(db: Connection, user: RegisterRequest):
 def verify_password(plain_password: str, hashed_password: str):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-def update_user_profile(conn, user_id: int, username: str, email: str, avatar_index: int):
-    conn.execute(
-        "UPDATE User SET Username = ?, Email = ?, avatar_index = ? WHERE ID = ?",
-        (username, email, avatar_index, user_id)
-    )
+def update_user_profile(conn, user_id, username, email, avatar_index, hashed_password=None):
+    if hashed_password:
+        conn.execute(
+            """
+            UPDATE User 
+            SET Username = ?, Email = ?, avatar_index = ?, Password = ? 
+            WHERE ID = ?
+            """,
+            (username, email, avatar_index, hashed_password, user_id)
+        )
+    else:
+        conn.execute(
+            """
+            UPDATE User 
+            SET Username = ?, Email = ?, avatar_index = ? 
+            WHERE ID = ?
+            """,
+            (username, email, avatar_index, user_id)
+        )
     conn.commit()
-    
-    cursor = conn.execute(
-        "SELECT ID as id, Username as username, Email as email, Role as role, team_id, avatar_index FROM User WHERE ID = ?", 
-        (user_id,)
-    )
-    return cursor.fetchone()
+    return conn.execute("SELECT * FROM User WHERE ID = ?", (user_id,)).fetchone()
 
 def get_user_report_history(conn, user_id: int):
     """Fetch user's report history with associated tasks"""
@@ -115,3 +124,20 @@ def get_grouped_report_history(conn, user_id: int):
         })
     
     return grouped
+
+def get_user_activity_dates(conn, user_id: int):
+    query = """
+        SELECT DISTINCT date(Completed_At) as activity_date
+        FROM Task
+        WHERE User_ID = ? 
+          AND Completed_At IS NOT NULL 
+          AND Completed_At != ''
+          AND Completed_At >= date('now', '-90 days')
+        ORDER BY activity_date ASC
+    """
+    try:
+        rows = conn.execute(query, (user_id,)).fetchall()
+        return [row["activity_date"] for row in rows]
+    except Exception as e:
+        print(f"SQL Error in get_user_activity_dates: {e}")
+        return []

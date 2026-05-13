@@ -5,6 +5,7 @@ from core.database import get_db
 from core.security import create_access_token, get_current_user
 from . import service, schemas
 from pydantic import BaseModel
+from typing import Optional
 
 router = APIRouter(prefix="", tags=["auth"])
 
@@ -12,6 +13,8 @@ class UpdateProfileRequest(BaseModel):
     username: str
     email: str
     avatar_index: int
+    old_password: Optional[str] = None
+    new_password: Optional[str] = None
 
 @router.post("/register")
 def register_user(user: schemas.RegisterRequest):
@@ -111,7 +114,54 @@ def get_current_user_data(current_user_id: str = Depends(get_current_user)):
 def update_profile(data: UpdateProfileRequest, current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
         try:
-            # Perduodame data.avatar_index į servisą
+            db_user = conn.execute(
+                "SELECT Password FROM User WHERE ID = ?", (current_user_id,)
+            ).fetchone()
+            
+            if not db_user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            hashed_new_password = None
+
+            if data.old_password and data.new_password:
+                db_val = db_user["Password"]
+                if isinstance(db_val, str):
+                    normalized_hash = db_val.replace("$2b$", "$2a$")
+                    stored_hash_bytes = normalized_hash.encode('utf-8')
+                else:
+                    stored_hash_bytes = db_val
+
+                if not bcrypt.checkpw(data.old_password.encode('utf-8'), stored_hash_bytes):
+                    raise HTTPException(status_code=400, detail="Neteisingas dabartinis slaptažodis.")
+
+                if len(data.new_password) < 7:
+                    raise HTTPException(status_code=400, detail="Naujas slaptažodis turi būti bent 7 simbolių.")
+
+                hashed_new_password = bcrypt.hashpw(data.new_password.encode('utf-8'), bcrypt.gensalt())
+
+            updated_user = service.update_user_profile(
+                conn, 
+                int(current_user_id), 
+                data.username, 
+                data.email,
+                data.avatar_index,
+                hashed_new_password
+            )
+            
+            if not updated_user:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            u_dict = dict(updated_user)
+            if "Password" in u_dict: del u_dict["Password"]
+            return u_dict
+
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+    with get_db() as conn:
+        try:
             updated_user = service.update_user_profile(
                 conn, 
                 int(current_user_id), 
@@ -147,6 +197,18 @@ def get_grouped_report_history(current_user_id: str = Depends(get_current_user))
         return {"grouped_history": grouped_history}
     except Exception as e:
         print(f"Error fetching grouped history: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        conn.close()
+
+@router.get("/activity")
+def get_activity(current_user_id: str = Depends(get_current_user)):
+    conn = get_db()
+    try:
+        dates = service.get_user_activity_dates(conn, int(current_user_id))
+        return {"completed_dates": dates}
+    except Exception as e:
+        print(f"Error fetching activity: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
     finally:
         conn.close()

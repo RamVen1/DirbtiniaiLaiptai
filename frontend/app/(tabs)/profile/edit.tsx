@@ -13,6 +13,8 @@ export default function EditProfileScreen() {
     name, setName, 
     role, 
     email, setEmail, 
+    oldPassword, setOldPassword,
+    newPassword, setNewPassword,
     loading,
     handleSave,
     showAvatarPanel, setShowAvatarPanel,
@@ -94,19 +96,6 @@ export default function EditProfileScreen() {
             </View>
 
             <View>
-              <Text className="text-xs mb-2 text-muted-foreground tracking-widest font-bold uppercase">
-                Role (Managed by Admin)
-              </Text>
-              <View className="bg-muted/50 rounded-xl px-4 py-3 border border-border/20">
-                <TextInput
-                  value={role}
-                  editable={false}
-                  style={{ color: '#888', fontSize: 16 }}
-                />
-              </View>
-            </View>
-
-            <View>
               <Text className="text-xs mb-2 text-primary tracking-widest font-bold uppercase">
                 Email Address
               </Text>
@@ -120,6 +109,43 @@ export default function EditProfileScreen() {
                   placeholderTextColor="#888"
                   style={{ color: tint, fontSize: 16 }}
                 />
+              </View>
+            </View>
+
+            {/* Password Fields Section */}
+            <View className="mt-4">
+              <Text className="text-sm font-bold text-foreground mb-4">Change Password</Text>
+              
+              <View className="mb-4">
+                <Text className="text-xs mb-2 text-muted-foreground tracking-widest font-bold uppercase">
+                  Current Password
+                </Text>
+                <View className="bg-card border border-border/50 rounded-xl px-4 py-3">
+                  <TextInput
+                    value={oldPassword}
+                    onChangeText={setOldPassword}
+                    secureTextEntry
+                    placeholder="Enter current password"
+                    placeholderTextColor="#888"
+                    style={{ color: tint, fontSize: 16 }}
+                  />
+                </View>
+              </View>
+
+              <View>
+                <Text className="text-xs mb-2 text-muted-foreground tracking-widest font-bold uppercase">
+                  New Password
+                </Text>
+                <View className="bg-card border border-border/50 rounded-xl px-4 py-3">
+                  <TextInput
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    secureTextEntry
+                    placeholder="Enter new password"
+                    placeholderTextColor="#888"
+                    style={{ color: tint, fontSize: 16 }}
+                  />
+                </View>
               </View>
             </View>
           </View>

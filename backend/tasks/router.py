@@ -354,3 +354,29 @@ def test_create_week_data(current_user_id: int = Depends(get_current_user)):
     user_id = int(current_user_id)
     result = service.create_test_week_data(user_id)
     return result
+
+
+@router.get("/quarterly-report")
+def get_quarterly_report(current_user_id: int = Depends(get_current_user), quarter_number: int = None):    
+    user_id = int(current_user_id)
+    report_data = service.get_quarterly_report_data(user_id, quarter_number)
+    
+    if not report_data:
+        return {
+            "status": "no_data",
+            "message": "No quarterly data available"
+        }
+    
+    return report_data
+
+
+@router.get("/quarterly-summary")
+def get_quarterly_summary(current_user_id: int = Depends(get_current_user)):
+    
+    user_id = int(current_user_id)
+    quarters = service.get_all_quarters_summary(user_id)
+    
+    return {
+        "quarters": quarters,
+        "total_quarters_completed": len(quarters)
+    }

@@ -9,5 +9,6 @@ class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
     JWT_SECRET_KEY: str = os.getenv("JWT_KEY")
     PORT: int = int(os.getenv("PORT", 8000))
+    TEST_DB_NAME: str = "test.db"
     
 settings = Settings()

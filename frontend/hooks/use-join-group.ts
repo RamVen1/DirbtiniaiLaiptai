@@ -8,21 +8,38 @@ export function useJoinGroup() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
   const { refreshUser } = useAuth();
   const skills = ['Communication', 'Time-management', 'Problem solving'];
+  const normalizedCode = input.trim().toUpperCase();
+  const isCodeValid = /^[A-Z0-9]{8}$/.test(normalizedCode);
+
+  const handleInputChange = (value: string) => {
+    const cleanedInput = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    setInput(cleanedInput);
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
 
   const handleJoinAttempt = () => {
-    if (input.length < 4) {
-      Alert.alert('Error', 'Code is too short');
+    if (!isCodeValid) {
+      setErrorMessage('Enter a valid 8-character group code.');
       return;
     }
+    setErrorMessage('');
+    setSelectedSkill('');
     setShowSkillModal(true);
   };
 
-  const submitJoin = async (skill: string) => {
-    setShowSkillModal(false);
+  const submitJoin = async () => {
+    if (!selectedSkill || !isCodeValid) {
+      return;
+    }
     setLoading(true);
+    setErrorMessage('');
     const token = await getItem('userToken');
 
     try {
@@ -32,35 +49,40 @@ export function useJoinGroup() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code: input.trim(), skill }),
+        body: JSON.stringify({ code: normalizedCode, skill: selectedSkill }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         await refreshUser();
+        setShowSkillModal(false);
         router.replace('/profile');
-        Alert.alert('Success', 'You have joined the team!', [
-          { text: 'OK', onPress: () => router.replace('/profile') },
-        ]);
+        Alert.alert('Success', 'You have joined the team!');
       } else {
-        Alert.alert('Error', data.detail || 'Failed to join group');
+        const detail = typeof data?.detail === 'string' ? data.detail : 'Failed to join group';
+        setErrorMessage(detail);
+        setShowSkillModal(false);
       }
     } catch {
-      Alert.alert('Error', 'Could not connect to server');
+      setErrorMessage('Could not connect to server');
+      setShowSkillModal(false);
     } finally {
       setLoading(false);
     }
   };
 
-
   return {
     input,
-    setInput,
+    setInput: handleInputChange,
     loading,
     showSkillModal,
     setShowSkillModal,
     skills,
+    errorMessage,
+    isCodeValid,
+    selectedSkill,
+    setSelectedSkill,
     handleJoinAttempt,
     submitJoin,
   };

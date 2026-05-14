@@ -186,7 +186,7 @@ export default function ProfileScreen() {
 
             {expandedHistory && (
               <View className="mt-4">
-                {loading && (
+                {historyLoading && (
                   <View className="items-center justify-center py-8">
                     <ActivityIndicator size="large" color={tint} />
                     <Text className="mt-4 text-foreground">Loading history...</Text>
@@ -201,7 +201,7 @@ export default function ProfileScreen() {
                   </View>
                 )}
 
-                {!loading && !error && getSortedSkills().length === 0 && (
+                {!historyLoading && !error && getSortedSkills().length === 0 && (
                   <View className="items-center justify-center py-8 px-6">
                     <Ionicons name="document-outline" size={48} color={tint} />
                     <Text className="mt-4 text-foreground font-semibold">No completed reports yet</Text>
@@ -211,7 +211,7 @@ export default function ProfileScreen() {
                   </View>
                 )}
 
-                {!loading && !error && getSortedSkills().length > 0 && (
+                {!historyLoading && !error && getSortedSkills().length > 0 && (
                   <>
                     {/* Recent Section */}
                     <View className="mb-8">

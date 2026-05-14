@@ -91,9 +91,16 @@ export default function MiniReport() {
             `${data.pet_name} joined your companions for completing quarter ${data.quarter_number} in ${data.skill || 'your skill'}.`
           );
         }
-      }
 
-      router.replace('/(tabs)');
+        // Auto-navigate to quarterly report when a quarter is completed
+        if (data?.quarterly_report_ready) {
+          router.replace('/QuarterlyReport');
+        } else {
+          router.replace('/(tabs)');
+        }
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (error) {
       console.error(error);
       router.replace('/(tabs)');

@@ -212,3 +212,15 @@ def get_activity(current_user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
     finally:
         conn.close()
+
+@router.get("/stats")
+def get_user_stats(current_user_id: str = Depends(get_current_user)):
+    conn = get_db()
+    try:
+        stats = service.get_user_rank_stats(conn, int(current_user_id))
+        return stats
+    except Exception as e:
+        print(f"Error fetching stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        conn.close()

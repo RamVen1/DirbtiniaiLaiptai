@@ -141,3 +141,32 @@ def get_user_activity_dates(conn, user_id: int):
     except Exception as e:
         print(f"SQL Error in get_user_activity_dates: {e}")
         return []
+    
+def get_user_rank_stats(conn, user_id: int):
+    """Apskaičiuoja bendrą užduočių kiekį ir vietą reitinge"""
+    query = """
+        WITH UserCounts AS (
+            SELECT User_ID, COUNT(*) as task_count
+            FROM Task
+            WHERE Completed_At IS NOT NULL AND Completed_At != ''
+            GROUP BY User_ID
+        )
+        SELECT 
+            (SELECT task_count FROM UserCounts WHERE User_ID = ?) as total_completed,
+            (SELECT COUNT(*) + 1 FROM UserCounts WHERE task_count > 
+                (SELECT task_count FROM UserCounts WHERE User_ID = ?)) as rank,
+            (SELECT COUNT(*) FROM UserCounts) as total_users_in_ranking
+    """
+    try:
+        row = conn.execute(query, (user_id, user_id)).fetchone()
+        if not row or row["total_completed"] is None:
+            return {"total_completed": 0, "rank": None, "total_participants": 0}
+            
+        return {
+            "total_completed": row["total_completed"],
+            "rank": row["rank"],
+            "total_participants": row["total_users_in_ranking"]
+        }
+    except Exception as e:
+        print(f"Error calculating rank: {e}")
+        return {"total_completed": 0, "rank": None, "total_participants": 0}

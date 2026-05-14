@@ -30,6 +30,7 @@ export default function RootLayout() {
                 name="MiniReport"
                 options={{ headerShown: true, title: "Home" }}
               />
+              <Stack.Screen name="QuarterlyReport" options={{ headerShown: false }} />
               <Stack.Screen name="AdminRequest" />
               <Stack.Screen name="AdminHistory" />
               <Stack.Screen name="ManageTeams" />

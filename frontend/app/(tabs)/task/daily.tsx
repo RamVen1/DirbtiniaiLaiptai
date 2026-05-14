@@ -35,7 +35,7 @@ export default function TaskDailyScreen() {
       <LessonTopBar
         title="Today's Task"
         tintColor={tint}
-        onFlamePress={() => router.navigate('/task/description')}
+        onFlamePress={() => router.navigate('/task/daily')}
         onAvatarPress={() => router.navigate('/profile')}
       />
 

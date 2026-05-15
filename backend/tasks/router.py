@@ -261,6 +261,7 @@ def complete_weekly_report(current_user_id: int = Depends(get_current_user), rep
         pet_awarded = False
         pet_name = None
         quarter_number = None
+        quarterly_report_ready = False
 
         if skill:
             completed_count_row = conn.execute(
@@ -280,6 +281,9 @@ def complete_weekly_report(current_user_id: int = Depends(get_current_user), rep
                     (user_id, pet_name, skill, quarter_number),
                 )
                 pet_awarded = cursor.rowcount > 0
+            
+            # Check if quarterly report is ready (completed_count is a multiple of 13)
+            quarterly_report_ready = completed_count > 0 and completed_count % 13 == 0
 
         conn.commit()
 
@@ -289,6 +293,7 @@ def complete_weekly_report(current_user_id: int = Depends(get_current_user), rep
         "pet_name": pet_name,
         "skill": skill if skill else None,
         "quarter_number": quarter_number,
+        "quarterly_report_ready": quarterly_report_ready,
     }
 
 

@@ -3,7 +3,7 @@ from enum import Enum
 from .config import settings
 
 def get_db():
-    conn = sqlite3.connect(settings.TEST_DB_NAME)
+    conn = sqlite3.connect(settings.DB_NAME)
     conn.row_factory = sqlite3.Row
     return conn
 

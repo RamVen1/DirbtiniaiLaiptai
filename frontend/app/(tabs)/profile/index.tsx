@@ -12,7 +12,6 @@ import { useProfile } from '@/hooks/use-profile';
 import { useReportHistory } from '@/hooks/use-report-history';
 import { ContributionCalendar } from '@/components/dashboard/contribution-calendar';
 import { useUserActivity } from '@/hooks/use-user-activity';
-import { useThemePalette } from '@/hooks/use-color-scheme';
 
 export default function ProfileScreen() {
   const { isTablet, tint, avatarSource, user } = useProfile();
@@ -50,47 +49,20 @@ export default function ProfileScreen() {
   };
   return (
     <SafeAreaView className="flex-1 bg-background">
-      {/* Top App Bar */}
-      <View className="px-6 py-4 border-b border-border/20 flex-row items-center justify-between">
+      <View className="px-6 py-4 border-b border-border/20 flex-row items-center justify-between bg-background">
         <View className="flex-row items-center gap-3">
-          <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
-            <View className="flex-1 items-center justify-center">
-              <Image
-                source={avatarSource}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 999,
-                }}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-          <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
-        </View>
-
-        <Pressable
-          onPress={() => router.navigate('/profile/modal')}
-          className="p-2 rounded-full active:scale-95"
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <View className="w-8 h-8 items-center justify-center">
+          <View className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10 items-center justify-center">
             <Image
               source={avatarSource}
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: 999,
-              }}
+              style={{ width: '100%', height: '100%', borderRadius: 999 }}
               resizeMode="cover"
             />
           </View>
-        </Pressable>
+          <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
+        </View>
       </View>
 
       <ScrollView className="flex-1 bg-background px-6 pb-28" showsVerticalScrollIndicator={false}>
-        {/* Hero */}
         <View className="items-center mt-8 mb-10">
           <View className="relative mb-6">
             <View className="w-36 h-36 rounded-full p-1 bg-primary/20 items-center justify-center">
@@ -129,40 +101,18 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="mb-12">
-          <View className="flex-row items-center gap-2 mb-6">
-            <View className="w-8 h-[2px] bg-primary" />
-            <Text className="text-xl font-bold">Skill Matrix</Text>
-          </View>
-
-          <View className={isTablet ? 'flex-row gap-6' : 'flex-col gap-6'}>
-            <View className={isTablet ? 'flex-1' : undefined}>
-              <SkillCard value={90} label="Communication" subtitle="Expert Level" color={tint} />
-            </View>
-            <View className={isTablet ? 'flex-1' : undefined}>
-              <SkillCard
-                value={75}
-                label="Leadership"
-                subtitle="Advanced Level"
-                color={'#9720ab'}
-              />
-            </View>
-            <View className={isTablet ? 'flex-1' : undefined}>
-              <SkillCard value={82} label="Empathy" subtitle="Fluent Level" color={'#6e5275'} />
-            </View>
-          </View>
-        </View>
-
         {user.role?.toLowerCase() === 'member' && (
           <View className="mb-12">
             <Pressable
               onPress={() => router.push('QuarterlyReport' as any)}
-              className="flex-row items-center justify-between p-5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl mb-4 border border-primary/30 active:opacity-70"
+              className="flex-row items-center justify-between p-5 bg-card rounded-3xl mb-4 border border-border/20 shadow-sm active:opacity-70"
             >
               <View className="flex-row items-center gap-4">
-                <Ionicons name={'bar-chart' as any} size={18} color={tint} />
+                <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center border border-primary/20">
+                  <Ionicons name={'bar-chart' as any} size={18} color={tint} />
+                </View>
                 <View className="flex-1">
-                  <Text className="font-semibold">Quarterly Report</Text>
+                  <Text className="font-bold text-foreground">Quarterly Report</Text>
                   <Text className="text-xs text-foreground/60 mt-0.5">View your quarterly progress</Text>
                 </View>
               </View>
@@ -171,11 +121,13 @@ export default function ProfileScreen() {
 
             <Pressable
               onPress={() => setExpandedHistory(!expandedHistory)}
-              className="flex-row items-center justify-between p-5 bg-card rounded-2xl mb-2 border border-border/10"
+              className="flex-row items-center justify-between p-5 bg-card rounded-3xl mb-2 border border-border/20 shadow-sm"
             >
               <View className="flex-row items-center gap-4">
-                <Ionicons name={'time' as any} size={18} color={tint} />
-                <Text className="font-semibold">Learning History</Text>
+                <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center border border-primary/20">
+                  <Ionicons name={'time' as any} size={18} color={tint} />
+                </View>
+                <Text className="font-bold">Learning History</Text>
               </View>
               <Ionicons
                 name={expandedHistory ? 'chevron-up' : 'chevron-down'}
@@ -214,8 +166,8 @@ export default function ProfileScreen() {
                 {!historyLoading && !error && getSortedSkills().length > 0 && (
                   <>
                     {/* Recent Section */}
-                    <View className="mb-8">
-                      <Text className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                    <View className="mb-8 mt-4">
+                      <Text className="text-[11px] font-bold text-primary uppercase tracking-widest mb-3">
                         Recent
                       </Text>
                       <View className="gap-2">
@@ -237,10 +189,10 @@ export default function ProfileScreen() {
                                 })}
                                 className="active:opacity-70"
                               >
-                                <View className="p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg border border-primary/20">
+                                <View className="p-3 bg-primary/10 rounded-2xl border border-primary/20">
                                   <View className="flex-row items-center justify-between">
                                     <View className="flex-1">
-                                      <Text className="text-sm font-semibold text-foreground">
+                                      <Text className="text-sm font-bold text-foreground">
                                         {skill}
                                       </Text>
                                       <Text className="text-xs text-foreground/60 mt-1">
@@ -261,7 +213,7 @@ export default function ProfileScreen() {
 
                     {/* Skills Section */}
                     <View>
-                      <Text className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                      <Text className="text-[11px] font-bold text-primary uppercase tracking-widest mb-3">
                         By Skill
                       </Text>
                       {getSortedSkills().map((skill) => {
@@ -276,10 +228,10 @@ export default function ProfileScreen() {
                               onPress={() => toggleSkillExpanded(skill)}
                               className="active:opacity-70"
                             >
-                              <View className="p-4 bg-secondary/30 border border-border/20 rounded-lg">
+                              <View className="p-4 bg-card border border-border/20 rounded-3xl shadow-sm">
                                 <View className="flex-row items-center justify-between">
                                   <View className="flex-1">
-                                    <Text className="font-bold text-foreground text-base mb-3">{skill}</Text>
+                                    <Text className="font-black text-foreground text-base mb-3">{skill}</Text>
 
                                     <View className={isTablet ? 'flex-row gap-3' : 'flex-col gap-2'}>
                                       <View className={isTablet ? 'flex-1' : 'w-full'}>
@@ -323,10 +275,10 @@ export default function ProfileScreen() {
                                       })}
                                       className="active:opacity-70"
                                     >
-                                      <View className="p-3 bg-card/50 rounded-lg border border-border/10">
+                                      <View className="p-3 bg-card rounded-2xl border border-border/20">
                                         <View className="flex-row items-center justify-between">
                                           <View className="flex-1">
-                                            <Text className="text-sm font-semibold text-foreground">
+                                            <Text className="text-sm font-bold text-foreground">
                                               Week of {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                             </Text>
                                             <Text className="text-xs text-foreground/60 mt-1">

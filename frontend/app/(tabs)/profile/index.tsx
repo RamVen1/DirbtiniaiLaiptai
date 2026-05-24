@@ -153,6 +153,26 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Activity Calendar Section */}
+        <View className="mb-12">
+          <View className="flex-row items-center gap-2 mb-6">
+            <View className="w-8 h-[2px] bg-primary" />
+            <Text className="text-xl font-bold">Activity</Text>
+          </View>
+          
+          {activityLoading ? (
+            <View className="mt-4 h-24 items-center justify-center">
+              <ActivityIndicator size="small" color={tint} />
+            </View>
+          ) : (
+            <ContributionCalendar 
+              completedDates={completedDates} 
+              tint={tint} 
+            />
+          )}
+        </View>
+
+        {/* Member Sections */}
         {user.role?.toLowerCase() === 'member' && (
           <View className="mb-12">
             <Pressable

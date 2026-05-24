@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { NeonCard } from '@/components/dashboard/neon-card';
-import { SkillCard } from '@/components/dashboard/skill-card';
 import { useProfile } from '@/hooks/use-profile';
 import { useReportHistory } from '@/hooks/use-report-history';
 import { ContributionCalendar } from '@/components/dashboard/contribution-calendar';
@@ -101,6 +100,50 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        <View className="mb-12">
+          <View className="flex-row items-center gap-2 mb-6">
+            <View className="w-8 h-[2px] bg-primary" />
+            <Text className="text-xl font-bold">Skill Matrix</Text>
+          </View>
+
+          <View className={isTablet ? 'flex-row gap-6' : 'flex-col gap-6'}>
+            <View className={isTablet ? 'flex-1' : undefined}>
+              <SkillCard value={90} label="Communication" subtitle="Expert Level" color={tint} />
+            </View>
+            <View className={isTablet ? 'flex-1' : undefined}>
+              <SkillCard
+                value={75}
+                label="Leadership"
+                subtitle="Advanced Level"
+                color={'#9720ab'}
+              />
+            </View>
+            <View className={isTablet ? 'flex-1' : undefined}>
+              <SkillCard value={82} label="Empathy" subtitle="Fluent Level" color={'#6e5275'} />
+            </View>
+          </View>
+        </View>
+
+        {/* Activity Calendar Section */}
+        <View className="mb-12">
+          <View className="flex-row items-center gap-2 mb-6">
+            <View className="w-8 h-[2px] bg-primary" />
+            <Text className="text-xl font-bold">Activity</Text>
+          </View>
+          
+          {activityLoading ? (
+            <View className="mt-4 h-24 items-center justify-center">
+              <ActivityIndicator size="small" color={tint} />
+            </View>
+          ) : (
+            <ContributionCalendar 
+              completedDates={completedDates} 
+              tint={tint} 
+            />
+          )}
+        </View>
+
+        {/* Member Sections */}
         {user.role?.toLowerCase() === 'member' && (
           <View className="mb-12">
             <Pressable

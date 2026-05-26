@@ -68,25 +68,6 @@ export default function ProfileScreen() {
           </View>
           <Text className="text-lg font-black text-primary tracking-tighter">The Next Step</Text>
         </View>
-
-        <Pressable
-          onPress={() => router.navigate('/profile/modal')}
-          className="p-2 rounded-full active:scale-95"
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <View className="w-8 h-8 items-center justify-center">
-            <Image
-              source={avatarSource}
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: 999,
-              }}
-              resizeMode="cover"
-            />
-          </View>
-        </Pressable>
       </View>
 
       <ScrollView className="flex-1 bg-background px-6 pb-28" showsVerticalScrollIndicator={false}>
@@ -128,6 +109,27 @@ export default function ProfileScreen() {
             </Button>
           </View>
         </View>
+        
+        {/* Activity Calendar Section */}
+        <View className="mb-12">
+          <View className="flex-row items-center gap-2 mb-6">
+            <View className="w-8 h-[2px] bg-primary" />
+            <Text className="text-xl font-bold">Activity</Text>
+          </View>
+          
+          {activityLoading ? (
+            <View className="mt-4 h-24 items-center justify-center">
+              <ActivityIndicator size="small" color={tint} />
+            </View>
+          ) : (
+            <ContributionCalendar 
+              completedDates={completedDates} 
+              tint={tint} 
+            />
+          )}
+        </View>
+
+        {/* Member Sections */}
 
         {user.role?.toLowerCase() === 'member' && (
           <View className="mb-12">

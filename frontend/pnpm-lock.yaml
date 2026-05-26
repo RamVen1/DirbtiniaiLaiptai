@@ -44,9 +44,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      date-fns:
-        specifier: ^4.1.0
-        version: 4.3.0
       expo:
         specifier: ~55.0.6
         version: 55.0.6(@babel/core@7.29.0)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.6)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -2374,9 +2371,6 @@ packages:
   datauri@4.1.0:
     resolution: {integrity: sha512-y17kh32+I82G+ED9MNWFkZiP/Cq/vO1hN9+tSZsT9C9qn3NrvcBnh7crSepg0AQPge1hXx2Ca44s1FRdv0gFWA==}
     engines: {node: '>= 10'}
-
-  date-fns@4.3.0:
-    resolution: {integrity: sha512-OYcL+3N/jyWbYdFGqoMAhytDgxP9pbYPUUiRCOgn4Fewaadk9l/Wam4Avciiyp2BgkpfQyBV9B+ehnVJych+eQ==}
 
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -8091,8 +8085,6 @@ snapshots:
     dependencies:
       image-size: 1.0.0
       mimer: 2.0.2
-
-  date-fns@4.3.0: {}
 
   debug@2.6.9:
     dependencies:

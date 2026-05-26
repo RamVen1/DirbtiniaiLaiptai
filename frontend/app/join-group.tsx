@@ -43,7 +43,8 @@ export default function JoinGroupScreen() {
       <View className="flex-1">
         <View className="absolute top-0 left-0 right-0 z-50 bg-background border-b border-border/20">
           <View className="flex-row items-center justify-between px-6 py-4">
-            <Pressable
+
+        <Pressable
               onPress={handleCancel}
               className="p-2 -ml-2 active:scale-95"
               accessibilityRole="button"
@@ -105,7 +106,6 @@ export default function JoinGroupScreen() {
               </View>
 
              
-
               <Button
                 size="lg"
                 className="mt-6 h-14 bg-primary rounded-2xl flex-row items-center justify-center gap-2"
@@ -121,11 +121,11 @@ export default function JoinGroupScreen() {
                   </View>
                 ) : (
                   <>
-                 
                     <Text className="font-bold text-base">Join</Text>
                   </>
                 )}
               </Button>
+
 
               <Button
                 variant="outline"
@@ -212,4 +212,4 @@ export default function JoinGroupScreen() {
       </View>
     </SafeAreaView>
   );
-}
+} 

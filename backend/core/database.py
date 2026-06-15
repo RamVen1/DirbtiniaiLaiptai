@@ -63,10 +63,23 @@ def init_db():
                 Report_ID INTEGER,
                 Completed_At TIMESTAMP NULL,
                 Difficulty_Rating INTEGER,
+                auto_submitted INTEGER DEFAULT 0,
+                is_incomplete INTEGER DEFAULT 0,
                 FOREIGN KEY (User_ID) REFERENCES User (ID),
                 FOREIGN KEY (Report_ID) REFERENCES Report (ID)
             )
         """)
+        
+    # Add migration for existing databases
+    try:
+        conn.execute("ALTER TABLE Task ADD COLUMN auto_submitted INTEGER DEFAULT 0")
+    except:
+        pass
+    
+    try:
+        conn.execute("ALTER TABLE Task ADD COLUMN is_incomplete INTEGER DEFAULT 0")
+    except:
+        pass
         
     conn.execute(f"""
             CREATE TABLE IF NOT EXISTS RoleRequest (

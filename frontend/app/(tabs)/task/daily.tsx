@@ -27,6 +27,7 @@ export default function TaskDailyScreen() {
     elapsedSeconds,
     showConfetti,
     isCompleting,
+    isAutoCompleting,
     handleDonePress,
   } = useDailyTask();
 
@@ -67,16 +68,24 @@ export default function TaskDailyScreen() {
 
           <NeonCard className="p-10 w-full" overflowHidden={false}>
             <View className="items-center">
-              <Text className="text-2xl font-bold text-foreground mb-2">Complete the task</Text>
+              <Text className="text-2xl font-bold text-foreground mb-2">
+                {isAutoCompleting ? 'Completing Task' : 'Complete the task'}
+              </Text>
 
               <View className="mt-4 w-full items-center">
                 <Text className="mb-6 text-primary text-4xl font-black tracking-widest">
                   {formatElapsed(elapsedSeconds)}
                 </Text>
 
+                {isAutoCompleting && (
+                  <Text className="text-foreground/60 text-center mb-4 text-base">
+                    Your 24 hours are up! Auto-submitting your task...
+                  </Text>
+                )}
+
                 <Pressable
-                  disabled={!dailyTask || loadingDailyTask || isCompleting}
-                  className={`w-full rounded-2xl px-10 py-5 shadow-lg active:scale-95 ${!dailyTask || loadingDailyTask || isCompleting ? 'bg-primary/40' : 'bg-primary'
+                  disabled={!dailyTask || loadingDailyTask || isCompleting || isAutoCompleting}
+                  className={`w-full rounded-2xl px-10 py-5 shadow-lg active:scale-95 ${!dailyTask || loadingDailyTask || isCompleting || isAutoCompleting ? 'bg-primary/40' : 'bg-primary'
                     }`}
                   onPress={handleDonePress}
                 >
@@ -84,7 +93,7 @@ export default function TaskDailyScreen() {
                     className="font-extrabold text-xl text-center"
                     style={{ color: '#FFFFFF' }}
                   >
-                    {loadingDailyTask ? 'Loading...' : isCompleting ? 'Great work...' : 'Mark as Done'}
+                    {isAutoCompleting ? 'Submitting...' : loadingDailyTask ? 'Loading...' : isCompleting ? 'Great work...' : 'Mark as Done'}
                   </RNText>
                 </Pressable>
               </View>

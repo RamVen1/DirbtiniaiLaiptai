@@ -93,7 +93,7 @@ def login_user(user: schemas.LoginRequest):
 def get_current_user_data(current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
         user = conn.execute(
-            "SELECT ID, Email, Role, team_id, Username, avatar_index FROM User WHERE ID = ?", 
+            "SELECT ID, Email, Role, team_id, Username, avatar_index, streak, skill, difficulty FROM User WHERE ID = ?", 
             (current_user_id,)
         ).fetchone()
         
@@ -107,7 +107,10 @@ def get_current_user_data(current_user_id: str = Depends(get_current_user)):
             "role": u_dict["Role"].lower() if u_dict["Role"] else "member",
             "team_id": u_dict.get("team_id"),
             "username": u_dict["Username"],
-            "avatar_index": u_dict.get("avatar_index", 0)
+            "avatar_index": u_dict.get("avatar_index", 0),
+            "streak": u_dict.get("streak", 0),
+            "skill": u_dict.get("skill"),
+            "difficulty": u_dict.get("difficulty", 0)
         }
 
 @router.put("/me")

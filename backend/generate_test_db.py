@@ -67,6 +67,8 @@ def init_test_db():
             Report_ID INTEGER,
             Completed_At TIMESTAMP NULL,
             Difficulty_Rating INTEGER,
+            auto_submitted INTEGER DEFAULT 0,
+            is_incomplete INTEGER DEFAULT 0,
             FOREIGN KEY (User_ID) REFERENCES User (ID),
             FOREIGN KEY (Report_ID) REFERENCES Report (ID)
         )
@@ -145,7 +147,7 @@ def insert_test_data(conn):
     conn.execute("""
         INSERT INTO User (Username, Email, Password, Role, skill, difficulty)
         VALUES (?, ?, ?, ?, ?, ?)
-    """, ("member_user", "member@test.com", member_password, "Member", "Python", 2))
+    """, ("member_user", "member@test.com", member_password, "Member", "Time-Management", 2))
     
     conn.commit()
     
@@ -176,15 +178,15 @@ def insert_test_data(conn):
     
     # Task templates with varying completion - soft skills focused
     task_templates = [
-        "Practice active listening in team meetings for 30 minutes",
-        "Have a 1-on-1 feedback conversation with a colleague",
-        "Lead a brainstorming session on project improvements",
-        "Write a thoughtful response to difficult feedback received",
-        "Mentor a junior team member on collaboration techniques",
-        "Document and share a key lesson learned from a challenge",
-        "Facilitate a team conflict resolution discussion",
-        "Prepare and deliver a 15-minute presentation on a topic",
-        "Create an action plan for improving communication with stakeholders",
+        "Review your wins: Spend the last five minutes of your workday writing down what you actually accomplished to accurately measure your time.",
+        "Turn off non-essential alerts: Mute all social media and news notifications on your phone for the rest of the workday.",
+        "Schedule your breaks: Explicitly block out 15 minutes for a lunch break and two short walk breaks on your calendar today so you don't work straight through them.",
+        "Process micro-tasks immediately: Tackle any email or request that comes in today that takes less than two minutes to finish, rather than letting it pile up.",
+        "Clear your physical desk: Spend exactly three minutes right now throwing away trash and organizing your immediate workspace to cut down on visual chaos.",
+        "Set a distraction alarm: Set a timer for 25 minutes of completely uninterrupted work, followed by a strict 5-minute break.",
+        "Time-block your morning: Dedicate a specific 60-minute window on your calendar today for deep work, and treat it as an unchangeable appointment.",
+        "Declutter your digital view: Close every single browser tab and application that isn't directly related to the task you are working on right now.",
+        "Pick your \"Big Three\": Write down the three most important tasks you must accomplish today before you look at any emails or messages.",
     ]
     
     for week in range(13):
@@ -198,7 +200,7 @@ def insert_test_data(conn):
         conn.execute("""
             INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Skill, Completed_At)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (member_id, week_start, week_end, 0, 0, "Python", datetime.now()))
+        """, (member_id, week_start, week_end, 0, 0, "Time-Management", datetime.now()))
         
         conn.commit()
         
@@ -248,12 +250,152 @@ def insert_test_data(conn):
         
         conn.commit()
     
+    # Add recent tasks for the last 6 days (including today) to build streak
+    today = datetime.now().date()
+    for days_ago in range(5, -1, -1):
+        task_date = today - timedelta(days=days_ago)
+        task_content = task_templates[days_ago % len(task_templates)]
+        
+        # Get or create report for this week
+        week_start = task_date - timedelta(days=task_date.weekday())
+        week_end = week_start + timedelta(days=6)
+        
+        report = conn.execute(
+            "SELECT ID FROM Report WHERE User_ID = ? AND Week_Start = ?",
+            (member_id, week_start)
+        ).fetchone()
+        
+        if not report:
+            conn.execute("""
+                INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Skill, Completed_At)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (member_id, week_start, week_end, 0, 0, "Time-Management", None))
+            conn.commit()
+            report_id = conn.execute(
+                "SELECT ID FROM Report WHERE User_ID = ? AND Week_Start = ? ORDER BY ID DESC LIMIT 1",
+                (member_id, week_start)
+            ).fetchone()[0]
+        else:
+            report_id = report[0]
+        
+        conn.execute("""
+            INSERT INTO Task (Task_content, Date, User_ID, Report_ID, Completed_At, Difficulty_Rating)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            task_content,
+            task_date,
+            member_id,
+            report_id,
+            task_date + timedelta(hours=2),
+            2
+        ))
+    
+    conn.commit()
+    
+    # Mark current week's report as complete so it shows in Improvement Progress
+    today = datetime.now().date()
+    current_week_start = today - timedelta(days=today.weekday())
+    
+    current_report = conn.execute(
+        "SELECT ID FROM Report WHERE User_ID = ? AND Week_Start = ?",
+        (member_id, current_week_start)
+    ).fetchone()
+    
+    if current_report:
+        conn.execute(
+            "UPDATE Report SET Completed_At = ? WHERE ID = ?",
+            (datetime.now(), current_report[0])
+        )
+        conn.commit()
+    
+    # Calculate and set streak for member based on consecutive completed tasks
+    today = datetime.now().date()
+    streak = 0
+    current_date = today
+    
+    # Check for consecutive completed tasks going backwards from today
+    while True:
+        # Check if member completed a task on this date
+        task = conn.execute("""
+            SELECT COUNT(*) as count FROM Task 
+            WHERE User_ID = ? AND DATE(Completed_At) = ? AND Completed_At IS NOT NULL
+        """, (member_id, current_date)).fetchone()
+        
+        if task['count'] > 0:
+            streak += 1
+            current_date = current_date - timedelta(days=1)
+        else:
+            break
+    
+    # Update member streak
+    conn.execute("""
+        UPDATE User SET streak = ? WHERE ID = ?
+    """, (streak, member_id))
+    
+    conn.commit()
+    
+    # Update recent reports with correct task counts
+    for days_ago in range(5, -1, -1):
+        task_date = today - timedelta(days=days_ago)
+        week_start = task_date - timedelta(days=task_date.weekday())
+        
+        report = conn.execute(
+            "SELECT ID FROM Report WHERE User_ID = ? AND Week_Start = ?",
+            (member_id, week_start)
+        ).fetchone()
+        
+        if report:
+            report_id = report[0]
+            cursor = conn.execute(
+                "SELECT COUNT(*) as count FROM Task WHERE Report_ID = ? AND Completed_At IS NOT NULL AND is_incomplete = 0",
+                (report_id,)
+            )
+            tasks_completed = cursor.fetchone()['count']
+            practice_hours = round(tasks_completed * 0.6, 1)
+            conn.execute(
+                "UPDATE Report SET Total_Tasks_Completed = ?, Total_Practice_Hours = ? WHERE ID = ?",
+                (tasks_completed, practice_hours, report_id)
+            )
+    
+    conn.commit()
+    
+    # Create companions for all users
+    companion_types = ["Dog", "Cat", "Rabbit", "Hamster", "Parrot"]
+    user_ids = [admin_id, mod_id, member_id]
+    
+    for idx, user_id in enumerate(user_ids):
+        companion_type = companion_types[idx % len(companion_types)]
+        happiness = 100 if idx == 2 else 80  # Member has higher happiness
+        
+        conn.execute("""
+            INSERT INTO Companion (User_ID, Type, Happiness)
+            VALUES (?, ?, ?)
+        """, (user_id, companion_type, happiness))
+    
+    conn.commit()
+    
+    # Award pets to member for completing quarters (Q1, Q2, Q3)
+    pet_names = ["Bunny", "Fox", "Red Panda"]
+    skills = ["Time-Management", "Communication", "Problem-Solving"]
+    
+    for quarter in range(1, 4):
+        conn.execute("""
+            INSERT INTO UserPet (User_ID, Pet_Name, Skill, Quarter_Number, Awarded_At)
+            VALUES (?, ?, ?, ?, ?)
+        """, (member_id, pet_names[quarter-1], skills[quarter-1], quarter, datetime.now()))
+    
+    conn.commit()
+    
     print(f"✅ Created test database: {DB_PATH}")
     print(f"📊 Test Data Summary:")
     print(f"   - Admin: admin@test.com (password: admin123)")
     print(f"   - Moderator: mod@test.com (password: mod123) - Manages 'Dev Team'")
     print(f"   - Member: member@test.com (password: member123) - In 'Dev Team'")
-    print(f"   - Member has 13 weeks of completed reports with varying tasks")
+    print(f"   - Member has 13 weeks of historical reports + current week active report")
+    print(f"   - Member streak calculated: {streak} days (from recent task completions)")
+    print(f"   - Member has 3 awarded companion pets (Bunny, Fox, Red Panda)")
+    print(f"   - Current week report marked as complete for 'Improvement Progress' display")
+    print(f"   - All users have companions created in Companion table")
     print(f"   - Ready to test quarterly report generation!")
 
 if __name__ == "__main__":

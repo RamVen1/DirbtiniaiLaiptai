@@ -87,16 +87,6 @@ export default function TaskActiveScreen() {
                 Too easy
               </RNText>
             </Pressable>
-
-            {/* TEST BUTTON - Remove this after testing */}
-            <Pressable
-              className="w-full rounded-xl bg-orange-500 px-10 py-3 active:opacity-90 mt-4"
-              onPress={handleTestData}
-            >
-              <RNText className="font-bold text-sm text-center" style={{ color: '#FFFFFF' }}>
-                [TEST] Create Full Week Data
-              </RNText>
-            </Pressable>
           </View>
         </NeonCard>
       </View>

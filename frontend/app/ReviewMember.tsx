@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import { useReviewMember } from '@/hooks/use-review-member';
 
 export default function ReviewMemberScreen() {
-  const { router, avatarSource, memberName, memberRole, memberEmail, tint, loading, completedModules, activeModule, totalHours, avgScore } = useReviewMember();
+  const { router, avatarSource, memberName, memberRole, memberEmail, tint, loading, completedModules, activeModule, totalHours, avgScore, reports, handleViewReport } = useReviewMember();
 
   if (loading) return (
     <SafeAreaView className="flex-1 bg-background justify-center items-center">
@@ -58,33 +58,36 @@ export default function ReviewMemberScreen() {
             </View>
           </View>
 
-          <View className="flex-row gap-3 mb-6">
-            <View className="flex-1 bg-card border border-border/20 rounded-2xl p-4">
-              <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest">Done</Text>
-              <Text className="text-foreground text-3xl font-black mt-1">{completedModules.length}</Text>
-            </View>
-            <View className="flex-1 bg-card border border-border/20 rounded-2xl p-4">
-              <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest">Avg Score</Text>
-              <Text className="text-foreground text-3xl font-black mt-1">{avgScore}%</Text>
-            </View>
-          </View>
-
-          <View className="bg-card border border-border/20 rounded-3xl p-5">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest">Completed</Text>
-              <Text className="text-sm text-foreground/70">{totalHours}h total</Text>
-            </View>
-            <View className="gap-3">
-              {completedModules.map((module: any) => (
-                <View key={module.id} className="bg-card border border-border/20 rounded-2xl p-4 flex-row items-center justify-between">
-                  <View className="flex-1 pr-3">
-                    <Text className="text-foreground font-bold">{module.name}</Text>
-                    <Text className="text-foreground/70 text-sm mt-1">Score {module.score}%</Text>
-                  </View>
-                  <Text className="text-foreground/70 text-xs">{module.hours}h</Text>
-                </View>
-              ))}
-            </View>
+          <View className="bg-card border border-border/20 rounded-3xl p-5 mb-6">
+            <Text className="text-foreground/60 text-xs uppercase font-bold tracking-widest mb-4">Weekly Reports</Text>
+            {reports.length > 0 ? (
+              <View className="gap-3">
+                {reports.map((report: any) => (
+                  <Pressable
+                    key={report.id}
+                    onPress={() => handleViewReport(report.id)}
+                    className="bg-background border border-border/20 rounded-2xl p-4 active:opacity-80"
+                  >
+                    <View className="flex-row items-center justify-between mb-2">
+                      <Text className="text-foreground font-bold">Week of {report.week_start}</Text>
+                      <Ionicons name="chevron-forward" size={18} color={tint} opacity={0.5} />
+                    </View>
+                    <View className="flex-row justify-between items-center">
+                      <View>
+                        <Text className="text-foreground/70 text-sm">{report.skill || 'General'}</Text>
+                        <Text className="text-foreground/60 text-xs mt-1">{report.tasks_completed} tasks completed</Text>
+                      </View>
+                      <Text className="text-foreground/70 text-sm">{report.practice_hours}h</Text>
+                    </View>
+                    {report.completed_at && (
+                      <Text className="text-green-500 text-xs font-semibold mt-2">✓ Completed</Text>
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <Text className="text-foreground/50 text-sm text-center py-4">No weekly reports yet</Text>
+            )}
           </View>
         </ScrollView>
       </View>

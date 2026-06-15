@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 from fastapi import APIRouter, Depends
 from sqlite3 import Connection
 from core.database import get_db
@@ -10,6 +12,15 @@ router = APIRouter(prefix="", tags=["tasks"])
 @router.get("/task")
 def get_task(current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
+        # Check if user is part of a team
+        user = conn.execute(
+            "SELECT team_id FROM User WHERE ID = ?",
+            (current_user_id,)
+        ).fetchone()
+        
+        if not user or not user['team_id']:
+            raise HTTPException(status_code=403, detail="You must be part of a team to get tasks")
+        
         task = conn.execute("SELECT * FROM task WHERE User_ID = ? ORDER BY id DESC LIMIT 1", (current_user_id,)).fetchone()
     
     if not task:
@@ -24,6 +35,61 @@ def refresh_task(current_user_id: str = Depends(get_current_user)):
     refreshed_task = service.generate_daily_task(int(current_user_id))
     return {"task": refreshed_task}
 
+@router.post("/auto-complete-task")
+def auto_complete_task(current_user_id: str = Depends(get_current_user)):
+    """Auto-complete a task after 24 hours with failure penalties"""
+    with get_db() as conn:
+        user_id = int(current_user_id)
+        
+        # Get the most recent incomplete task
+        task = conn.execute(
+            """SELECT * FROM Task 
+               WHERE User_ID = ? AND Completed_At IS NULL 
+               ORDER BY Date DESC LIMIT 1""",
+            (user_id,)
+        ).fetchone()
+        
+        if not task:
+            return {"status": "no_task", "message": "No incomplete task found"}
+        
+        # Mark task as auto-submitted and incomplete
+        conn.execute(
+            """UPDATE Task 
+               SET Completed_At = CURRENT_TIMESTAMP, 
+                   auto_submitted = 1, 
+                   is_incomplete = 1 
+               WHERE ID = ?""",
+            (task['ID'],)
+        )
+        
+        # Reset streak to 0 for not completing task
+        conn.execute(
+            "UPDATE User SET streak = 0 WHERE ID = ?",
+            (user_id,)
+        )
+        
+        # Update report stats
+        report_id = task['Report_ID']
+        cursor = conn.execute(
+            "SELECT COUNT(*) as count FROM Task WHERE Report_ID = ? AND Completed_At IS NOT NULL AND is_incomplete = 0",
+            (report_id,)
+        )
+        tasks_completed = cursor.fetchone()['count']
+        estimated_hours = round(tasks_completed * 0.6, 1)
+        
+        conn.execute(
+            "UPDATE Report SET Total_Tasks_Completed = ?, Total_Practice_Hours = ? WHERE ID = ?",
+            (tasks_completed, estimated_hours, report_id)
+        )
+        
+        conn.commit()
+        
+        return {
+            "status": "auto_completed",
+            "message": "Task auto-submitted due to 24h timeout. Streak reset to 0.",
+            "streak_reset": True
+        }
+
 @router.post("/update-difficulty")
 def update_difficulty(adjustment: int, current_user_id: str = Depends(get_current_user)):
     with get_db() as conn:
@@ -37,6 +103,9 @@ def update_difficulty(adjustment: int, current_user_id: str = Depends(get_curren
         )
 
         user_id = int(current_user_id)
+        
+        # Update streak based on consecutive daily completions
+        service.update_user_streak(conn, user_id)
 
         incomplete_report = service.get_incomplete_previous_report(user_id)
         
@@ -63,7 +132,7 @@ def update_difficulty(adjustment: int, current_user_id: str = Depends(get_curren
             today = datetime.now().date()
             
             cursor = conn.execute(
-                "SELECT COUNT(*) as count FROM Task WHERE Report_ID = ?",
+                "SELECT COUNT(*) as count FROM Task WHERE Report_ID = ? AND Completed_At IS NOT NULL AND is_incomplete = 0",
                 (report_id,)
             )
             tasks_completed = cursor.fetchone()['count']
@@ -119,7 +188,7 @@ def get_report_data(current_user_id: int = Depends(get_current_user), report_id:
         
         cursor = conn.execute(
             """
-            SELECT Date, task_content FROM Task 
+            SELECT Date, task_content, is_incomplete, auto_submitted FROM Task 
             WHERE Report_ID = ?
             ORDER BY Date ASC
             """, 
@@ -136,12 +205,14 @@ def get_report_data(current_user_id: int = Depends(get_current_user), report_id:
             week_start_date = week_start_str
         
         # Extract dates and task content from tasks
-        task_dict = {}  # Maps date to task content
+        task_dict = {}  # Maps date to (task_content, is_incomplete, auto_submitted)
         task_dates = set()
         
         for task_row in tasks:
             task_date_str = task_row[0]
             task_content = task_row[1]
+            is_incomplete = task_row[2] if len(task_row) > 2 else 0
+            auto_submitted = task_row[3] if len(task_row) > 3 else 0
             
             task_date = None
             if isinstance(task_date_str, str):
@@ -166,7 +237,11 @@ def get_report_data(current_user_id: int = Depends(get_current_user), report_id:
             
             if task_date:
                 task_dates.add(task_date)
-                task_dict[str(task_date)] = task_content
+                task_dict[str(task_date)] = {
+                    "content": task_content,
+                    "is_incomplete": is_incomplete,
+                    "auto_submitted": auto_submitted
+                }
         
         days_data = []
         day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -178,9 +253,12 @@ def get_report_data(current_user_id: int = Depends(get_current_user), report_id:
             day_str = str(day)
             is_completed = 1 if day in task_dates else 0
             days_data.append(is_completed)
+            task_info = task_dict.get(day_str, {})
             daily_tasks[day_labels[i]] = {
                 "completed": is_completed,
-                "task": task_dict.get(day_str, "No task")
+                "task": task_info.get("content", "No task") if is_completed else "No task",
+                "is_incomplete": task_info.get("is_incomplete", 0),
+                "auto_submitted": task_info.get("auto_submitted", 0)
             }
 
         return {
@@ -217,6 +295,24 @@ def check_report(current_user_id: int = Depends(get_current_user)):
         show_report = (is_end_of_week and tasks_completed > 0) or tasks_completed == 7
         
         return {"exists": True, "show_report": show_report}
+
+@router.get("/check-incomplete-tasks")
+def check_incomplete_tasks(current_user_id: int = Depends(get_current_user)):
+    """Check if user has any incomplete auto-submitted tasks"""
+    with get_db() as conn:
+        user_id = int(current_user_id)
+        cursor = conn.execute(
+            """SELECT COUNT(*) as count FROM Task 
+               WHERE User_ID = ? AND is_incomplete = 1""",
+            (user_id,)
+        )
+        result = cursor.fetchone()
+        incomplete_count = result['count'] or 0
+        
+        return {
+            "has_incomplete": incomplete_count > 0,
+            "incomplete_count": incomplete_count
+        }
 
 @router.post("/complete-weekly-report")
 def complete_weekly_report(current_user_id: int = Depends(get_current_user), report_id: int = None):

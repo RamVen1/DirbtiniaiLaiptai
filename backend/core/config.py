@@ -5,7 +5,7 @@ load_dotenv()
 
 class Settings:
     PROJECT_NAME: str = "Dirbtiniai Laiptai"
-    DB_NAME: str = "database.db"
+    DB_NAME: str = "test.db"
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
     JWT_SECRET_KEY: str = os.getenv("JWT_KEY")
     PORT: int = int(os.getenv("PORT", 8000))

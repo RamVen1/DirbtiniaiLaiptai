@@ -25,6 +25,33 @@ def get_sunday_of_week(date=None):
         date = datetime.now().date()
     return date + timedelta(days=6 - date.weekday())
 
+def update_user_streak(conn: Connection, user_id: int):
+    today = datetime.now().date()
+    
+    cursor = conn.execute(
+        """SELECT MAX(DATE(Date)) as last_completion_date 
+           FROM Task 
+           WHERE User_ID = ? AND Date IS NOT NULL""",
+        (user_id,)
+    )
+    result = cursor.fetchone()
+    last_completion_date = result['last_completion_date'] if result and result['last_completion_date'] else None
+    
+    if not last_completion_date:
+        conn.execute("UPDATE User SET streak = 1 WHERE ID = ?", (user_id,))
+    else:
+        last_date = datetime.strptime(last_completion_date, '%Y-%m-%d').date()
+        days_since = (today - last_date).days
+        
+        if days_since == 0:
+            pass
+        elif days_since == 1:
+            cursor = conn.execute("SELECT streak FROM User WHERE ID = ?", (user_id,))
+            current_streak = cursor.fetchone()['streak'] or 0
+            conn.execute("UPDATE User SET streak = ? WHERE ID = ?", (current_streak + 1, user_id))
+        else:
+            conn.execute("UPDATE User SET streak = 1 WHERE ID = ?", (user_id,))
+
 def get_incomplete_previous_report(user_id: int):
     conn = get_db()
     try:
@@ -58,8 +85,8 @@ def get_or_create_weekly_report(user_id: int):
         
         if not report:
             
-            user = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
-            skill = user['Skill'] if user else None
+            user = conn.execute("SELECT skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+            skill = user['skill'] if user else None
             
             conn.execute(
                 """INSERT INTO Report (User_ID, Week_Start, Week_End, Total_Tasks_Completed, Total_Practice_Hours, Skill)
@@ -83,9 +110,9 @@ def generate_daily_task(user_id: int):
 
     conn = get_db()
     try:
-        skill = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+        skill = conn.execute("SELECT skill FROM User WHERE ID = ?", (user_id,)).fetchone()
         difficulty = conn.execute("SELECT difficulty FROM User WHERE ID = ?", (user_id,)).fetchone()
-        prompt = "Generate a short productive daily task for someone who is trying to learn {skill} at a {difficulty} difficulty level. Imagine difficulty is a a slider from 0 to 5. 0 being a beginner and 5 expert. Keep the answer to just the task and under 20 words.".format(skill=skill["Skill"], difficulty=difficulty["difficulty"])
+        prompt = "Generate a short productive daily task for someone who is trying to learn {skill} at a {difficulty} difficulty level. Imagine difficulty is a a slider from 0 to 5. 0 being a beginner and 5 expert. Keep the answer to just the task and under 20 words.".format(skill=skill["skill"], difficulty=difficulty["difficulty"])
         response = model.generate_content(prompt)
         task_text = response.text.strip()
         
@@ -109,8 +136,8 @@ def create_test_week_data(user_id: int):
         week_end = get_sunday_of_week()
         
         
-        user = conn.execute("SELECT Skill FROM User WHERE ID = ?", (user_id,)).fetchone()
-        skill = user['Skill'] if user else None
+        user = conn.execute("SELECT skill FROM User WHERE ID = ?", (user_id,)).fetchone()
+        skill = user['skill'] if user else None
 
         existing_report = conn.execute(
             "SELECT * FROM Report WHERE User_ID = ? AND Week_Start = ?",

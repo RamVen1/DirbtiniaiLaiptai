@@ -49,7 +49,7 @@ export function useHomeScreen() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 900;
   const { tint } = useThemePalette();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
 
   const avatars = [
     require('@/assets/images/avatars/avatar1.jpg'),
@@ -70,6 +70,7 @@ export function useHomeScreen() {
   });
   const [petMilestones, setPetMilestones] = useState<PetMilestone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasIncompleteTask, setHasIncompleteTask] = useState(false);
 
   const role = user?.role?.toLowerCase();
   const isMemberWithoutTeam = role === 'member' && !user?.team_id;
@@ -79,6 +80,9 @@ export function useHomeScreen() {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
+        // Refresh user data to get latest streak and other fields
+        await refreshUser();
+
         const token = await getItem('userToken');
         if (!token) {
           setHasReport(false);
@@ -101,6 +105,21 @@ export function useHomeScreen() {
           }
         } else {
           setHasReport(false);
+        }
+
+        if (isMemberWithTeam) {
+          const incompleteResponse = await fetch(`${API_URL}/check-incomplete-tasks`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (incompleteResponse.ok) {
+            const data = await incompleteResponse.json();
+            setHasIncompleteTask(Boolean(data?.has_incomplete));
+          } else {
+            setHasIncompleteTask(false);
+          }
+        } else {
+          setHasIncompleteTask(false);
         }
 
         if (isMemberWithTeam) {
@@ -162,7 +181,7 @@ export function useHomeScreen() {
     };
     
     loadHomeData();
-  }, [isMemberWithTeam, role]);
+  }, [isMemberWithTeam, role, refreshUser]);
 
   const getDestination = () => {
     if (role === 'admin') return '/AdminRequest';
@@ -201,5 +220,6 @@ export function useHomeScreen() {
     getPetAssetByName,
     streak,
     loading,
+    hasIncompleteTask,
   };
 }

@@ -8,6 +8,7 @@ export const useReviewMember = () => {
   const { memberId } = useLocalSearchParams();
   const { tint } = useThemePalette();
   const [data, setData] = useState<any>(null);
+  const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const avatarSource = require('@/assets/images/avatars/avatar1.jpg');
@@ -15,8 +16,12 @@ export const useReviewMember = () => {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const response = await api.get(`/moderate/members/${memberId}/progress`);
-        setData(response.data);
+        const [progressRes, reportsRes] = await Promise.all([
+          api.get(`/moderate/members/${memberId}/progress`),
+          api.get(`/moderate/members/${memberId}/reports`)
+        ]);
+        setData(progressRes.data);
+        setReports(reportsRes.data.reports || []);
       } catch (error) {
         console.error("Failed to fetch progress:", error);
       } finally {
@@ -25,6 +30,13 @@ export const useReviewMember = () => {
     };
     if (memberId) fetchProgress();
   }, [memberId]);
+
+  const handleViewReport = (reportId: number) => {
+    router.push({
+      pathname: '/MiniReport',
+      params: { reportId: reportId.toString() }
+    });
+  };
 
   return {
     router,
@@ -38,5 +50,7 @@ export const useReviewMember = () => {
     activeModule: data?.activeModule || { title: 'N/A', progress: 0 },
     totalHours: data?.totalHours || 0,
     avgScore: data?.avgScore || 0,
+    reports,
+    handleViewReport,
   };
 };

@@ -16,13 +16,13 @@ export default function MiniReport() {
     tasks_completed: 0,
     tasks_by_day: {},
     daily_tasks: {
-      Mon: { completed: 0, task: "" },
-      Tue: { completed: 0, task: "" },
-      Wed: { completed: 0, task: "" },
-      Thu: { completed: 0, task: "" },
-      Fri: { completed: 0, task: "" },
-      Sat: { completed: 0, task: "" },
-      Sun: { completed: 0, task: "" }
+      Mon: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Tue: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Wed: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Thu: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Fri: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Sat: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 },
+      Sun: { completed: 0, task: "", is_incomplete: 0, auto_submitted: 0 }
     },
     week_start: '',
     week_end: ''
@@ -171,26 +171,38 @@ export default function MiniReport() {
               {reportData.day_labels.map((day, index) => {
                 const dayData = reportData.daily_tasks[day as keyof typeof reportData.daily_tasks];
                 const isCompleted = dayData.completed === 1;
+                const isIncomplete = dayData.is_incomplete === 1;
+                const isAutoSubmitted = dayData.auto_submitted === 1;
 
                 return (
                   <View key={index} className="flex-row items-start gap-3 p-3 bg-card rounded-lg border border-border/10">
 
-                    <View className={`w-8 h-8 rounded-lg items-center justify-center flex-shrink-0 ${isCompleted ? 'bg-primary' : 'bg-card border border-border/30'
+                    <View className={`w-8 h-8 rounded-lg items-center justify-center flex-shrink-0 ${isCompleted && !isIncomplete
+                      ? 'bg-primary'
+                      : isIncomplete
+                        ? 'bg-red-500/30 border border-red-500'
+                        : 'bg-card border border-border/30'
                       }`}>
-                      <Text className={`text-lg font-black ${isCompleted ? 'text-white' : 'text-foreground/30'
+                      <Text className={`text-lg font-black ${isCompleted && !isIncomplete
+                        ? 'text-white'
+                        : isIncomplete
+                          ? 'text-red-500'
+                          : 'text-foreground/30'
                         }`}>
-                        {isCompleted ? '✓' : '○'}
+                        {isCompleted && !isIncomplete ? '✓' : isIncomplete ? '✗' : '○'}
                       </Text>
                     </View>
 
 
                     <View className="flex-1 min-w-0">
                       <Text className="text-foreground/60 font-bold text-xs uppercase tracking-wide mb-1">
-                        {day}
+                        {day} {isAutoSubmitted && '(Auto-Submitted)'}
                       </Text>
-                      <Text className={`${isCompleted
+                      <Text className={`${isCompleted && !isIncomplete
                         ? 'text-foreground font-semibold'
-                        : 'text-foreground/50 italic'
+                        : isIncomplete
+                          ? 'text-red-500 font-semibold italic'
+                          : 'text-foreground/50 italic'
                         }`}>
                         {dayData.task || 'No task'}
                       </Text>

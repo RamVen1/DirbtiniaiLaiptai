@@ -38,3 +38,10 @@ def get_member_progress(user_id: int, current_user_id: str = Depends(get_current
         if not progress:
             raise HTTPException(status_code=404, detail="Member progress not found")
         return progress
+
+@router.get("/members/{user_id}/reports")
+def get_member_reports(user_id: int, current_user_id: str = Depends(get_current_user)):
+    """Get all weekly reports for a team member"""
+    with get_db() as conn:
+        reports = service.get_member_reports(conn, user_id)
+        return {"reports": reports}

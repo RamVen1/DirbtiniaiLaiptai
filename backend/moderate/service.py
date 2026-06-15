@@ -101,3 +101,23 @@ def get_user_detailed_progress(conn, user_id: int):
         "avgScore": avg_score,
         "totalHours": round(total_hours, 1)
     }
+
+def get_member_reports(conn: Connection, user_id: int):
+    """Get all weekly reports for a member"""
+    cursor = conn.execute("""
+        SELECT 
+            ID as id,
+            Week_Start as week_start,
+            Week_End as week_end,
+            Skill as skill,
+            Total_Tasks_Completed as tasks_completed,
+            Total_Practice_Hours as practice_hours,
+            Completed_At as completed_at,
+            Created_At as created_at
+        FROM Report
+        WHERE User_ID = ?
+        ORDER BY Week_Start DESC
+    """, (user_id,))
+    
+    reports = [dict(row) for row in cursor.fetchall()]
+    return reports

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { subDays, format, isSameDay } from 'date-fns';
+import { subDays, format, isSameDay, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 
 interface ContributionCalendarProps {
   completedDates: Date[];
@@ -9,57 +9,110 @@ interface ContributionCalendarProps {
 }
 
 export function ContributionCalendar({ completedDates, tint }: ContributionCalendarProps) {
-  const last90Days = Array.from({ length: 90 }, (_, i) => subDays(new Date(), 89 - i));
+  const today = new Date();
+  const start = subDays(today, 90);
+  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  // Get all days from start to today
+  const allDays = eachDayOfInterval({ start, end: today });
+
+  // Group into weeks (Monday to Sunday)
   const weeks: Date[][] = [];
-  for (let i = 0; i < last90Days.length; i += 7) {
-    weeks.push(last90Days.slice(i, i + 7));
+  let currentWeek: Date[] = [];
+
+  allDays.forEach(day => {
+    const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // If Monday (1) and we have days, start new week
+    if (dayOfWeek === 1 && currentWeek.length > 0) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+
+    currentWeek.push(day);
+  });
+
+  // Add remaining days
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
   }
 
   return (
     <View className="mt-4 mb-8">
-      <View className="flex-row items-center gap-2 mb-4">
-        <View className="w-4 h-[2px] bg-primary" />
-        <Text className="font-bold text-foreground">Activity (Last 90 Days)</Text>
-      </View>
+      <Text className="font-bold text-foreground mb-4">Activity (Last 90 Days)</Text>
 
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        className="flex-row"
-        contentContainerStyle={{ paddingBottom: 10 }}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="flex-col"
       >
-        <View className="flex-row gap-1.5">
-          {weeks.map((week, weekIndex) => (
-            <View key={`week-${weekIndex}`} className="gap-1.5">
-              {week.map((day) => {
-                const isCompleted = completedDates.some(d => isSameDay(d, day));
-                
+        {/* Day labels */}
+        <View className="flex-row mb-3">
+          <View className="w-12" />
+          <View className="flex-row gap-2">
+            {dayLabels.map((label) => (
+              <View key={label} className="w-10 h-10 items-center justify-center">
+                <Text className="text-[9px] font-bold text-foreground/60 uppercase">{label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Weeks */}
+        {weeks.map((week, weekIndex) => (
+          <View key={`week-${weekIndex}`} className="flex-row mb-3 items-start gap-2">
+            {/* Week number */}
+            <View className="w-12 h-10 items-center justify-center">
+              <Text className="text-[9px] font-bold text-foreground/40">W{weekIndex + 1}</Text>
+            </View>
+
+            {/* Days of week */}
+            <View className="flex-row gap-2">
+              {dayLabels.map((_, dayIndex) => {
+                const day = week[dayIndex];
+                const isCompleted = day ? completedDates.some(d => isSameDay(d, day)) : false;
+                const isToday = day ? isSameDay(day, today) : false;
+
                 return (
                   <View
-                    key={day.toISOString()}
+                    key={`${weekIndex}-${dayIndex}`}
+                    className={`w-10 h-10 rounded-lg items-center justify-center ${isToday ? 'border-2 border-primary' : 'border border-border/20'
+                      }`}
                     style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: 2,
-                      backgroundColor: isCompleted ? tint : '#27272a',
-                      opacity: isCompleted ? 1 : 0.3
+                      backgroundColor: day ? (isCompleted ? tint : '#27272a') : '#1a1a1a',
+                      opacity: day ? (isCompleted ? 1 : 0.3) : 0
                     }}
                   />
                 );
               })}
             </View>
-          ))}
-        </View>
+          </View>
+        ))}
       </ScrollView>
-      
-      <View className="flex-row justify-between mt-2">
-        <Text className="text-[10px] text-foreground/40 uppercase tracking-tighter">
-          {format(subDays(new Date(), 90), 'MMM d')}
-        </Text>
-        <Text className="text-[10px] text-foreground/40 uppercase tracking-tighter">
-          Today
-        </Text>
+
+      <View className="flex-row gap-3 mt-4 pt-3 border-t border-border/20">
+        <View className="flex-row items-center gap-2">
+          <View
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 2,
+              backgroundColor: tint,
+            }}
+          />
+          <Text className="text-xs text-foreground/60">Completed</Text>
+        </View>
+        <View className="flex-row items-center gap-2">
+          <View
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 2,
+              backgroundColor: '#27272a',
+              opacity: 0.3
+            }}
+          />
+          <Text className="text-xs text-foreground/60">Not Done</Text>
+        </View>
       </View>
     </View>
   );

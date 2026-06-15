@@ -37,6 +37,7 @@ export default function HomeScreen() {
     petMilestones,
     getPetAssetByName,
     streak,
+    hasIncompleteTask,
   } = useHomeScreen();
 
   const { opacity: heroOpacity, translateY: heroTranslateY } = useEntranceAnimation();
@@ -250,6 +251,23 @@ export default function HomeScreen() {
                       </View>
                     </View>
                   )}
+                </View>
+              )}
+
+              {hasIncompleteTask && (
+                <View className="bg-red-500/20 border border-red-500/50 rounded-3xl p-5">
+                  <View className="flex-row items-start gap-3">
+                    <Ionicons name="alert-circle" size={24} color="#ef4444" />
+                    <View className="flex-1">
+                      <Text className="text-red-600 font-bold text-base">Task Not Completed</Text>
+                      <Text className="text-red-600/80 text-sm mt-1">
+                        You didn't finish your task within 24 hours. Your streak has been reset to 0.
+                      </Text>
+                      <Text className="text-red-600/70 text-xs mt-2">
+                        Review your incomplete tasks in your reports to see what happened.
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               )}
 

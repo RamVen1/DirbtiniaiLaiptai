@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { useElapsedSeconds } from '@/hooks/use-elapsed-seconds';
 
-
 type DailyTaskResponse = {
   task?: string | null;
   dailyTask?: string | null;
@@ -18,9 +17,11 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
   const [dailyTaskError, setDailyTaskError] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isAutoCompleting, setIsAutoCompleting] = useState(false);
   const { elapsedSeconds, resetTimer } = useElapsedSeconds({ autoStart: true });
 
   const hasFetchedRef = useRef(false);
+  const autoCompleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -76,7 +77,21 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
 
   useEffect(() => {
     if (elapsedSeconds >= 86400) {
-      handleCompleteTask();
+      // Auto-complete with notification
+      setIsAutoCompleting(true);
+      
+      // Delay navigation to show the message
+      const timeout = setTimeout(() => {
+        handleAutoComplete();
+      }, 1500);
+      
+      autoCompleteTimeoutRef.current = timeout;
+      
+      return () => {
+        if (autoCompleteTimeoutRef.current) {
+          clearTimeout(autoCompleteTimeoutRef.current);
+        }
+      };
     }
   }, [elapsedSeconds]);
 
@@ -85,8 +100,33 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
     router.navigate('/task/active');
   };
 
+  const handleAutoComplete = async () => {
+    try {
+      const token = await getItem('userToken');
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/auto-complete-task`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        await resetTimer();
+        // Refresh user data to get updated streak
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      console.error('Auto-complete error:', error);
+      router.replace('/(tabs)');
+    }
+  };
+
   const handleDonePress = async () => {
-    if (isCompleting || !dailyTask || loadingDailyTask) return;
+    if (isCompleting || !dailyTask || loadingDailyTask || isAutoCompleting) return;
 
     setIsCompleting(true);
     setShowConfetti(true);
@@ -101,6 +141,7 @@ export function useDailyTask({ enabled = true }: { enabled?: boolean } = {}) {
     elapsedSeconds,
     showConfetti,
     isCompleting,
+    isAutoCompleting,
     handleCompleteTask,
     handleDonePress,
   };
